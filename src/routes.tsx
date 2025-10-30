@@ -1,27 +1,23 @@
 import MainDashboard from "views/admin/default";
-import Profile from "views/admin/profile";
-import SignIn from "views/auth/SignIn";
 
 import {
-  MdHome,                    // Beranda
-  MdFamilyRestroom,          // Kartu Keluarga
-  MdCardGiftcard,            // Bantuan
-  MdCategory,                // Jenis Bantuan
-  MdPeople,                  // Penerima Bantuan
-  MdWeb,                     // Manajemen Konten
-  MdArticle,                 // Layanan / Berita
-  MdStadium,                 // Fasilitas (olahraga, umum)
-  MdVisibility,              // Profile RW (Visi Misi)
-  MdBadge,                   // Pegawai RT/RW
-  MdForum,                   // Pengaduan (chat)
-  MdDescription,             // Template Surat
-  MdContactPhone,            // Kontak
-  MdAdminPanelSettings,      // Manajemen Admin
-  MdPerson,                  // Profile Akun
-  MdLock,                    // Sign In
-  MdDashboard,               // Dashboard (fallback)
+  MdAdminPanelSettings, // Manajemen Konten
+  MdArticle, // Profile RW (Visi Misi)
+  MdBadge, // Kartu Keluarga
+  MdCardGiftcard, // Bantuan
+  MdCategory, // Template Surat
+  MdContactPhone, // Sign In
+  MdDashboard, // Pengaduan (chat)
+  MdDescription, // Beranda
+  MdFamilyRestroom, // Pegawai RT/RW
+  MdForum,
+  MdHome, // Jenis Bantuan
+  MdPeople, // Layanan / Berita
+  MdStadium, // Penerima Bantuan
+  MdWeb
 } from "react-icons/md";
 
+import { IoMdGlobe } from "react-icons/io";
 import BeritaPage from "views/admin/berita";
 import DataKK from "views/admin/dataKK";
 import FasilitasPage from "views/admin/fasilitas";
@@ -117,10 +113,10 @@ const routes: any = [
         component: <FasilitasPage />,
       },
       {
-        name: "Profile RW",
+        name: "Biodata RW",
         layout: "/admin",
-        path: "profile-rw",
-        icon: <MdVisibility className="h-6 w-6" />,
+        path: "biodata-rw",
+        icon: <IoMdGlobe className="h-6 w-6" />,
         component: <VisiMisiPage />,
       },
       {
@@ -156,13 +152,6 @@ const routes: any = [
     component: <TemplateSurat />,
   },
   {
-    name: "Data Kontak",
-    layout: "/admin",
-    path: "kontak",
-    icon: <MdContactPhone className="h-6 w-6" />,
-    component: <KontakPage />,
-  },
-  {
     name: "Manajemen Admin",
     layout: "/admin",
     path: "akun",
@@ -170,18 +159,11 @@ const routes: any = [
     component: <AdminPage />,
   },
   {
-    name: "Profile Akun",
+    name: "Data Kontak RW",
     layout: "/admin",
-    path: "profile",
-    icon: <MdPerson className="h-6 w-6" />,
-    component: <Profile />,
-  },
-  {
-    name: "Sign In",
-    layout: "/auth",
-    path: "sign-in",
-    icon: <MdLock className="h-6 w-6" />,
-    component: <SignIn />,
+    path: "kontak",
+    icon: <MdContactPhone className="h-6 w-6" />,
+    component: <KontakPage />,
   },
 ];
 
