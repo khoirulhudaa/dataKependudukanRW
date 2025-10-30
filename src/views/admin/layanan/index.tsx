@@ -25,9 +25,31 @@ const LayananPage: React.FC = () => {
   const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
 
+  // Load dari localStorage atau gunakan data dummy jika kosong
   useEffect(() => {
     const saved = localStorage.getItem("layananList");
-    if (saved) setLayananList(JSON.parse(saved));
+    if (saved && JSON.parse(saved).length > 0) {
+      setLayananList(JSON.parse(saved));
+    } else {
+      // Data dummy jika belum ada
+      const dummyData: Layanan[] = [
+        {
+          id: "1",
+          nama: "Pengurusan KTP Baru",
+          deskripsi: "Layanan pembuatan KTP elektronik untuk warga baru atau yang belum memiliki KTP.",
+          thumbnail: "https://via.placeholder.com/400x200/10b981/ffffff?text=Pengurusan+KTP",
+          aktif: true,
+        },
+        {
+          id: "2",
+          nama: "Surat Keterangan Domisili",
+          deskripsi: "Penerbitan surat keterangan domisili untuk keperluan administrasi, sekolah, atau pekerjaan.",
+          thumbnail: "https://via.placeholder.com/400x200/6b7280/ffffff?text=Surat+Domisili",
+          aktif: false,
+        },
+      ];
+      setLayananList(dummyData);
+    }
   }, []);
 
   useEffect(() => {

@@ -16,10 +16,22 @@ const KontakPage: React.FC = () => {
   const [newValue, setNewValue] = useState("");
   const [newType, setNewType] = useState<Kontak["type"]>("phone");
 
-  // Load from localStorage
+  // Load dari localStorage atau gunakan data dummy jika kosong
   useEffect(() => {
     const saved = localStorage.getItem("kontakList");
-    if (saved) setKontakList(JSON.parse(saved));
+    if (saved && JSON.parse(saved).length > 0) {
+      setKontakList(JSON.parse(saved));
+    } else {
+      const dummyKontak: Kontak[] = [
+        { id: "1", type: "phone", label: "Ketua RW", value: "081234567890" },
+        { id: "2", type: "phone", label: "Sekretaris RW", value: "082345678901" },
+        { id: "3", type: "email", label: "Email Resmi", value: "rw001.cempakaputih@gmail.com" },
+        { id: "4", type: "whatsapp", label: "Grup Warga", value: "6281234567890" },
+        { id: "5", type: "facebook", label: "Facebook RW", value: "https://facebook.com/rw001cempaka" },
+        { id: "6", type: "address", label: "Alamat Kantor RW", value: "Jl. Cempaka Putih Raya No. 1, RT 001/RW 005, Jakarta Pusat" },
+      ];
+      setKontakList(dummyKontak);
+    }
   }, []);
 
   // Save to localStorage

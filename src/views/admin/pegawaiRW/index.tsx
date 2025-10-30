@@ -30,9 +30,43 @@ const PegawaiRWPage: React.FC = () => {
   const [fotoFile, setFotoFile] = useState<File | null>(null);
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
 
+  // Load dari localStorage atau gunakan data dummy jika kosong
   useEffect(() => {
     const saved = localStorage.getItem("pegawaiRWList");
-    if (saved) setPegawaiList(JSON.parse(saved));
+    if (saved && JSON.parse(saved).length > 0) {
+      setPegawaiList(JSON.parse(saved));
+    } else {
+      const dummyData: PegawaiRW[] = [
+        {
+          id: "1",
+          nama: "H. Ahmad Subardi",
+          jabatan: "Ketua RW",
+          telepon: "081234567890",
+          email: "ahmad.subardi@rw001.com",
+          aktif: true,
+          fotoUrl: "/pria1.jpg", // Pria
+        },
+        {
+          id: "2",
+          nama: "M. Rudi Hartono",
+          jabatan: "Sekretaris RW",
+          telepon: "082345678901",
+          email: "rudi.hartono@rw001.com",
+          aktif: true,
+          fotoUrl: "/pria2.jpg", // Pria
+        },
+        {
+          id: "3",
+          nama: "Drs. Slamet Riyadi",
+          jabatan: "Bendahara RW",
+          telepon: "083456789012",
+          email: "slamet.riyadi@rw001.com",
+          aktif: false,
+          fotoUrl: "/pria1.jpg", // Pria
+        },
+      ];
+      setPegawaiList(dummyData);
+    }
   }, []);
 
   useEffect(() => {

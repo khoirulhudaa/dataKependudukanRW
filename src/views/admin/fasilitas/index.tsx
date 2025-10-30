@@ -48,12 +48,42 @@ const FasilitasPage: React.FC = () => {
 
   const [mapCenter] = useState<LatLngExpression>([-6.2088, 106.8456]);
 
-  // === LOAD DATA ===
+  // Load dari localStorage atau gunakan data dummy jika kosong
   useEffect(() => {
     const fasilitas = localStorage.getItem("fasilitasList");
     const kategori = localStorage.getItem("kategoriFasilitasList");
-    if (fasilitas) setFasilitasList(JSON.parse(fasilitas));
-    if (kategori) setKategoriList(JSON.parse(kategori));
+
+    if (fasilitas && JSON.parse(fasilitas).length > 0) {
+      setFasilitasList(JSON.parse(fasilitas));
+    } else {
+      const dummyFasilitas: Fasilitas[] = [
+        {
+          id: "1",
+          nama: "Masjid Al-Hidayah",
+          kategori: "Tempat Ibadah",
+          jamOperasional: "24 Jam",
+          lat: -6.2088,
+          lng: 106.8456,
+          aktif: true,
+        },
+        {
+          id: "2",
+          nama: "Posyandu Melati",
+          kategori: "Kesehatan",
+          jamOperasional: "Setiap Selasa & Kamis, 08:00 - 12:00",
+          lat: -6.2100,
+          lng: 106.8470,
+          aktif: false,
+        },
+      ];
+      setFasilitasList(dummyFasilitas);
+    }
+
+    if (kategori && JSON.parse(kategori).length > 0) {
+      setKategoriList(JSON.parse(kategori));
+    } else {
+      setKategoriList(["Tempat Ibadah", "Kesehatan", "Pendidikan", "Olahraga"]);
+    }
   }, []);
 
   useEffect(() => {

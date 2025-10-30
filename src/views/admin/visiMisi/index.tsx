@@ -22,8 +22,16 @@ const VisiMisiPage: React.FC = () => {
 
   useEffect(() => {
     const saved = localStorage.getItem("profileRW");
-    if (saved) {
+    if (saved && JSON.parse(saved).length > 0) {
       setProfile(JSON.parse(saved));
+    } else {
+      const dummyProfile: Profile = {
+        deskripsi: "RW 001 adalah salah satu rukun warga di Kelurahan Cempaka Putih, Jakarta Pusat. Kami memiliki 450 KK dengan total 1.800 jiwa. RW ini dikenal dengan kebersamaan dan gotong royong antar warga.",
+        letakGeografis: "Terletak di Jl. Percetakan Negara, berbatasan dengan RW 002 di sebelah timur, Jl. Letjen Suprapto di utara, dan Sungai Ciliwung di selatan.",
+        visi: "Menjadi RW yang maju, bersih, aman, dan sejahtera dengan partisipasi aktif seluruh warga.",
+        misi: "1. Meningkatkan kebersihan dan keindahan lingkungan\n2. Mengembangkan program kesehatan dan pendidikan\n3. Mempererat silaturahmi antar warga\n4. Memberdayakan potensi ekonomi lokal",
+      };
+      setProfile(dummyProfile);
     }
   }, []);
 

@@ -25,10 +25,30 @@ const JenisBantuanPage: React.FC = () => {
   });
 
   // Load dari localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem("jenisBantuanList");
-    if (saved) setJenisList(JSON.parse(saved));
-  }, []);
+ // Load dari localStorage atau gunakan data dummy jika kosong
+useEffect(() => {
+  const saved = localStorage.getItem("jenisBantuanList");
+  if (saved && JSON.parse(saved).length > 0) {
+    setJenisList(JSON.parse(saved));
+  } else {
+    // Data dummy jika belum ada
+    const dummyData: JenisBantuan[] = [
+      {
+        id: "1",
+        nama: "Bantuan Pangan",
+        deskripsi: "Bantuan berupa sembako, beras, minyak, dan kebutuhan pokok lainnya untuk warga kurang mampu.",
+        aktif: true,
+      },
+      {
+        id: "2",
+        nama: "Bantuan Kesehatan",
+        deskripsi: "Bantuan berupa obat-obatan, biaya rumah sakit, atau alat kesehatan untuk warga sakit.",
+        aktif: false,
+      },
+    ];
+    setJenisList(dummyData);
+  }
+}, []);
 
   // Save ke localStorage
   useEffect(() => {

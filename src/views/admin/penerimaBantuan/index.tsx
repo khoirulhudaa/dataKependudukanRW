@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react";
-import Widget from "components/widget/Widget";
 import Card from "components/card";
-import { MdPeople, MdAdd, MdEdit, MdDelete, MdSearch } from "react-icons/md";
+import Widget from "components/widget/Widget";
+import React, { useEffect, useMemo, useState } from "react";
+import { MdAdd, MdDelete, MdEdit, MdPeople, MdSearch } from "react-icons/md";
 
 // === TIPE DATA ===
 type KtpItem = {
@@ -52,10 +52,37 @@ const PenerimaBantuan: React.FC = () => {
     status: "Diproses",
   });
 
-  // Load dari localStorage
+  // Load dari localStorage atau gunakan data dummy jika kosong
   useEffect(() => {
     const saved = localStorage.getItem("bantuanList");
-    if (saved) setBantuanList(JSON.parse(saved));
+    if (saved && JSON.parse(saved).length > 0) {
+      setBantuanList(JSON.parse(saved));
+    } else {
+      // Data dummy jika belum ada
+      const dummyData: BantuanItem[] = [
+        {
+          id: "1",
+          nik: "3275010101900001",
+          nama: "Ahmad Fauzi",
+          rt: "01",
+          rw: "001",
+          jenisBantuan: "Bantuan Pangan",
+          tanggal: "2025-10-15",
+          status: "Diterima",
+        },
+        {
+          id: "2",
+          nik: "3275014102900002",
+          nama: "Siti Aisyah",
+          rt: "01",
+          rw: "001",
+          jenisBantuan: "Bantuan Kesehatan",
+          tanggal: "2025-10-28",
+          status: "Diproses",
+        },
+      ];
+      setBantuanList(dummyData);
+    }
   }, []);
 
   // Save ke localStorage

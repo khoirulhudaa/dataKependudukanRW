@@ -33,9 +33,55 @@ const PegawaiRTPage: React.FC = () => {
     bendaharaNama: "", bendaharaTelepon: "", bendaharaAktif: true, bendaharaFoto: null as File | null, bendaharaFotoUrl: null as string | null,
   });
 
+  // Load dari localStorage atau gunakan data dummy jika kosong
   useEffect(() => {
     const saved = localStorage.getItem("pegawaiRTList");
-    if (saved) setRtList(JSON.parse(saved));
+    if (saved && JSON.parse(saved).length > 0) {
+      setRtList(JSON.parse(saved));
+    } else {
+      const dummyData: PegawaiRT[] = [
+        {
+          id: "1",
+          nomorRT: "RT 01",
+          ketua: {
+            nama: "Budi Santoso",
+            telepon: "081234567890",
+            aktif: true,
+            fotoUrl: "/pria1.jpg", // Pria
+          },
+          sekretaris: {
+            nama: "Ahmad Fauzi",
+            telepon: "082345678901",
+            aktif: true,
+            fotoUrl: "/pria2.jpg", // Pria
+          },
+          bendahara: {
+            nama: "Joko Widodo",
+            telepon: "083456789012",
+            aktif: false,
+            fotoUrl: "/pria1.jpg", // Pria
+          },
+        },
+        {
+          id: "2",
+          nomorRT: "RT 02",
+          ketua: {
+            nama: "Joko Widodo",
+            telepon: "081987654321",
+            aktif: true,
+            fotoUrl: "https://i.pravatar.cc/150?img=12",
+          },
+          sekretaris: {
+            nama: "Rina Susanti",
+            telepon: "082198765432",
+            aktif: true,
+            fotoUrl: "https://i.pravatar.cc/150?img=8",
+          },
+          bendahara: undefined,
+        },
+      ];
+      setRtList(dummyData);
+    }
   }, []);
 
   useEffect(() => {

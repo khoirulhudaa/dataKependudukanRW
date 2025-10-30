@@ -29,11 +29,55 @@ const PengaduanPage: React.FC = () => {
     status: "Menunggu" as Pengaduan["status"],
   });
 
-  // Load dari localStorage
+  // Load dari localStorage atau gunakan data dummy jika kosong
   useEffect(() => {
     const saved = localStorage.getItem("pengaduanList");
-    if (saved) {
+    if (saved && JSON.parse(saved).length > 0) {
       setPengaduanList(JSON.parse(saved));
+    } else {
+      // Tambahkan dummy dataKTP jika belum ada
+      const ktpData = localStorage.getItem("dataKTP");
+      if (!ktpData) {
+        const dummyKTP = [
+          { nik: "3275010101900001", nama: "Ahmad Subardi", alamat: "Jl. Cempaka No. 1" },
+          { nik: "3275010202850002", nama: "Siti Nurhaliza", alamat: "Jl. Melati No. 5" },
+          { nik: "3275010303800003", nama: "Rudi Hartono", alamat: "Jl. Anggrek No. 10" },
+        ];
+        localStorage.setItem("dataKTP", JSON.stringify(dummyKTP));
+      }
+
+      const dummyPengaduan: Pengaduan[] = [
+        {
+          id: "1",
+          nik: "3275010101900001",
+          nama: "Ahmad Subardi",
+          judul: "Jalan Rusak di Depan Rumah",
+          isi: "Jalan depan rumah saya berlubang dan sangat berbahaya bagi anak-anak. Mohon segera diperbaiki.",
+          status: "Diproses",
+          tanggalLapor: "2025-10-25",
+          tanggalSelesai: undefined,
+        },
+        {
+          id: "2",
+          nik: "3275010202850002",
+          nama: "Siti Nurhaliza",
+          judul: "Lampu Jalan Mati",
+          isi: "Lampu jalan di gang sebelah rumah sudah 3 hari mati. Malam hari sangat gelap dan rawan kecelakaan.",
+          status: "Menunggu",
+          tanggalLapor: "2025-10-28",
+        },
+        {
+          id: "3",
+          nik: "3275010303800003",
+          nama: "Rudi Hartono",
+          judul: "Sampah Menumpuk di Pojok Gang",
+          isi: "Sampah sudah 1 minggu tidak diangkut. Bau dan lalat mulai mengganggu. Tolong segera ditangani.",
+          status: "Selesai",
+          tanggalLapor: "2025-10-20",
+          tanggalSelesai: "2025-10-23",
+        },
+      ];
+      setPengaduanList(dummyPengaduan);
     }
   }, []);
 

@@ -47,7 +47,29 @@ const AdminPage: React.FC = () => {
   // Load dari localStorage
   useEffect(() => {
     const saved = localStorage.getItem("adminList");
-    if (saved) setAdminList(JSON.parse(saved));
+    if (saved && JSON.parse(saved).length > 0) {
+      setAdminList(JSON.parse(saved));
+    } else {
+      const dummyData: Admin[] = [
+        {
+          id: "1",
+          nama: "Ahmad Fauzi",
+          email: "ahmad@rw01.com",
+          noHp: "081234567890",
+          role: "Superadmin",
+          aktif: true,
+        },
+        {
+          id: "2",
+          nama: "Siti Nurhaliza",
+          email: "siti.rt02@rw01.com",
+          noHp: "085678901234",
+          role: "Ketua RT",
+          aktif: false,
+        },
+      ];
+      setAdminList(dummyData);
+    }
   }, []);
 
   // Simpan ke localStorage
@@ -155,7 +177,7 @@ const AdminPage: React.FC = () => {
             <MdPeople className="h-6 w-6" />
           </div>
           <h3 className="text-xl font-bold text-navy-700 dark:text-white">
-            Kelola Admin RW
+            Kelola Admin Data
           </h3>
         </div>
         <button

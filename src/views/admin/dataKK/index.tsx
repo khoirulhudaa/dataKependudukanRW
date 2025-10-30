@@ -744,10 +744,12 @@ const DataKK: React.FC = () => {
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={resetFormKK} />
           <div className="relative z-10 w-full max-w-2xl mx-4">
             <Card extra="p-6 rounded-2xl shadow-2xl bg-white dark:bg-navy-800">
-              <h3 className="mb-5 text-xl font-bold text-navy-700 dark:text-white">{editKK ? "Edit" : "Tambah"} KK</h3>
+              <h3 className="mb-5 text-xl font-bold text-navy-700 dark:text-white">{editKK ? "Edit" : "Tambah"} Kartu Keluarga</h3>
               <div className="space-y-4">
-                <input placeholder="No KK" value={formKK.noKK} onChange={e => setFormKK({ ...formKK, noKK: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
-                <input placeholder="Kepala Keluarga" value={formKK.kepalaKeluarga} onChange={e => setFormKK({ ...formKK, kepalaKeluarga: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
+                <div className="gap-3 md:grid grid-cols-2">
+                  <input placeholder="No KK" value={formKK.noKK} onChange={e => setFormKK({ ...formKK, noKK: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
+                  <input placeholder="Kepala Keluarga" value={formKK.kepalaKeluarga} onChange={e => setFormKK({ ...formKK, kepalaKeluarga: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
+                </div>
                 <input placeholder="Alamat" value={formKK.alamat} onChange={e => setFormKK({ ...formKK, alamat: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
                 <div className="grid grid-cols-2 gap-3">
                   <input placeholder="RT" value={formKK.rt} onChange={e => setFormKK({ ...formKK, rt: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white" />

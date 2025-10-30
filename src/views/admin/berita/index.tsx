@@ -29,7 +29,29 @@ const BeritaPage: React.FC = () => {
   // Load dari localStorage
   useEffect(() => {
     const saved = localStorage.getItem("beritaList");
-    if (saved) setBeritaList(JSON.parse(saved));
+    if (saved && JSON.parse(saved).length > 0) {
+      setBeritaList(JSON.parse(saved));
+    } else {
+      const dummyData: Berita[] = [
+        {
+          id: "1",
+          judul: "Pembukaan Posko Bantuan Banjir RW 001",
+          isi: "Dalam rangka penanganan banjir yang melanda wilayah RW 001, kami membuka posko bantuan di Balai RW. Warga diimbau untuk melapor jika membutuhkan bantuan pangan atau tempat pengungsian sementara.",
+          thumbnail: "https://via.placeholder.com/600x300/ef4444/ffffff?text=Posko+Bantuan+Banjir",
+          tanggal: "2025-10-20",
+          aktif: true,
+        },
+        {
+          id: "2",
+          judul: "Jadwal Gotong Royong Mingguan",
+          isi: "Setiap Sabtu pukul 07.00 WIB, seluruh warga RW 001 diharapkan ikut serta dalam kegiatan gotong royong membersihkan lingkungan. Mari jaga kebersihan dan keindahan kampung kita bersama.",
+          thumbnail: "https://via.placeholder.com/600x300/10b981/ffffff?text=Gotong+Royong",
+          tanggal: "2025-10-18",
+          aktif: false,
+        },
+      ];
+      setBeritaList(dummyData);
+    }
   }, []);
 
   useEffect(() => {
