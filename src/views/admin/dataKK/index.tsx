@@ -928,9 +928,9 @@ const DataKK: React.FC = () => {
       {showModalBantuan && selectedAnggota && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="absolute inset-0 bg-black backdrop-blur-md" onClick={() => setShowModalBantuan(false)} />
-          <Card extra="w-full max-w-md p-6 rounded-2xl shadow-xl">
+          <Card extra="w-full max-w-md p-6 rounded-2xl shadow-xl relative z-10">
             <h3 className="mb-4 text-xl font-bold text-navy-700 dark:text-white">Tag Bantuan - {selectedAnggota.nama}</h3>
-            <div className="space-y-2">
+            <div className="space-y-2 mb-6">
               {DAFTAR_BANTUAN.map(b => (
                 <label key={b.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-navy-700 cursor-pointer">
                   <input
@@ -949,6 +949,20 @@ const DataKK: React.FC = () => {
                   <span className="text-sm">{b.nama}</span>
                 </label>
               ))}
+            </div>
+            <div className="flex gap-3 justify-end border-t border-gray-200 dark:border-navy-600 pt-4">
+              <button 
+                onClick={() => setShowModalBantuan(false)} 
+                className="rounded-xl border border-gray-300 px-5 py-2.5 text-gray-700 hover:bg-gray-50 dark:border-navy-600 dark:text-white font-medium"
+              >
+                Batal
+              </button>
+              <button 
+                onClick={saveBantuan} 
+                className="rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 px-5 py-2.5 text-white font-medium shadow-md hover:shadow-lg"
+              >
+                Simpan
+              </button>
             </div>
           </Card>
         </div>

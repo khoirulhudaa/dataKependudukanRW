@@ -1,133 +1,25 @@
-
-// // Admin Imports
-// import MainDashboard from "views/admin/default";
-// import Profile from "views/admin/profile";
-
-// // Auth Imports
-// import SignIn from "views/auth/SignIn";
-
-// // Icon Imports
-// import {
-//   MdBackHand,
-//   MdCardMembership,
-//   MdChat,
-//   MdCreditScore,
-//   MdFlag,
-//   MdHandyman,
-//   MdHome,
-//   MdHouse,
-//   MdLock,
-//   MdPerson
-// } from "react-icons/md";
-// import DataKK from "views/admin/dataKK";
-// import DataKTP from "views/admin/dataKTP";
-// import KelurahanPage from "views/admin/dataKelurahan";
-// import JenisBantuanPage from "views/admin/jenisBantuan";
-// import PenerimaBantuan from "views/admin/penerimaBantuan";
-// import PengaduanPage from "views/admin/pengaduan";
-// import ProvinsiPage from "views/admin/provinsi";
-
-// const routes = [
-//   {
-//     name: "Main Dashboard",
-//     layout: "/admin",
-//     path: "default",
-//     icon: <MdHome className="h-6 w-6" />,
-//     component: <MainDashboard />,
-//   },
-//   {
-//     name: "Kartu Keluarga",
-//     layout: "/admin",
-//     icon: <MdCardMembership className="h-6 w-6" />,
-//     path: "data-kartu-keluarga",
-//     component: <DataKK />,
-//   },
-//   {
-//     name: "Kartu Tanda Penduduk",
-//     layout: "/admin",
-//     icon: <MdCreditScore className="h-6 w-6" />,
-//     path: "data-kartu-tanda-penduduk",
-//     component: <DataKTP />,
-//   },
-//   {
-//     name: "Jenis Bantuan",
-//     layout: "/admin",
-//     icon: <MdHandyman className="h-6 w-6" />,
-//     path: "jenis-bantuan",
-//     component: <JenisBantuanPage />,
-//   },
-//   {
-//     name: "Penerima Bantuan",
-//     layout: "/admin",
-//     icon: <MdBackHand className="h-6 w-6" />,
-//     path: "penerima-bantuan",
-//     component: <PenerimaBantuan />,
-//   },
-//   {
-//     name: "Data Kelurahan",
-//     layout: "/admin",
-//     icon: <MdHouse className="h-6 w-6" />,
-//     path: "kelurahan",
-//     component: <KelurahanPage />,
-//   },
-//   {
-//     name: "Data Provinsi",
-//     layout: "/admin",
-//     icon: <MdFlag className="h-6 w-6" />,
-//     path: "provinsi",
-//     component: <ProvinsiPage />,
-//   },
-//   {
-//     name: "Data Pengaduan",
-//     layout: "/admin",
-//     icon: <MdChat className="h-6 w-6" />,
-//     path: "pengaduan",
-//     component: <PengaduanPage />,
-//   },
-//   {
-//     name: "Profile",
-//     layout: "/admin",
-//     path: "profile",
-//     icon: <MdPerson className="h-6 w-6" />,
-//     component: <Profile />,
-//   },
-//   {
-//     name: "Sign In",
-//     layout: "/auth",
-//     path: "sign-in",
-//     icon: <MdLock className="h-6 w-6" />,
-//     component: <SignIn />,
-//   },
-// ];
-// export default routes;
-
-
-
-
-// routes.ts
 import MainDashboard from "views/admin/default";
 import Profile from "views/admin/profile";
 import SignIn from "views/auth/SignIn";
 
 import {
-  MdAddCard,
-  MdBackHand,
-  MdBarChart,
-  MdCardMembership,
-  MdChat,
-  MdFilePresent,
-  MdHome,
-  MdKey,
-  MdLock,
-  MdMan,
-  MdMenu,
-  MdNewspaper,
-  MdNumbers,
-  MdPerson,
-  MdPictureAsPdf,
-  MdSportsBaseball,
-  MdVisibility,
-  MdWeb
+  MdHome,                    // Beranda
+  MdFamilyRestroom,          // Kartu Keluarga
+  MdCardGiftcard,            // Bantuan
+  MdCategory,                // Jenis Bantuan
+  MdPeople,                  // Penerima Bantuan
+  MdWeb,                     // Manajemen Konten
+  MdArticle,                 // Layanan / Berita
+  MdStadium,                 // Fasilitas (olahraga, umum)
+  MdVisibility,              // Profile RW (Visi Misi)
+  MdBadge,                   // Pegawai RT/RW
+  MdForum,                   // Pengaduan (chat)
+  MdDescription,             // Template Surat
+  MdContactPhone,            // Kontak
+  MdAdminPanelSettings,      // Manajemen Admin
+  MdPerson,                  // Profile Akun
+  MdLock,                    // Sign In
+  MdDashboard,               // Dashboard (fallback)
 } from "react-icons/md";
 
 import BeritaPage from "views/admin/berita";
@@ -141,12 +33,11 @@ import PegawaiRTPage from "views/admin/pegawaiRT";
 import PegawaiRWPage from "views/admin/pegawaiRW";
 import PenerimaBantuan from "views/admin/penerimaBantuan";
 import PengaduanPage from "views/admin/pengaduan";
-import StatistikPage from "views/admin/statistik";
 import TemplateSurat from "views/admin/templateSurat";
 import VisiMisiPage from "views/admin/visiMisi";
-import SignUp from "views/auth/SignUp";
 
-const routes: any[] = [
+const routes: any = [
+  // ==================== DASHBOARD ====================
   {
     name: "Halaman Utama",
     layout: "/admin",
@@ -154,149 +45,128 @@ const routes: any[] = [
     icon: <MdHome className="h-6 w-6" />,
     component: <MainDashboard />,
   },
-  // ==================== MENU DENGAN SUBMENU ====================
+
+  // ==================== DATA MASTER ====================
   {
     name: "Data Master",
     layout: "/admin",
-    path: "data-master",                 // tidak wajib diklik
-    icon: <MdCardMembership className="h-6 w-6" />,
+    path: "data-master", // hanya sebagai anchor
+    icon: <MdDashboard className="h-6 w-6" />,
     subRoutes: [
       {
         name: "Kartu Keluarga",
         layout: "/admin",
         path: "data-kartu-keluarga",
-        icon: <MdFilePresent className="h-6 w-6" />,
+        icon: <MdFamilyRestroom className="h-6 w-6" />,
         component: <DataKK />,
       },
-      // {
-      //   name: "Statistik",
-      //   layout: "/admin",
-      //   icon: <MdBarChart className="h-6 w-6" />,
-      //   path: "statistik",
-      //   component: <StatistikPage />,
-      // },
-      // {
-      //   name: "KTP",
-      //   layout: "/admin",
-      //   path: "data-kartu-tanda-penduduk",
-      //   icon: <MdFilePresent className="h-6 w-6" />,
-      //   component: <DataKTP />,
-      // },
-      // {
-      //   name: "Kelurahan",
-      //   layout: "/admin",
-      //   path: "kelurahan",
-      //   icon: <MdFilePresent className="h-6 w-6" />,
-      //   component: <KelurahanPage />,
-      // },
-      // {
-      //   name: "Provinsi",
-      //   layout: "/admin",
-      //   path: "provinsi",
-      //   icon: <MdFilePresent className="h-6 w-6" />,
-      //   component: <ProvinsiPage />,
-      // },
+      // Tambahkan KTP, Akta, dll nanti di sini
     ],
   },
+
+  // ==================== BANTUAN KELURAHAN ====================
   {
     name: "Bantuan Kelurahan",
     layout: "/admin",
-    path: "data-master",                 // tidak wajib diklik
-    icon: <MdCardMembership className="h-6 w-6" />,
+    path: "bantuan-kelurahan",
+    icon: <MdCardGiftcard className="h-6 w-6" />,
     subRoutes: [
       {
         name: "Jenis Bantuan",
         layout: "/admin",
-        icon: <MdMenu className="h-6 w-6" />,
         path: "jenis-bantuan",
+        icon: <MdCategory className="h-6 w-6" />,
         component: <JenisBantuanPage />,
       },
       {
         name: "Penerima",
         layout: "/admin",
-        icon: <MdBackHand className="h-6 w-6" />,
         path: "penerima-bantuan",
+        icon: <MdPeople className="h-6 w-6" />,
         component: <PenerimaBantuan />,
       },
     ],
   },
+
+  // ==================== MANAJEMEN KONTEN ====================
   {
     name: "Manajemen Konten",
     layout: "/admin",
-    path: "manajemen-konten",                 // tidak wajib diklik
+    path: "manajemen-konten",
     icon: <MdWeb className="h-6 w-6" />,
     subRoutes: [
       {
         name: "Layanan",
         layout: "/admin",
-        icon: <MdMenu className="h-6 w-6" />,
         path: "layanan",
+        icon: <MdArticle className="h-6 w-6" />,
         component: <LayananPage />,
       },
       {
         name: "Berita",
         layout: "/admin",
-        icon: <MdNewspaper className="h-6 w-6" />,
         path: "berita",
+        icon: <MdArticle className="h-6 w-6" />,
         component: <BeritaPage />,
       },
       {
         name: "Fasilitas",
         layout: "/admin",
-        icon: <MdSportsBaseball className="h-6 w-6" />,
-        path: "fasilitias",
+        path: "fasilitas",
+        icon: <MdStadium className="h-6 w-6" />,
         component: <FasilitasPage />,
       },
       {
         name: "Profile RW",
         layout: "/admin",
+        path: "profile-rw",
         icon: <MdVisibility className="h-6 w-6" />,
-        path: "profile-RW",
         component: <VisiMisiPage />,
       },
       {
         name: "Pegawai RT",
         layout: "/admin",
-        icon: <MdAddCard className="h-6 w-6" />,
-        path: "data-pegawai-RT",
+        path: "data-pegawai-rt",
+        icon: <MdBadge className="h-6 w-6" />,
         component: <PegawaiRTPage />,
       },
       {
         name: "Pegawai RW",
         layout: "/admin",
-        icon: <MdAddCard className="h-6 w-6" />,
-        path: "data-pegawai-RW",
+        path: "data-pegawai-rw",
+        icon: <MdBadge className="h-6 w-6" />,
         component: <PegawaiRWPage />,
       },
     ],
   },
-  // ==================== MENU LAIN ====================
+
+  // ==================== MENU UTAMA LAINNYA ====================
   {
     name: "Data Pengaduan",
     layout: "/admin",
-    icon: <MdChat className="h-6 w-6" />,
     path: "pengaduan",
+    icon: <MdForum className="h-6 w-6" />,
     component: <PengaduanPage />,
   },
   {
     name: "Template Surat",
     layout: "/admin",
-    icon: <MdPictureAsPdf className="h-6 w-6" />,
     path: "template-surat",
+    icon: <MdDescription className="h-6 w-6" />,
     component: <TemplateSurat />,
   },
   {
     name: "Data Kontak",
     layout: "/admin",
-    icon: <MdNumbers className="h-6 w-6" />,
     path: "kontak",
+    icon: <MdContactPhone className="h-6 w-6" />,
     component: <KontakPage />,
   },
   {
     name: "Manajemen Admin",
     layout: "/admin",
-    icon: <MdMan className="h-6 w-6" />,
     path: "akun",
+    icon: <MdAdminPanelSettings className="h-6 w-6" />,
     component: <AdminPage />,
   },
   {
@@ -312,13 +182,6 @@ const routes: any[] = [
     path: "sign-in",
     icon: <MdLock className="h-6 w-6" />,
     component: <SignIn />,
-  },
-  {
-    name: "Sign Up",
-    layout: "/auth",
-    path: "sign-up",
-    icon: <MdKey className="h-6 w-6" />,
-    component: <SignUp />,
   },
 ];
 

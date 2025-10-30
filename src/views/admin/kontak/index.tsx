@@ -168,9 +168,9 @@ const KontakPage: React.FC = () => {
       </div>
 
       {/* Daftar Kontak – Full Form Inline Edit */}
-      <div className={`gap-4 grid ${kontakList.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+      <div className={`gap-4 grid ${kontakList.length === 1 ? 'grid-cols-1' : kontakList.length === 0 ? 'grid-cols-1' : 'grid-cols-2'}`}>
         {kontakList.length === 0 ? (
-          <div className="text-center py-16 text-gray-500 dark:text-gray-400">
+          <div className="w-full flex items-center justify-center flex-col text-center py-16 text-gray-500 dark:text-gray-400">
             <MdPhone className="mx-auto h-16 w-16 mb-3 text-gray-300 dark:text-gray-600" />
             <p>Belum ada kontak. Tambahkan kontak pertama Anda!</p>
           </div>
