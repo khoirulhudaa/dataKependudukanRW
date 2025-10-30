@@ -115,46 +115,36 @@ import {
   MdBarChart,
   MdCardMembership,
   MdChat,
-  MdEmail,
   MdFilePresent,
-  MdHandyman,
   MdHome,
   MdKey,
   MdLock,
+  MdMan,
   MdMenu,
   MdNewspaper,
   MdNumbers,
   MdPerson,
-  MdPhone,
   MdPictureAsPdf,
-  MdSend,
-  MdSports,
   MdSportsBaseball,
-  MdSportsBasketball,
-  MdSportsCricket,
-  MdSportsFootball,
-  MdSportsTennis,
   MdVisibility,
   MdWeb
 } from "react-icons/md";
 
+import BeritaPage from "views/admin/berita";
 import DataKK from "views/admin/dataKK";
-import DataKTP from "views/admin/dataKTP";
-import KelurahanPage from "views/admin/dataKelurahan";
+import FasilitasPage from "views/admin/fasilitas";
 import JenisBantuanPage from "views/admin/jenisBantuan";
+import KontakPage from "views/admin/kontak";
+import LayananPage from "views/admin/layanan";
+import AdminPage from "views/admin/manajemenAdmin";
+import PegawaiRTPage from "views/admin/pegawaiRT";
+import PegawaiRWPage from "views/admin/pegawaiRW";
 import PenerimaBantuan from "views/admin/penerimaBantuan";
 import PengaduanPage from "views/admin/pengaduan";
-import ProvinsiPage from "views/admin/provinsi";
-import SignUp from "views/auth/SignUp";
-import BeritaPage from "views/admin/berita";
-import LayananPage from "views/admin/layanan";
-import PegawaiRWPage from "views/admin/pegawaiRW";
-import PegawaiRTPage from "views/admin/pegawaiRT";
-import VisiMisiPage from "views/admin/visiMisi";
-import KontakPage from "views/admin/kontak";
 import StatistikPage from "views/admin/statistik";
-import FasilitasPage from "views/admin/fasilitas";
 import TemplateSurat from "views/admin/templateSurat";
+import VisiMisiPage from "views/admin/visiMisi";
+import SignUp from "views/auth/SignUp";
 
 const routes: any[] = [
   {
@@ -178,13 +168,13 @@ const routes: any[] = [
         icon: <MdFilePresent className="h-6 w-6" />,
         component: <DataKK />,
       },
-      {
-        name: "Statistik",
-        layout: "/admin",
-        icon: <MdBarChart className="h-6 w-6" />,
-        path: "statistik",
-        component: <StatistikPage />,
-      },
+      // {
+      //   name: "Statistik",
+      //   layout: "/admin",
+      //   icon: <MdBarChart className="h-6 w-6" />,
+      //   path: "statistik",
+      //   component: <StatistikPage />,
+      // },
       // {
       //   name: "KTP",
       //   layout: "/admin",
@@ -192,20 +182,20 @@ const routes: any[] = [
       //   icon: <MdFilePresent className="h-6 w-6" />,
       //   component: <DataKTP />,
       // },
-      {
-        name: "Kelurahan",
-        layout: "/admin",
-        path: "kelurahan",
-        icon: <MdFilePresent className="h-6 w-6" />,
-        component: <KelurahanPage />,
-      },
-      {
-        name: "Provinsi",
-        layout: "/admin",
-        path: "provinsi",
-        icon: <MdFilePresent className="h-6 w-6" />,
-        component: <ProvinsiPage />,
-      },
+      // {
+      //   name: "Kelurahan",
+      //   layout: "/admin",
+      //   path: "kelurahan",
+      //   icon: <MdFilePresent className="h-6 w-6" />,
+      //   component: <KelurahanPage />,
+      // },
+      // {
+      //   name: "Provinsi",
+      //   layout: "/admin",
+      //   path: "provinsi",
+      //   icon: <MdFilePresent className="h-6 w-6" />,
+      //   component: <ProvinsiPage />,
+      // },
     ],
   },
   {
@@ -301,6 +291,13 @@ const routes: any[] = [
     icon: <MdNumbers className="h-6 w-6" />,
     path: "kontak",
     component: <KontakPage />,
+  },
+  {
+    name: "Manajemen Admin",
+    layout: "/admin",
+    icon: <MdMan className="h-6 w-6" />,
+    path: "akun",
+    component: <AdminPage />,
   },
   {
     name: "Profile Akun",

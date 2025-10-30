@@ -228,12 +228,6 @@ const defaultColumns: ColumnDef<any, any>[] = [
       </div>
     ),
   }),
-  // Kolom ACTION (opsional)
-  columnHelper.display({
-    id: "action",
-    header: () => <p className="text-sm font-bold text-gray-600 dark:text-white">AKSI</p>,
-    cell: (info) => info.row.original.action || null,
-  }),
 ];
 
 // === KOMPONEN UTAMA ===
