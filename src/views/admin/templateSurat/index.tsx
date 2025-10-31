@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react";
-import Widget from "components/widget/Widget";
 import Card from "components/card";
-import { MdMail, MdAdd, MdEdit, MdDelete, MdSearch, MdCheck, MdClose, MdHourglassEmpty } from "react-icons/md";
+import Widget from "components/widget/Widget";
+import React, { useEffect, useMemo, useState } from "react";
+import { MdAdd, MdCheck, MdDelete, MdEdit, MdHourglassEmpty, MdMail, MdSearch } from "react-icons/md";
 
 // === TIPE DATA ===
 type StatusPengajuan = "Menunggu" | "Diproses" | "Disetujui" | "Ditolak";

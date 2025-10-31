@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useMemo } from "react";
-import Widget from "components/widget/Widget";
 import Card from "components/card";
-import { MdCategory, MdAdd, MdEdit, MdDelete, MdSearch } from "react-icons/md";
+import React, { useEffect, useMemo, useState } from "react";
+import { MdAdd, MdCategory, MdDelete, MdEdit, MdSearch } from "react-icons/md";
 
 // === TIPE DATA ===
 type JenisBantuan = {

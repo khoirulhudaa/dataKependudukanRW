@@ -1,7 +1,6 @@
 // src/components/AnggotaDetail.tsx
-import React, { useState, useEffect } from "react";
-import { MdArrowBack, MdSave, MdExpandMore, MdExpandLess } from "react-icons/md";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { MdExpandLess, MdExpandMore, MdSave } from "react-icons/md";
 
 const ARSIP_RT: string[] = [
   "KTP",

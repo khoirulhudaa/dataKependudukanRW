@@ -36,8 +36,6 @@ type KtpKkItem = {
   jenis_kelamin?: string;
 };
 
-type IconComponent = () => JSX.Element;
-
 type RowObj = {
   name: string;
   status: string;
@@ -198,14 +196,9 @@ const Dashboard: React.FC = () => {
     return group ? transformToRowObj(group.data, "KK") : [];
   }, [selectedRtRw, ktpKkData, groupedData]);
 
-  const currentStats = selectedRtRw === "all"
-    ? { penduduk: ktpKkData.filter(d => d.jenis === "KTP").length, keluarga: ktpKkData.filter(d => d.jenis === "KK").length }
-    : groupedData[selectedRtRw] || { penduduk: 0, keluarga: 0 };
-
   // === HITUNGAN STATISTIK ===
   const totalKK = Object.values(stats.kk_per_rt).reduce((a, b) => a + b, 0);
   const wargaHidup = stats.total_warga - stats.num_pindah - stats.num_meninggal;
-  const kkResmi = totalKK - stats.num_kk_sementara;
 
   // === HITUNG USIA DARI NIK ===
   const getAgeFromNik = (nik: string): number | null => {

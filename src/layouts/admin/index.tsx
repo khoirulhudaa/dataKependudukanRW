@@ -1,16 +1,16 @@
 // src/layouts/admin/index.tsx
-import React from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import Footer from "components/footer/Footer";
 import Navbar from "components/navbar";
 import Sidebar from "components/sidebar";
-import Footer from "components/footer/Footer";
+import React from "react";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import routes from "routes";
 
 export default function Admin(props: { [x: string]: any }) {
   const { ...rest } = props;
   const location = useLocation();
   const [open, setOpen] = React.useState(true);
-  const [currentRoute, setCurrentRoute] = React.useState("Main Dashboard");
+  const [currentRoute] = React.useState("Main Dashboard");
 
   React.useEffect(() => {
     const handleResize = () => {

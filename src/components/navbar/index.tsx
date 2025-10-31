@@ -1,16 +1,9 @@
-import React from "react";
+import avatar from "assets/img/avatars/avatar4.png";
 import Dropdown from "components/dropdown";
-import { FiAlignJustify } from "react-icons/fi";
-import { Link } from "react-router-dom";
-import navbarimage from "assets/img/layout/Navbar.png";
-import { BsArrowBarUp } from "react-icons/bs";
+import React from "react";
 import { FiSearch } from "react-icons/fi";
 import { RiMoonFill, RiSunFill } from "react-icons/ri";
-import {
-  IoMdNotificationsOutline,
-  IoMdInformationCircleOutline,
-} from "react-icons/io";
-import avatar from "assets/img/avatars/avatar4.png";
+import { Link } from "react-router-dom";
 
 const Navbar = (props: {
   onOpenSidenav: () => void;

@@ -6,8 +6,7 @@ import {
   MdBadge, // Kartu Keluarga
   MdCardGiftcard, // Bantuan
   MdCategory, // Template Surat
-  MdContactPhone, // Sign In
-  MdDashboard, // Pengaduan (chat)
+  MdContactPhone, // Pengaduan (chat)
   MdDescription, // Beranda
   MdFamilyRestroom, // Pegawai RT/RW
   MdForum,
@@ -25,16 +24,14 @@ import JenisBantuanPage from "views/admin/jenisBantuan";
 import KontakPage from "views/admin/kontak";
 import LayananPage from "views/admin/layanan";
 import AdminPage from "views/admin/manajemenAdmin";
+import MutasiPenduduk from "views/admin/mutasi";
 import PegawaiRTPage from "views/admin/pegawaiRT";
 import PegawaiRWPage from "views/admin/pegawaiRW";
 import PenerimaBantuan from "views/admin/penerimaBantuan";
 import PengaduanPage from "views/admin/pengaduan";
-import TemplateSurat from "views/admin/templateSurat";
-import VisiMisiPage from "views/admin/visiMisi";
-import MutasiPenduduk from "views/admin/mutasi";
-import StatusPenduduk from "views/admin/statusPenduduk";
 import AnggotaDetailPage from "views/admin/statusPenduduk";
 import PengajuanSuratPage from "views/admin/templateSurat";
+import VisiMisiPage from "views/admin/visiMisi";
 
 const routes: any = [
   // ==================== DASHBOARD ====================

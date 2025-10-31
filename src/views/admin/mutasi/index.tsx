@@ -5,7 +5,8 @@ import { jsPDF } from "jspdf";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   MdAdd, MdBabyChangingStation, MdClose, MdDelete, MdDownload,
-  MdEdit, MdPeople, MdSearch, MdSwapHoriz, MdWhatsapp
+  MdEdit,
+  MdSearch, MdSwapHoriz, MdWhatsapp
 } from "react-icons/md";
 
 type MutasiType = "Pindah Masuk" | "Pindah Keluar" | "Meninggal" | "Lahir" | "Pisah KK";

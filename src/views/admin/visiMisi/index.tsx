@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
-import Widget from "components/widget/Widget";
 import Card from "components/card";
-import { MdLocationOn, MdEdit, MdSave } from "react-icons/md";
+import React, { useEffect, useState } from "react";
+import { MdEdit, MdLocationOn, MdSave } from "react-icons/md";
 
 type Profile = {
   deskripsi: string;
