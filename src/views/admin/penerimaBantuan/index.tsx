@@ -3,17 +3,25 @@ import Widget from "components/widget/Widget";
 import React, { useEffect, useMemo, useState } from "react";
 import { MdAdd, MdDelete, MdEdit, MdPeople, MdSearch } from "react-icons/md";
 
-// === TIPE DATA ===
-type KtpItem = {
+type Anggota = {
+  id: string;
   nik: string;
   nama: string;
   rt: string;
   rw: string;
-  alamat: string;
+  bantuan: string[];
+};
+
+type KKItem = {
+  id: string;
+  rt: string;
+  rw: string;
+  anggota: Anggota[];
 };
 
 type BantuanItem = {
   id: string;
+  anggotaId: string;
   nik: string;
   nama: string;
   rt: string;
@@ -23,97 +31,139 @@ type BantuanItem = {
   status: "Diterima" | "Diproses" | "Ditolak";
 };
 
-// === DATA KTP ===
-const ktpData: KtpItem[] = [
-  { nik: "3275010101900001", nama: "Ahmad Fauzi", rt: "01", rw: "001", alamat: "Jl. Merdeka No. 1" },
-  { nik: "3275014102900002", nama: "Siti Aisyah", rt: "01", rw: "001", alamat: "Jl. Merdeka No. 1" },
-  { nik: "3275010202850003", nama: "Budi Santoso", rt: "02", rw: "001", alamat: "Jl. Sudirman No. 5" },
-  { nik: "3275010303850004", nama: "Citra Lestari", rt: "03", rw: "002", alamat: "Jl. Ahmad Yani No. 10" },
-];
+// === DAFTAR JENIS BANTUAN ===
+const JENIS_BANTUAN_MAP: Record<string, string> = {
+  bst: "BST",
+  bpnt: "BPNT",
+  pkh: "PKH",
+  pip: "PIP",
+  kks: "KKS",
+};
 
-// === KOMPONEN UTAMA ===
 const PenerimaBantuan: React.FC = () => {
   const [bantuanList, setBantuanList] = useState<BantuanItem[]>([]);
   const [search, setSearch] = useState("");
   const [filterRtRw, setFilterRtRw] = useState("all");
+  const [filterJenisBantuan, setFilterJenisBantuan] = useState("all");
   const [showModal, setShowModal] = useState(false);
   const [editItem, setEditItem] = useState<BantuanItem | null>(null);
-  const [sortConfig, setSortConfig] = useState<{ key: keyof BantuanItem | "progress" | "action"; direction: "asc" | "desc" } | null>(null);
+  const [sortConfig, setSortConfig] = useState<{ key: keyof BantuanItem | "action"; direction: "asc" | "desc" } | null>(null);
 
   const [form, setForm] = useState<{
-    nik: string;
+    anggotaId: string; // ID anggota di KK
     jenisBantuan: string;
     tanggal: string;
     status: "Diterima" | "Diproses" | "Ditolak";
   }>({
-    nik: "",
+    anggotaId: "",
     jenisBantuan: "",
     tanggal: new Date().toISOString().split("T")[0],
     status: "Diproses",
   });
 
-  // Load dari localStorage atau gunakan data dummy jika kosong
+  // === AMBIL DATA KK DARI LOCALSTORAGE ===
+  const kkList: KKItem[] = useMemo(() => {
+    const saved = localStorage.getItem("dataKK");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  }, []);
+
+  // === EKSTRAK SEMUA PENERIMA BANTUAN DARI KK ===
+  const semuaPenerima = useMemo(() => {
+    const penerima: BantuanItem[] = [];
+    kkList.forEach((kk) => {
+      kk.anggota.forEach((anggota) => {
+        anggota.bantuan.forEach((bantuanId) => {
+          const existing = penerima.find(
+            (p) => p.anggotaId === anggota.id && p.jenisBantuan === JENIS_BANTUAN_MAP[bantuanId]
+          );
+          if (!existing) {
+            penerima.push({
+              id: `${anggota.id}-${bantuanId}`,
+              nik: anggota.nik,
+              nama: anggota.nama,
+              rt: kk.rt,
+              rw: kk.rw,
+              jenisBantuan: JENIS_BANTUAN_MAP[bantuanId],
+              tanggal: new Date().toISOString().split("T")[0], // default
+              status: "Diproses",
+              anggotaId: anggota.id,
+            });
+          }
+        });
+      });
+    });
+    return penerima;
+  }, [kkList]);
+
+  // === LOAD DATA BANTUAN DARI LOCALSTORAGE (jika ada custom edit) ===
   useEffect(() => {
     const saved = localStorage.getItem("bantuanList");
     if (saved && JSON.parse(saved).length > 0) {
       setBantuanList(JSON.parse(saved));
     } else {
-      // Data dummy jika belum ada
-      const dummyData: BantuanItem[] = [
-        {
-          id: "1",
-          nik: "3275010101900001",
-          nama: "Ahmad Fauzi",
-          rt: "01",
-          rw: "001",
-          jenisBantuan: "Bantuan Pangan",
-          tanggal: "2025-10-15",
-          status: "Diterima",
-        },
-        {
-          id: "2",
-          nik: "3275014102900002",
-          nama: "Siti Aisyah",
-          rt: "01",
-          rw: "001",
-          jenisBantuan: "Bantuan Kesehatan",
-          tanggal: "2025-10-28",
-          status: "Diproses",
-        },
-      ];
-      setBantuanList(dummyData);
+      setBantuanList(semuaPenerima);
     }
-  }, []);
+  }, [semuaPenerima]);
 
-  // Save ke localStorage
+  // === SIMPAN KE LOCALSTORAGE ===
   useEffect(() => {
     localStorage.setItem("bantuanList", JSON.stringify(bantuanList));
   }, [bantuanList]);
 
-  // Filter & Search
+  // === DAFTAR RT/RW UNIK ===
+  const rtRwOptions = Array.from(new Set(kkList.map((k) => `${k.rt}/${k.rw}`))).sort();
+
+  // === DAFTAR JENIS BANTUAN UNIK ===
+  const jenisBantuanOptions = Array.from(
+    new Set(bantuanList.map((b) => b.jenisBantuan))
+  ).sort();
+
+  // === DAFTAR ANGGOTA YANG BISA DITAMBAH (hanya yang punya bantuan) ===
+  const daftarAnggotaPenerima = useMemo(() => {
+    const list: { id: string; nik: string; nama: string; rt: string; rw: string; jenis: string }[] = [];
+    kkList.forEach((kk) => {
+      kk.anggota.forEach((a) => {
+        a.bantuan.forEach((bId) => {
+          list.push({
+            id: a.id,
+            nik: a.nik,
+            nama: a.nama,
+            rt: kk.rt,
+            rw: kk.rw,
+            jenis: JENIS_BANTUAN_MAP[bId],
+          });
+        });
+      });
+    });
+    return list;
+  }, [kkList]);
+
+  // === FILTER & SEARCH ===
   const filteredData = useMemo(() => {
     return bantuanList.filter((item) => {
       const matchSearch =
         item.nama.toLowerCase().includes(search.toLowerCase()) ||
         item.nik.includes(search);
       const matchRtRw = filterRtRw === "all" || `${item.rt}/${item.rw}` === filterRtRw;
-      return matchSearch && matchRtRw;
+      const matchJenis = filterJenisBantuan === "all" || item.jenisBantuan === filterJenisBantuan;
+      return matchSearch && matchRtRw && matchJenis;
     });
-  }, [bantuanList, search, filterRtRw]);
+  }, [bantuanList, search, filterRtRw, filterJenisBantuan]);
 
-  // Sorting
+  // === SORTING ===
   const sortedData = useMemo(() => {
     const data = [...filteredData];
-    if (sortConfig) {
+    if (sortConfig && sortConfig.key !== "action") {
       data.sort((a, b) => {
         let aVal: any = a[sortConfig.key as keyof BantuanItem];
         let bVal: any = b[sortConfig.key as keyof BantuanItem];
-
-        if (sortConfig.key === "progress") {
-          aVal = a.status === "Diterima" ? 100 : a.status === "Diproses" ? 60 : 20;
-          bVal = b.status === "Diterima" ? 100 : b.status === "Diproses" ? 60 : 20;
-        }
-
         if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
         if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
         return 0;
@@ -122,14 +172,15 @@ const PenerimaBantuan: React.FC = () => {
     return data;
   }, [filteredData, sortConfig]);
 
-  // Daftar RT/RW unik
-  const rtRwOptions = Array.from(new Set(ktpData.map((k) => `${k.rt}/${k.rw}`))).sort();
-
-  // Handle submit
+  // === SUBMIT (Tambah/Edit) ===
   const handleSubmit = () => {
-    const ktp = ktpData.find((k) => k.nik === form.nik);
-    if (!ktp) {
-      alert("NIK tidak ditemukan di data KTP!");
+    const anggota = daftarAnggotaPenerima.find((a) => a.id === form.anggotaId);
+    if (!anggota) {
+      alert("Pilih penerima bantuan!");
+      return;
+    }
+    if (!form.jenisBantuan) {
+      alert("Pilih jenis bantuan!");
       return;
     }
 
@@ -137,61 +188,59 @@ const PenerimaBantuan: React.FC = () => {
       setBantuanList((prev) =>
         prev.map((item) =>
           item.id === editItem.id
-            ? {
-                ...item,
-                ...form,
-                nama: ktp.nama,
-                rt: ktp.rt,
-                rw: ktp.rw,
-              }
+            ? { ...item, ...form, nama: anggota.nama, rt: anggota.rt, rw: anggota.rw }
             : item
         )
       );
     } else {
       const newItem: BantuanItem = {
         id: Date.now().toString(),
-        nik: form.nik,
-        nama: ktp.nama,
-        rt: ktp.rt,
-        rw: ktp.rw,
+        nik: anggota.nik,
+        nama: anggota.nama,
+        rt: anggota.rt,
+        rw: anggota.rw,
         jenisBantuan: form.jenisBantuan,
         tanggal: form.tanggal,
         status: form.status,
+        anggotaId: form.anggotaId,
       };
       setBantuanList((prev) => [...prev, newItem]);
     }
+    resetModal();
+  };
 
+  const resetModal = () => {
     setShowModal(false);
     setEditItem(null);
     setForm({
-      nik: "",
+      anggotaId: "",
       jenisBantuan: "",
       tanggal: new Date().toISOString().split("T")[0],
       status: "Diproses",
     });
   };
 
-  // Handle delete
   const handleDelete = (id: string) => {
     if (window.confirm("Hapus data penerima bantuan ini?")) {
       setBantuanList((prev) => prev.filter((item) => item.id !== id));
     }
   };
 
-  // Open edit
   const openEdit = (item: BantuanItem) => {
-    setEditItem(item);
-    setForm({
-      nik: item.nik,
-      jenisBantuan: item.jenisBantuan,
-      tanggal: item.tanggal,
-      status: item.status,
-    });
-    setShowModal(true);
+    const anggota = daftarAnggotaPenerima.find((a) => a.nik === item.nik && a.jenis === item.jenisBantuan);
+    if (anggota) {
+      setEditItem(item);
+      setForm({
+        anggotaId: anggota.id,
+        jenisBantuan: item.jenisBantuan,
+        tanggal: item.tanggal,
+        status: item.status,
+      });
+      setShowModal(true);
+    }
   };
 
-  // Sorting handler
-  const requestSort = (key: keyof BantuanItem | "progress" | "action") => {
+  const requestSort = (key: keyof BantuanItem | "action") => {
     let direction: "asc" | "desc" = "asc";
     if (sortConfig?.key === key && sortConfig.direction === "asc") {
       direction = "desc";
@@ -240,10 +289,11 @@ const PenerimaBantuan: React.FC = () => {
             />
           </div>
         </div>
+
         <select
           value={filterRtRw}
           onChange={(e) => setFilterRtRw(e.target.value)}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white"
+          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white min-w-[140px]"
         >
           <option value="all">Semua RT/RW</option>
           {rtRwOptions.map((rtRw) => (
@@ -252,35 +302,42 @@ const PenerimaBantuan: React.FC = () => {
             </option>
           ))}
         </select>
+
+        <select
+          value={filterJenisBantuan}
+          onChange={(e) => setFilterJenisBantuan(e.target.value)}
+          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white min-w-[160px]"
+        >
+          <option value="all">Semua Jenis Bantuan</option>
+          {jenisBantuanOptions.map((jenis) => (
+            <option key={jenis} value={jenis}>
+              {jenis}
+            </option>
+          ))}
+        </select>
       </div>
 
-      {/* TABEL MANUAL (TANPA TANSTACK) */}
+      {/* TABEL */}
       <div className="mt-5">
         <Card extra="w-full p-5">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[800px] table-auto">
+            <table className="w-full min-w-[700px] table-auto">
               <thead>
                 <tr className="border-b border-gray-200 dark:border-navy-600">
                   <th
                     onClick={() => requestSort("nik")}
-                    className="cursor-pointer px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white"
+                    className="cursor-pointer px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white hover:text-brand-500"
                   >
-                    NIK {sortConfig?.key === "nik" ? (sortConfig.direction === "asc" ? "Up" : "Down") : ""}
+                    NIK {sortConfig?.key === "nik" && (sortConfig.direction === "asc" ? "Up" : "Down")}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white">NAMA</th>
                   <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white">JENIS BANTUAN</th>
                   <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white">STATUS</th>
                   <th
                     onClick={() => requestSort("tanggal")}
-                    className="cursor-pointer px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white"
+                    className="cursor-pointer px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white hover:text-brand-500"
                   >
-                    TANGGAL {sortConfig?.key === "tanggal" ? (sortConfig.direction === "asc" ? "Up" : "Down") : ""}
-                  </th>
-                  <th
-                    onClick={() => requestSort("progress")}
-                    className="cursor-pointer px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white"
-                  >
-                    PROGRESS {sortConfig?.key === "progress" ? (sortConfig.direction === "asc" ? "Up" : "Down") : ""}
+                    TANGGAL {sortConfig?.key === "tanggal" && (sortConfig.direction === "asc" ? "Up" : "Down")}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white">AKSI</th>
                 </tr>
@@ -288,7 +345,7 @@ const PenerimaBantuan: React.FC = () => {
               <tbody>
                 {sortedData.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-sm text-gray-500">
+                    <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500">
                       Belum ada data penerima bantuan.
                     </td>
                   </tr>
@@ -318,40 +375,17 @@ const PenerimaBantuan: React.FC = () => {
                       </td>
                       <td className="px-4 py-3 text-sm">{item.tanggal}</td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <div className="h-2 w-24 rounded-full bg-gray-200 dark:bg-navy-600">
-                            <div
-                              className={`h-full rounded-full ${
-                                item.status === "Diterima"
-                                  ? "bg-green-500"
-                                  : item.status === "Diproses"
-                                  ? "bg-yellow-500"
-                                  : "bg-red-500"
-                              }`}
-                              style={{
-                                width: `${
-                                  item.status === "Diterima" ? 100 : item.status === "Diproses" ? 60 : 20
-                                }%`,
-                              }}
-                            />
-                          </div>
-                          <span className="text-xs font-medium">
-                            {item.status === "Diterima" ? 100 : item.status === "Diproses" ? 60 : 20}%
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
                         <div className="flex gap-2">
                           <button
                             onClick={() => openEdit(item)}
-                            className="text-blue-500 hover:text-blue-700"
+                            className="text-blue-500 hover:text-blue-700 transition-colors"
                             title="Edit"
                           >
                             <MdEdit className="h-5 w-5" />
                           </button>
                           <button
                             onClick={() => handleDelete(item.id)}
-                            className="text-red-500 hover:text-red-700"
+                            className="text-red-500 hover:text-red-700 transition-colors"
                             title="Hapus"
                           >
                             <MdDelete className="h-5 w-5" />
@@ -370,36 +404,23 @@ const PenerimaBantuan: React.FC = () => {
       {/* Modal Form */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          {/* OVERLAY GELAP + BLUR */}
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
-            onClick={() => {
-              setShowModal(false);
-              setEditItem(null);
-              setForm({
-                nik: "",
-                jenisBantuan: "",
-                tanggal: new Date().toISOString().split("T")[0],
-                status: "Diproses",
-              });
-            }}
-          />
-          <Card extra="w-full max-w-lg p-6">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={resetModal} />
+          <Card extra="relative w-full max-w-lg p-6">
             <h3 className="mb-4 text-xl font-bold text-navy-700 dark:text-white">
               {editItem ? "Edit" : "Tambah"} Penerima Bantuan
             </h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">NIK</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Penerima</label>
                 <select
-                  value={form.nik}
-                  onChange={(e) => setForm({ ...form, nik: e.target.value })}
+                  value={form.anggotaId}
+                  onChange={(e) => setForm({ ...form, anggotaId: e.target.value })}
                   className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-navy-600 dark:bg-navy-700 dark:text-white"
                 >
-                  <option value="">Pilih NIK</option>
-                  {ktpData.map((k) => (
-                    <option key={k.nik} value={k.nik}>
-                      {k.nik} - {k.nama} (RT {k.rt}/RW {k.rw})
+                  <option value="">Pilih penerima</option>
+                  {daftarAnggotaPenerima.map((a) => (
+                    <option key={`${a.id}-${a.jenis}`} value={a.id}>
+                      {a.nik} - {a.nama} ({a.jenis}) - RT {a.rt}/RW {a.rw}
                     </option>
                   ))}
                 </select>
@@ -412,10 +433,11 @@ const PenerimaBantuan: React.FC = () => {
                   className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-navy-600 dark:bg-navy-700 dark:text-white"
                 >
                   <option value="">Pilih bantuan</option>
-                  <option>Bantuan Pangan</option>
-                  <option>Bantuan Tunai</option>
-                  <option>Bantuan Kesehatan</option>
-                  <option>Bantuan Pendidikan</option>
+                  {Object.values(JENIS_BANTUAN_MAP).map((jenis) => (
+                    <option key={jenis} value={jenis}>
+                      {jenis}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
@@ -442,24 +464,15 @@ const PenerimaBantuan: React.FC = () => {
             </div>
             <div className="mt-6 flex justify-end gap-3">
               <button
-                onClick={() => {
-                  setShowModal(false);
-                  setEditItem(null);
-                  setForm({
-                    nik: "",
-                    jenisBantuan: "",
-                    tanggal: new Date().toISOString().split("T")[0],
-                    status: "Diproses",
-                  });
-                }}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 dark:border-navy-600 dark:text-white"
+                onClick={resetModal}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 dark:border-navy-600 dark:text-white dark:hover:bg-navy-700"
               >
                 Batal
               </button>
               <button
                 onClick={handleSubmit}
-                disabled={!form.nik || !form.jenisBantuan}
-                className="rounded-lg bg-brand-500 px-4 py-2 text-white hover:bg-brand-600 disabled:opacity-50"
+                disabled={!form.anggotaId || !form.jenisBantuan}
+                className="rounded-lg bg-brand-500 px-4 py-2 text-white hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {editItem ? "Simpan" : "Tambah"}
               </button>

@@ -53,3 +53,17 @@ html, body {
 * {
   transition: margin 0.2s ease, padding 0.2s ease;
 }
+
+.ck-editor__editable {
+  height: 150px !important;
+  overflow-y: auto;
+}
+
+.ck-editor__editable_inline {
+  height: 150px !important;
+}
+
+/* Opsional: biar toolbar tidak terpotong */
+.ck.ck-editor {
+  width: 100%;
+}

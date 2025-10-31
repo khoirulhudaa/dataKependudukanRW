@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react";
-import Widget from "components/widget/Widget";
 import Card from "components/card";
-import { MdRoomService, MdAdd, MdEdit, MdDelete, MdSearch, MdImage } from "react-icons/md";
+import Widget from "components/widget/Widget";
+import React, { useEffect, useMemo, useState } from "react";
+import { MdAdd, MdDelete, MdEdit, MdRoomService, MdSearch } from "react-icons/md";
 
 type Layanan = {
   id: string;

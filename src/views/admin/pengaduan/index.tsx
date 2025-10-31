@@ -1,8 +1,8 @@
 // src/views/admin/pengaduan/index.tsx
-import React, { useState, useEffect, useMemo } from "react";
-import Widget from "components/widget/Widget";
 import Card from "components/card";
-import { MdReport, MdAdd, MdEdit, MdDelete, MdSearch, MdCheckCircle, MdPending, MdCancel } from "react-icons/md";
+import Widget from "components/widget/Widget";
+import React, { useEffect, useMemo, useState } from "react";
+import { MdAdd, MdCancel, MdCheckCircle, MdDelete, MdEdit, MdPending, MdReport, MdSearch } from "react-icons/md";
 
 type Pengaduan = {
   id: string;
@@ -11,7 +11,7 @@ type Pengaduan = {
   judul: string;
   isi: string;
   status: "Menunggu" | "Diproses" | "Selesai" | "Ditolak";
-  tanggalLapor: string; // <-- DIPERBAIKI: bukan 'tangr'
+  tanggalLapor: string;
   tanggalSelesai?: string;
 };
 
@@ -19,6 +19,7 @@ const PengaduanPage: React.FC = () => {
   const [pengaduanList, setPengaduanList] = useState<Pengaduan[]>([]);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterTanggal, setFilterTanggal] = useState(""); // Hanya satu tanggal
   const [showModal, setShowModal] = useState(false);
   const [editItem, setEditItem] = useState<Pengaduan | null>(null);
 
@@ -29,13 +30,12 @@ const PengaduanPage: React.FC = () => {
     status: "Menunggu" as Pengaduan["status"],
   });
 
-  // Load dari localStorage atau gunakan data dummy jika kosong
+  // Load dari localStorage
   useEffect(() => {
     const saved = localStorage.getItem("pengaduanList");
     if (saved && JSON.parse(saved).length > 0) {
       setPengaduanList(JSON.parse(saved));
     } else {
-      // Tambahkan dummy dataKTP jika belum ada
       const ktpData = localStorage.getItem("dataKTP");
       if (!ktpData) {
         const dummyKTP = [
@@ -55,7 +55,6 @@ const PengaduanPage: React.FC = () => {
           isi: "Jalan depan rumah saya berlubang dan sangat berbahaya bagi anak-anak. Mohon segera diperbaiki.",
           status: "Diproses",
           tanggalLapor: "2025-10-25",
-          tanggalSelesai: undefined,
         },
         {
           id: "2",
@@ -81,12 +80,12 @@ const PengaduanPage: React.FC = () => {
     }
   }, []);
 
-  // Save ke localStorage
+  // Simpan ke localStorage
   useEffect(() => {
     localStorage.setItem("pengaduanList", JSON.stringify(pengaduanList));
   }, [pengaduanList]);
 
-  // Ambil nama dari DataKTP
+  // Ambil nama dari NIK
   const getNamaFromNIK = (nik: string): string => {
     const ktpData = localStorage.getItem("dataKTP");
     if (!ktpData) return "Tidak Diketahui";
@@ -95,7 +94,7 @@ const PengaduanPage: React.FC = () => {
     return warga?.nama || "Tidak Diketahui";
   };
 
-  // Filter data
+  // Filter: Search + Status + Tanggal (satu tanggal)
   const filteredData = useMemo(() => {
     return pengaduanList
       .filter((item) => {
@@ -103,13 +102,17 @@ const PengaduanPage: React.FC = () => {
           item.nik.includes(search) ||
           item.nama.toLowerCase().includes(search.toLowerCase()) ||
           item.judul.toLowerCase().includes(search.toLowerCase());
+
         const matchesStatus = filterStatus === "all" || item.status === filterStatus;
-        return matchesSearch && matchesStatus;
+
+        const matchesTanggal = !filterTanggal || item.tanggalLapor === filterTanggal;
+
+        return matchesSearch && matchesStatus && matchesTanggal;
       })
       .sort((a, b) => new Date(b.tanggalLapor).getTime() - new Date(a.tanggalLapor).getTime());
-  }, [pengaduanList, search, filterStatus]);
+  }, [pengaduanList, search, filterStatus, filterTanggal]);
 
-  // Hitung statistik
+  // Statistik
   const stats = useMemo(() => {
     const total = pengaduanList.length;
     const menunggu = pengaduanList.filter((p) => p.status === "Menunggu").length;
@@ -155,24 +158,26 @@ const PengaduanPage: React.FC = () => {
         isi: form.isi,
         status: form.status,
         nama,
-        tanggalLapor: today, // <-- DIPERBAIKI
+        tanggalLapor: today,
       };
       setPengaduanList((prev) => [...prev, newItem]);
     }
 
+    resetModal();
+  };
+
+  const resetModal = () => {
     setShowModal(false);
     setEditItem(null);
     setForm({ nik: "", judul: "", isi: "", status: "Menunggu" });
   };
 
-  // Handle delete
   const handleDelete = (id: string) => {
     if (window.confirm("Hapus pengaduan ini?")) {
       setPengaduanList((prev) => prev.filter((item) => item.id !== id));
     }
   };
 
-  // Open edit
   const openEdit = (item: Pengaduan) => {
     setEditItem(item);
     setForm({
@@ -184,7 +189,6 @@ const PengaduanPage: React.FC = () => {
     setShowModal(true);
   };
 
-  // Format tanggal
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
@@ -194,30 +198,14 @@ const PengaduanPage: React.FC = () => {
     <div>
       {/* Widget Summary */}
       <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
-        <Widget icon={<MdReport className="h-7 w-7" />} title="Pengaduan" subtitle={stats.total.toString()} />
-        <Widget
-          icon={<MdPending className="h-7 w-7 text-yellow-500" />}
-          title="Menunggu"
-          subtitle={stats.menunggu.toString()}
-        />
-        <Widget
-          icon={<MdPending className="h-7 w-7 text-blue-500" />}
-          title="Diproses"
-          subtitle={stats.diproses.toString()}
-        />
-        <Widget
-          icon={<MdCheckCircle className="h-7 w-7 text-green-500" />}
-          title="Selesai"
-          subtitle={stats.selesai.toString()}
-        />
-        <Widget
-          icon={<MdCancel className="h-7 w-7 text-red-500" />}
-          title="Ditolak"
-          subtitle={stats.ditolak.toString()}
-        />
+        <Widget icon={<MdReport className="h-7 w-7" />} title="Total" subtitle={stats.total.toString()} />
+        <Widget icon={<MdPending className="h-7 w-7 text-yellow-500" />} title="Menunggu" subtitle={stats.menunggu.toString()} />
+        <Widget icon={<MdPending className="h-7 w-7 text-blue-500" />} title="Diproses" subtitle={stats.diproses.toString()} />
+        <Widget icon={<MdCheckCircle className="h-7 w-7 text-green-500" />} title="Selesai" subtitle={stats.selesai.toString()} />
+        <Widget icon={<MdCancel className="h-7 w-7 text-red-500" />} title="Ditolak" subtitle={stats.ditolak.toString()} />
       </div>
 
-      {/* Header + Tombol Tambah */}
+      {/* Header + Tambah */}
       <div className="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3 ml-[1px]">
           <div className="flex h-10 w-10 items-center justify-center rounded-md bg-brand-500/20 text-brand-500">
@@ -225,39 +213,67 @@ const PengaduanPage: React.FC = () => {
           </div>
           <h3 className="text-xl font-bold text-navy-700 dark:text-white">Kelola Pengaduan Warga</h3>
         </div>
-        {/* <button
+        <button
           onClick={() => setShowModal(true)}
           className="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-white hover:bg-brand-600"
         >
           <MdAdd className="h-5 w-5" />
           Tambah Pengaduan
-        </button> */}
+        </button>
       </div>
 
-      {/* Search + Filter */}
-      <div className="mt-5 flex flex-col gap-3 md:flex-row">
-        <div className="flex-1 relative">
-          <MdSearch className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Cari NIK, nama, atau judul..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 py-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white"
-          />
+      {/* Filter: Search + Status + Tanggal */}
+      <div className="mt-5">
+        <div className="flex flex-col gap-3 md:flex-row md:items-end">
+          {/* Search */}
+          <div className="flex-1 relative">
+            <MdSearch className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Cari NIK, nama, atau judul..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 py-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white"
+            />
+          </div>
+
+          {/* Filter Status */}
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="w-full md:w-48 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-navy-700 dark:border-navy-600 dark:bg-navy-700 dark:text-white"
+          >
+            <option value="all">Semua Status</option>
+            <option value="Menunggu">Menunggu</option>
+            <option value="Diproses">Diproses</option>
+            <option value="Selesai">Selesai</option>
+            <option value="Ditolak">Ditolak</option>
+          </select>
+
+          {/* Filter Tanggal + Reset */}
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                Tanggal Pengaduan
+              </label>
+              <input
+                type="date"
+                value={filterTanggal}
+                onChange={(e) => setFilterTanggal(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white"
+              />
+            </div>
+            <div className="flex items-end">
+              <button
+                onClick={() => setFilterTanggal("")}
+                className="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 dark:bg-navy-700 dark:text-gray-300 dark:hover:bg-navy-600 whitespace-nowrap"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
         </div>
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-          className="w-full md:w-48 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-navy-700 dark:border-navy-600 dark:bg-navy-700 dark:text-white"
-        >
-          <option value="all">Semua Status</option>
-          <option value="Menunggu">Menunggu</option>
-          <option value="Diproses">Diproses</option>
-          <option value="Selesai">Selesai</option>
-          <option value="Ditolak">Ditolak</option>
-        </select>
-      </div>
+        </div>
 
       {/* Tabel */}
       <div className="mt-5">
@@ -278,7 +294,7 @@ const PengaduanPage: React.FC = () => {
                 {filteredData.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500">
-                      Belum ada pengaduan.
+                      Belum ada pengaduan yang sesuai filter.
                     </td>
                   </tr>
                 ) : (
@@ -311,10 +327,10 @@ const PengaduanPage: React.FC = () => {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
-                          <button onClick={() => openEdit(item)} className="text-blue-500 hover:text-blue-700">
+                          <button onClick={() => openEdit(item)} className="text-blue-500 hover:text-blue-700 transition-colors">
                             <MdEdit className="h-5 w-5" />
                           </button>
-                          <button onClick={() => handleDelete(item.id)} className="text-red-500 hover:text-red-700">
+                          <button onClick={() => handleDelete(item.id)} className="text-red-500 hover:text-red-700 transition-colors">
                             <MdDelete className="h-5 w-5" />
                           </button>
                         </div>
@@ -328,19 +344,14 @@ const PengaduanPage: React.FC = () => {
         </Card>
       </div>
 
-      {/* Modal Form */}
+      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          {/* OVERLAY GELAP + BLUR */}
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
-            onClick={() => {
-              setShowModal(false);
-              setEditItem(null);
-              setForm({ nik: "", judul: "", isi: "", status: "Menunggu" });
-            }}
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={resetModal}
           />
-          <Card extra="w-full max-w-2xl p-6">
+          <Card extra="relative w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
             <h3 className="mb-4 text-xl font-bold text-navy-700 dark:text-white">
               {editItem ? "Edit" : "Tambah"} Pengaduan
             </h3>
@@ -396,19 +407,15 @@ const PengaduanPage: React.FC = () => {
             </div>
             <div className="mt-6 flex justify-end gap-3">
               <button
-                onClick={() => {
-                  setShowModal(false);
-                  setEditItem(null);
-                  setForm({ nik: "", judul: "", isi: "", status: "Menunggu" });
-                }}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 dark:border-navy-600 dark:text-white"
+                onClick={resetModal}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 dark:border-navy-600 dark:text-white dark:hover:bg-navy-700"
               >
                 Batal
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={!form.nik || !form.judul || !form.isi}
-                className="rounded-lg bg-brand-500 px-4 py-2 text-white hover:bg-brand-600 disabled:opacity-50"
+                className="rounded-lg bg-brand-500 px-4 py-2 text-white hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {editItem ? "Simpan" : "Lapor"}
               </button>

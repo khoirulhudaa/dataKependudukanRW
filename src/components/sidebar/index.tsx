@@ -89,7 +89,7 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
             <MdPeople className="h-6 w-6" />
           </div>
           <h1 className="font-poppins text-xl font-bold uppercase text-navy-700 dark:text-white">
-            Data <span className="font-medium">Kependudukan</span>
+            Data <span className="font-medium">Penduduk</span>
           </h1>
         </div>
       </div>

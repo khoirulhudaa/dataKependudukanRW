@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useMemo } from "react";
-import Widget from "components/widget/Widget";
 import Card from "components/card";
-import { MdArticle, MdAdd, MdEdit, MdDelete, MdSearch, MdImage } from "react-icons/md";
+import Widget from "components/widget/Widget";
+import React, { useEffect, useMemo, useState } from "react";
+import { MdAdd, MdArticle, MdDelete, MdEdit, MdSearch } from "react-icons/md";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 type Berita = {
   id: string;
@@ -23,7 +25,6 @@ const BeritaPage: React.FC = () => {
     thumbnail: "",
     aktif: true,
   });
-  const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
 
   // Load dari localStorage
@@ -36,7 +37,7 @@ const BeritaPage: React.FC = () => {
         {
           id: "1",
           judul: "Pembukaan Posko Bantuan Banjir RW 001",
-          isi: "Dalam rangka penanganan banjir yang melanda wilayah RW 001, kami membuka posko bantuan di Balai RW. Warga diimbau untuk melapor jika membutuhkan bantuan pangan atau tempat pengungsian sementara.",
+          isi: "<p>Dalam rangka penanganan banjir yang melanda wilayah RW 001, kami membuka posko bantuan di Balai RW. Warga diimbau untuk melapor jika membutuhkan bantuan pangan atau tempat pengungsian sementara.</p>",
           thumbnail: "https://via.placeholder.com/600x300/ef4444/ffffff?text=Posko+Bantuan+Banjir",
           tanggal: "2025-10-20",
           aktif: true,
@@ -44,7 +45,7 @@ const BeritaPage: React.FC = () => {
         {
           id: "2",
           judul: "Jadwal Gotong Royong Mingguan",
-          isi: "Setiap Sabtu pukul 07.00 WIB, seluruh warga RW 001 diharapkan ikut serta dalam kegiatan gotong royong membersihkan lingkungan. Mari jaga kebersihan dan keindahan kampung kita bersama.",
+          isi: "<p>Setiap Sabtu pukul 07.00 WIB, seluruh warga RW 001 diharapkan ikut serta dalam kegiatan gotong royong membersihkan lingkungan. Mari jaga kebersihan dan keindahan kampung kita bersama.</p>",
           thumbnail: "https://via.placeholder.com/600x300/10b981/ffffff?text=Gotong+Royong",
           tanggal: "2025-10-18",
           aktif: false,
@@ -61,7 +62,7 @@ const BeritaPage: React.FC = () => {
   const filteredData = useMemo(() => {
     return beritaList.filter((item) =>
       item.judul.toLowerCase().includes(search.toLowerCase()) ||
-      item.isi.toLowerCase().includes(search.toLowerCase())
+      item.isi.toLowerCase().replace(/<[^>]*>/g, "").includes(search.toLowerCase())
     );
   }, [beritaList, search]);
 
@@ -75,7 +76,11 @@ const BeritaPage: React.FC = () => {
       setBeritaList((prev) =>
         prev.map((item) =>
           item.id === editItem.id
-            ? { ...item, ...form, tanggal: new Date().toISOString().split('T')[0] }
+            ? {
+                ...item,
+                ...form,
+                tanggal: new Date().toISOString().split("T")[0],
+              }
             : item
         )
       );
@@ -85,16 +90,19 @@ const BeritaPage: React.FC = () => {
         judul: form.judul,
         isi: form.isi,
         thumbnail: thumbnailFile ? URL.createObjectURL(thumbnailFile) : form.thumbnail,
-        tanggal: new Date().toISOString().split('T')[0],
+        tanggal: new Date().toISOString().split("T")[0],
         aktif: form.aktif,
       };
       setBeritaList((prev) => [...prev, newItem]);
     }
 
+    resetModal();
+  };
+
+  const resetModal = () => {
     setShowModal(false);
     setEditItem(null);
     setForm({ judul: "", isi: "", thumbnail: "", aktif: true });
-    setThumbnailPreview("");
     setThumbnailFile(null);
   };
 
@@ -112,7 +120,7 @@ const BeritaPage: React.FC = () => {
       thumbnail: item.thumbnail,
       aktif: item.aktif,
     });
-    setThumbnailPreview(item.thumbnail);
+    setThumbnailFile(null);
     setShowModal(true);
   };
 
@@ -120,20 +128,20 @@ const BeritaPage: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       setThumbnailFile(file);
-      const preview = URL.createObjectURL(file);
-      setThumbnailPreview(preview);
-      setForm({ ...form, thumbnail: preview });
+      setForm({ ...form, thumbnail: URL.createObjectURL(file) });
     }
   };
 
   return (
     <div>
+      {/* Widget Stats */}
       <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-3">
         <Widget icon={<MdArticle className="h-7 w-7" />} title="Total Berita" subtitle={beritaList.length.toString()} />
         <Widget icon={<MdArticle className="h-7 w-7" />} title="Aktif" subtitle={beritaList.filter((b) => b.aktif).length.toString()} />
         <Widget icon={<MdArticle className="h-7 w-7" />} title="Nonaktif" subtitle={beritaList.filter((b) => !b.aktif).length.toString()} />
       </div>
 
+      {/* Header + Tambah Button */}
       <div className="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3 ml-[1px]">
           <div className="flex h-10 w-10 items-center justify-center rounded-md bg-brand-500/20 text-brand-500">
@@ -150,6 +158,7 @@ const BeritaPage: React.FC = () => {
         </button>
       </div>
 
+      {/* Search */}
       <div className="mt-5">
         <div className="relative">
           <MdSearch className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -163,6 +172,7 @@ const BeritaPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Table */}
       <div className="mt-5">
         <Card extra="w-full p-5">
           <div className="overflow-x-auto">
@@ -185,7 +195,9 @@ const BeritaPage: React.FC = () => {
                 ) : (
                   filteredData.map((item) => (
                     <tr key={item.id} className="border-b border-gray-100 dark:border-navy-700">
-                      <td className="px-4 py-3 font-medium text-navy-700 dark:text-white max-w-[300px] truncate">{item.judul}</td>
+                      <td className="px-4 py-3 font-medium text-navy-700 dark:text-white max-w-[300px] truncate">
+                        {item.judul}
+                      </td>
                       <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{item.tanggal}</td>
                       <td className="px-4 py-3">
                         <span
@@ -217,24 +229,20 @@ const BeritaPage: React.FC = () => {
         </Card>
       </div>
 
+      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-        {/* OVERLAY GELAP + BLUR */}
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
-            onClick={() => {
-                setShowModal(false);
-                setEditItem(null);
-                setForm({ judul: "", isi: "", thumbnail: "", aktif: true });
-                setThumbnailPreview("");
-                setThumbnailFile(null);
-            }}
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={resetModal}
           />
-          <Card extra="w-full max-w-2xl p-6">
+          <Card extra="relative w-full max-w-[80vw] p-6">
             <h3 className="mb-4 text-xl font-bold text-navy-700 dark:text-white">
               {editItem ? "Edit" : "Tambah"} Berita
             </h3>
+
             <div className="space-y-4">
+              {/* Judul */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Judul Berita</label>
                 <input
@@ -244,29 +252,46 @@ const BeritaPage: React.FC = () => {
                   className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-navy-600 dark:bg-navy-700 dark:text-white"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Isi Berita</label>
-                <textarea
-                  value={form.isi}
-                  onChange={(e) => setForm({ ...form, isi: e.target.value })}
-                  rows={4}
-                  className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-navy-600 dark:bg-navy-700 dark:text-white"
-                />
+
+              {/* Isi Berita - CKEditor */}
+              <div className="mt-1 border border-gray-300 rounded-lg dark:border-navy-600">
+                <div className="ck-editor-container">
+                  <CKEditor
+                    editor={ClassicEditor}
+                    data={form.isi}
+                    onChange={(event, editor) => {
+                      const data = editor.getData();
+                      setForm({ ...form, isi: data });
+                    }}
+                    config={{
+                      toolbar: [
+                        'heading', '|',
+                        'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|',
+                        'outdent', 'indent', '|',
+                        'blockQuote', 'insertTable', 'mediaEmbed', 'undo', 'redo'
+                      ],
+                    }}
+                  />
+                </div>
               </div>
+
+              {/* Thumbnail */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Thumbnail</label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleThumbnailChange}
-                  className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-navy-600 dark:bg-navy-700 dark:text-white"
+                  className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-navy-600 dark:bg-navy-700 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-500 file:text-white hover:file:bg-brand-600"
                 />
-                {thumbnailPreview && (
-                  <div className="mt-2">
-                    <img src={thumbnailPreview} alt="Preview" className="h-32 w-48 object-cover rounded-lg" />
-                  </div>
+                {thumbnailFile && (
+                  <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                    File terpilih: <span className="font-medium">{thumbnailFile.name}</span>
+                  </p>
                 )}
               </div>
+
+              {/* Status Aktif */}
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -280,15 +305,11 @@ const BeritaPage: React.FC = () => {
                 </label>
               </div>
             </div>
+
+            {/* Buttons */}
             <div className="mt-6 flex justify-end gap-3">
               <button
-                onClick={() => {
-                  setShowModal(false);
-                  setEditItem(null);
-                  setForm({ judul: "", isi: "", thumbnail: "", aktif: true });
-                  setThumbnailPreview("");
-                  setThumbnailFile(null);
-                }}
+                onClick={resetModal}
                 className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 dark:border-navy-600 dark:text-white"
               >
                 Batal

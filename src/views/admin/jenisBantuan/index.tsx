@@ -113,15 +113,8 @@ useEffect(() => {
 
   return (
     <div>
-      {/* Widget Summary */}
-      <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-3">
-        <Widget icon={<MdCategory className="h-7 w-7" />} title="Total Jenis" subtitle={jenisList.length.toString()} />
-        <Widget icon={<MdCategory className="h-7 w-7" />} title="Aktif" subtitle={jenisList.filter((b) => b.aktif).length.toString()} />
-        <Widget icon={<MdCategory className="h-7 w-7" />} title="Nonaktif" subtitle={jenisList.filter((b) => !b.aktif).length.toString()} />
-      </div>
-
       {/* Header + Tombol Tambah */}
-      <div className="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="mt-3 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3 ml-[1px]">
           <div className="flex h-10 w-10 items-center justify-center rounded-md bg-brand-500/20 text-brand-500">
             <MdCategory className="h-6 w-6" />

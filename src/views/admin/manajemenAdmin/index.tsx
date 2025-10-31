@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react";
-import Widget from "components/widget/Widget";
 import Card from "components/card";
-import { MdPeople, MdAdd, MdEdit, MdDelete, MdSearch, MdPerson } from "react-icons/md";
+import Widget from "components/widget/Widget";
+import React, { useEffect, useMemo, useState } from "react";
+import { MdAdd, MdDelete, MdEdit, MdPeople, MdPerson, MdSearch } from "react-icons/md";
 
 type Role =
   | "Superadmin"

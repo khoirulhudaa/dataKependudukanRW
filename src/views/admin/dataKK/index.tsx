@@ -23,6 +23,8 @@ import {
   MdSearch,
   MdUpload,
   MdWarning,
+  MdZoomIn,
+  MdSave,
 } from "react-icons/md";
 
 type StatusAnggota = "Hidup" | "Meninggal" | "Pindah";
@@ -42,8 +44,8 @@ type Anggota = {
   ktpUrl?: string;
   ktpName?: string;
   ktpType?: string;
-  // === PROPERTI BARU ===
   statusKawin: "Belum Kawin" | "Kawin" | "Cerai Hidup" | "Cerai Mati";
+  agama: "Islam" | "Kristen" | "Katolik" | "Hindu" | "Buddha" | "Konghucu" | "Lainnya"; // ← BARU
   keterangan: string;
   kelengkapanArsipRT: string[];
   statusWarga: "Tetap" | "Tidak Tetap";
@@ -77,7 +79,7 @@ const ARSIP_RT = [
   "KTP", "KK", "Akta Lahir", "Akta Nikah", "Akta Cerai", "Surat Keterangan Domisili", "Surat Kematian"
 ];
 
-// DATA DEMO LENGKAP
+// DATA DEMO LENGKAP DENGAN AGAMA
 const DEMO_DATA: KKItem[] = [
   {
     id: "1",
@@ -101,6 +103,7 @@ const DEMO_DATA: KKItem[] = [
         bantuan: ["bst", "pkh"],
         status: "Hidup",
         statusKawin: "Kawin",
+        agama: "Islam",
         keterangan: "Difabel rungu",
         kelengkapanArsipRT: ["KTP", "KK", "Akta Nikah", "Surat Keterangan Domisili"],
         statusWarga: "Tetap",
@@ -120,6 +123,7 @@ const DEMO_DATA: KKItem[] = [
         bantuan: ["bpnt"],
         status: "Hidup",
         statusKawin: "Kawin",
+        agama: "Islam",
         keterangan: "Hamil 7 bulan",
         kelengkapanArsipRT: ["KTP", "KK", "Akta Nikah"],
         statusWarga: "Tetap",
@@ -139,6 +143,7 @@ const DEMO_DATA: KKItem[] = [
         bantuan: ["pip"],
         status: "Hidup",
         statusKawin: "Belum Kawin",
+        agama: "Islam",
         keterangan: "",
         kelengkapanArsipRT: ["KTP", "KK", "Akta Lahir"],
         statusWarga: "Tetap",
@@ -158,6 +163,7 @@ const DEMO_DATA: KKItem[] = [
         bantuan: [],
         status: "Meninggal",
         statusKawin: "Cerai Mati",
+        agama: "Kristen",
         keterangan: "Meninggal 2023",
         kelengkapanArsipRT: ["KTP", "KK", "Surat Kematian"],
         statusWarga: "Tetap",
@@ -188,6 +194,7 @@ const DEMO_DATA: KKItem[] = [
         bantuan: ["bst"],
         status: "Hidup",
         statusKawin: "Belum Kawin",
+        agama: "Hindu",
         keterangan: "Warga kontrakan",
         kelengkapanArsipRT: ["KTP"],
         statusWarga: "Tidak Tetap",
@@ -207,13 +214,14 @@ const DataKK: React.FC = () => {
   const [showSidebar, setShowSidebar] = useState(false);
   const [ktpFile, setKtpFile] = useState<File | null>(null);
   const [ktpFileUrl, setKtpFileUrl] = useState<string | null>(null);
-
+  const [showKKZoom, setShowKKZoom] = useState(false);
   const [showModalKK, setShowModalKK] = useState(false);
   const [editKK, setEditKK] = useState<KKItem | null>(null);
   const [showModalAnggota, setShowModalAnggota] = useState(false);
   const [editAnggota, setEditAnggota] = useState<Anggota | null>(null);
   const [showModalBantuan, setShowModalBantuan] = useState(false);
   const [selectedAnggota, setSelectedAnggota] = useState<Anggota | null>(null);
+  const [filterNoKK, setFilterNoKK] = useState<string>("all");
 
   const [formKK, setFormKK] = useState({
     noKK: "",
@@ -236,6 +244,7 @@ const DataKK: React.FC = () => {
     bantuan: [],
     status: "Hidup",
     statusKawin: "Belum Kawin",
+    agama: "Islam",
     keterangan: "",
     kelengkapanArsipRT: [],
     statusWarga: "Tetap",
@@ -259,15 +268,25 @@ const DataKK: React.FC = () => {
   }, [kkList]);
 
   const filteredData = useMemo(() => {
-    return kkList.filter(
-      (item) =>
-        item.noKK.toLowerCase().includes(search.toLowerCase()) ||
-        item.kepalaKeluarga.toLowerCase().includes(search.toLowerCase()) ||
-        item.alamat.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [kkList, search]);
+    let data = kkList;
 
- const hitungUsia = (tanggalLahir: string): number => {
+    if (filterNoKK !== "all") {
+      data = data.filter(k => k.noKK === filterNoKK);
+    }
+
+    if (search) {
+      data = data.filter(
+        (item) =>
+          item.noKK.toLowerCase().includes(search.toLowerCase()) ||
+          item.kepalaKeluarga.toLowerCase().includes(search.toLowerCase()) ||
+          item.alamat.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    return data;
+  }, [kkList, search, filterNoKK]);
+
+  const hitungUsia = (tanggalLahir: string): number => {
     if (!tanggalLahir) return 0;
     const birth = new Date(tanggalLahir);
     const today = new Date();
@@ -276,7 +295,7 @@ const DataKK: React.FC = () => {
     const m = today.getMonth() - birth.getMonth();
     if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
     return age < 0 ? 0 : age;
-  };  
+  };
 
   const kelompokUsia = (usia: number) => {
     if (usia < 5) return { nama: "Balita", icon: <MdChildCare className="h-4 w-4" />, color: "text-pink-600" };
@@ -310,7 +329,7 @@ const DataKK: React.FC = () => {
       alamat: formKK.alamat.trim(),
       rt: formKK.rt,
       rw: formKK.rw,
-      anggota: editKK?.anggota || [], // Pastikan selalu array
+      anggota: editKK?.anggota || [],
       isSementara: formKK.isSementara,
       fileUrl: kkFileUrl || editKK?.fileUrl,
       fileName: kkFile?.name || editKK?.fileName,
@@ -319,6 +338,7 @@ const DataKK: React.FC = () => {
 
     if (editKK) {
       setKKList(prev => prev.map(i => (i.id === editKK.id ? newKK : i)));
+      setSelectedKK(newKK);
     } else {
       setKKList(prev => [...prev, newKK]);
     }
@@ -345,7 +365,6 @@ const DataKK: React.FC = () => {
   };
 
   const openDetail = (kk: KKItem) => {
-    // Pastikan anggota selalu array
     const safeKK = {
       ...kk,
       anggota: Array.isArray(kk.anggota) ? kk.anggota : []
@@ -374,6 +393,7 @@ const DataKK: React.FC = () => {
       bantuan: [],
       status: "Hidup",
       statusKawin: "Belum Kawin",
+      agama: "Islam",
       keterangan: "",
       kelengkapanArsipRT: [],
       statusWarga: "Tetap",
@@ -414,6 +434,7 @@ const DataKK: React.FC = () => {
       ktpName: ktpFile?.name || editAnggota?.ktpName,
       ktpType: ktpFile?.type || editAnggota?.ktpType,
       statusKawin: formAnggota.statusKawin!,
+      agama: formAnggota.agama!,
       keterangan: formAnggota.keterangan || "",
       kelengkapanArsipRT: formAnggota.kelengkapanArsipRT || [],
       statusWarga: formAnggota.statusWarga!,
@@ -486,6 +507,22 @@ const DataKK: React.FC = () => {
     reader.readAsDataURL(file);
   };
 
+  const handleSaveAll = () => {
+    alert("Semua perubahan berhasil disimpan ke localStorage!");
+  };
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowKKZoom(false);
+      }
+    };
+    if (showKKZoom) {
+      window.addEventListener("keydown", handleEsc);
+      return () => window.removeEventListener("keydown", handleEsc);
+    }
+  }, [showKKZoom]);
+
   return (
     <div className="relative min-h-screen">
       {/* Widget */}
@@ -496,16 +533,30 @@ const DataKK: React.FC = () => {
         <Widget icon={<MdPerson className="h-7 w-7" />} title="Total Anggota" subtitle={kkList.reduce((a, b) => a + b.anggota.length, 0).toString()} />
       </div>
 
-      {/* Header */}
-      <div className="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-brand-500/20 text-brand-500">
-            <MdFamilyRestroom className="h-6 w-6" />
-          </div>
-          <h3 className="text-xl font-bold text-navy-700 dark:text-white">Data Kartu Keluarga (KK)</h3>
+      {/* Header + Filter + Simpan */}
+      <div className="mt-8 bg-white p-4 rounded-3xl shadow flex flex-col md:flex-row md:items-end gap-4">
+        <div className="flex-1">
+          <label className="block font-medium mb-2 text-gray-700">Filter berdasarkan No. KK</label>
+          <select
+            value={filterNoKK}
+            onChange={(e) => setFilterNoKK(e.target.value)}
+            className="w-full p-3 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="all">Semua KK</option>
+            {kkList.map((kk) => (
+              <option key={kk.noKK} value={kk.noKK}>
+                {kk.noKK} ({kk.alamat.split(",")[0]})
+              </option>
+            ))}
+          </select>
         </div>
-        <button onClick={() => setShowModalKK(true)} className="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-white hover:bg-brand-600">
-          <MdAdd className="h-5 w-5" /> Tambah KK
+
+        {/* Tombol Simpan */}
+        <button
+          onClick={handleSaveAll}
+          className="px-6 py-3 bg-green-600 text-white rounded-lg flex items-center gap-2 text-base font-medium shadow hover:bg-green-700 transition whitespace-nowrap"
+        >
+          <MdSave /> Simpan Perubahan
         </button>
       </div>
 
@@ -622,17 +673,88 @@ const DataKK: React.FC = () => {
         {selectedKK && (
           <div className="h-full overflow-y-auto p-6">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-navy-700 dark:text-white">Detail KK - {selectedKK.noKK}</h3>
+              <h3 className="text-xl font-bold text-navy-700 dark:text-white">DETAIL KK - {selectedKK.noKK}</h3>
               <button onClick={closeSidebar} className="text-gray-500 hover:text-gray-700"><MdClose className="h-6 w-6" /></button>
             </div>
 
-            <button onClick={openTambahAnggota} className="w-full mb-6 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 py-3 text-white font-medium shadow-md hover:shadow-lg">
-              <MdAdd /> Tambah Anggota
-            </button>
+            {/* === PREVIEW FILE KK === */}
+            {selectedKK.fileUrl ? (
+              <div className="mb-5">
+                <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 flex items-center gap-1">
+                  <MdDescription className="h-4 w-4" /> Dokumen KK
+                </p>
+                <div 
+                  onClick={() => setShowKKZoom(true)}
+                  className="group cursor-zoom-in rounded-xl border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 p-3 hover:shadow-md transition-all duration-200"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-navy-800 border border-dashed border-gray-300 dark:border-navy-600 flex-shrink-0">
+                      {selectedKK.fileType?.startsWith("image/") ? (
+                        <img src={selectedKK.fileUrl} alt="KK" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-gray-400">
+                          <MdDescription className="h-8 w-8" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-navy-700 dark:text-white truncate">
+                        {selectedKK.fileName || "Dokumen KK"}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {selectedKK.fileType?.includes("pdf") ? "PDF" : "Gambar"}
+                      </p>
+                    </div>
+                    <MdZoomIn className="h-4 w-4 text-gray-400 group-hover:text-brand-500 transition-colors" />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="mb-5 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+                <p className="text-xs text-amber-800 dark:text-amber-300 flex items-center gap-1">
+                  <MdWarning className="h-4 w-4" />
+                  Belum ada dokumen KK.
+                </p>
+              </div>
+            )}
 
-            {/* Daftar Anggota - DENGAN GUARD */}
+            {/* === TOMBOL AKSI KK & TAMBAH ANGGOTA === */}
+            <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-3 mb-6">
+              <button
+                onClick={() => {
+                  setEditKK(selectedKK);
+                  setFormKK({
+                    noKK: selectedKK.noKK,
+                    kepalaKeluarga: selectedKK.kepalaKeluarga,
+                    alamat: selectedKK.alamat,
+                    rt: selectedKK.rt,
+                    rw: selectedKK.rw,
+                    isSementara: selectedKK.isSementara || false,
+                  });
+                  setKKFileUrl(selectedKK.fileUrl || null);
+                  setShowModalKK(true);
+                }}
+                className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-brand-500 text-brand-500 py-2.5 text-xs font-medium hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors"
+              >
+                <MdEdit className="h-3.5 w-3.5" /> Edit KK
+              </button>
+              <button
+                onClick={() => handleDeleteKK(selectedKK.id)}
+                className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-red-500 text-red-500 py-2.5 text-xs font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+              >
+                <MdDelete className="h-3.5 w-3.5" /> Hapus
+              </button>
+              <button
+                onClick={openTambahAnggota}
+                className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-brand-500 text-white py-2.5 text-sm font-medium hover:bg-brand-600 transition-colors shadow-sm"
+              >
+                <MdAdd className="h-4 w-4" /> Tambah Anggota
+              </button>
+            </div>
+
+            {/* Daftar Anggota */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {(!selectedKK.anggota || !Array.isArray(selectedKK.anggota) || selectedKK.anggota.length === 0) ? (
+              {(!selectedKK.anggota || selectedKK.anggota.length === 0) ? (
                 <div className="col-span-full text-center py-8 text-gray-500">
                   <MdPerson className="mx-auto h-12 w-12 mb-2 text-gray-300" />
                   <p>Belum ada anggota keluarga.</p>
@@ -645,7 +767,7 @@ const DataKK: React.FC = () => {
                   const usia = hitungUsia(a.tanggalLahir || "");
                   const { nama: kelUsia, icon: iconUsia, color: colorUsia } = kelompokUsia(usia);
                   return (
-                    <div key={a.id} className={`rounded-xl border p-4 ${a.status === "Meninggal" ? "border-red-300 bg-red-50 dark:bg-red-900/20" : "border-gray-200 dark:border-navy-600"}`}>
+                    <div key={a.id} className={`rounded-xl border p-4 ${a.status === "Meninggal" ? "border-red-300 bg-red-100 dark:bg-red-900/20" : "border-gray-200 dark:border-navy-600"}`}>
                       {/* KTP Preview */}
                       {a.ktpUrl ? (
                         <div className="mt-3 p-3 bg-gray-50 dark:bg-navy-700 mb-4 rounded-lg">
@@ -656,7 +778,7 @@ const DataKK: React.FC = () => {
                             ) : (
                               <div className="flex h-full items-center justify-center p-4">
                                 <a href={a.ktpUrl} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 text-blue-600 hover:text-blue-700 dark:text-blue-400">
-                                  <MdDescription className="h-10  w-10" />
+                                  <MdDescription className="h-10 w-10" />
                                   <span className="text-xs max-w-[120px] truncate text-center">{a.ktpName}</span>
                                 </a>
                               </div>
@@ -688,26 +810,33 @@ const DataKK: React.FC = () => {
                         </div>
                       </div>
 
-                      <p className="text-sm text-gray-600 dark:text-gray-300">NIK: {a.nik}</p>
+                      <p className={`text-sm ${a.status === "Meninggal" ? 'text-red-800' : 'text-gray-600'} dark:text-gray-300`}>NIK: {a.nik}</p>
                       <p className="text-sm">TTL: {a.tempatLahir}, {a.tanggalLahir}</p>
                       <p className="text-sm">Usia: {usia} th</p>
 
                       {a.status === "Meninggal" && <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900 dark:text-red-300"><MdWarning /> Meninggal</span>}
                       {a.status === "Pindah" && <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">Pindah</span>}
 
-                      <div className="border-t border-black/30 my-3"></div>
+                      <div className={`border-t ${a.status === "Meninggal" ? 'border-red-300' : 'border-black/50'} my-3`}></div>
 
-                      <p className="text-sm flex items-center gap-1"><span className={colorUsia}>{iconUsia}</span> {kelUsia}</p>
-                      <p className="text-xs text-gray-500">Kawin: {a.statusKawin}</p>
-                      {a.keterangan && <p className="text-xs text-orange-600 italic">Catatan: {a.keterangan}</p>}
-                      {a.statusWarga === "Tidak Tetap" && <p className="text-xs text-purple-600">Warga Tidak Tetap</p>}
-                      {(a.yatim || a.piatu) && (
-                        <p className="text-xs text-purple-700 font-medium">
-                          {a.yatim && "Yatim"} {a.yatim && a.piatu && "/"} {a.piatu && "Piatu"}
-                        </p>
-                      )}
+                      <div className="flex w-full justify-between items-center">
+                        <p className="text-sm flex items-center gap-1"><span className={colorUsia}>{iconUsia}</span> {kelUsia}</p>
+                      </div>
+                      <div className={`flex w-full border-y ${a.status === "Meninggal" ? 'border-red-300' : 'border-black/50'} py-2 mt-2 justify-between items-center`}>
+                        <p className={`text-xs ${a.status === "Meninggal" ? 'text-red-800' : 'text-gray-500'}`}>Agama: {a.agama || 'Belum ada'}</p>
+                        <p className={`text-xs ${a.status === "Meninggal" ? 'text-red-800' : 'text-gray-500'}`}>Status Kawin: {a.statusKawin}</p>
+                      </div>
+                      {/* {a.keterangan && <p className="text-xs text-orange-600 italic">Catatan: {a.keterangan}</p>} */}
+                      <div className="w-full flex justify-between items-center">
+                        {a.statusWarga === "Tidak Tetap" ? <p className="text-xs text-purple-600 mt-2">Warga Tidak Tetap</p> : a.statusWarga === "Tetap" ? <p className="text-xs text-purple-600 mt-2">Warga Tetap</p> : <p></p>}
+                        {(a.yatim || a.piatu) && (
+                          <p className="text-xs text-purple-700 font-medium">
+                            {a.yatim && "Yatim"} {a.yatim && a.piatu && "/"} {a.piatu && "Piatu"}
+                          </p>
+                        )}
+                      </div>
 
-                      <div className="mt-2 text-xs text-gray-500">
+                      <div className={`mt-2 border-b border-black/50 pb-2 text-xs ${a.status === "Meninggal" ? 'text-red-800' : 'text-gray-500'}`}>
                         Arsip RT: {(a.kelengkapanArsipRT || []).length} dokumen
                         {(a.kelengkapanArsipRT || []).length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-1">
@@ -738,67 +867,6 @@ const DataKK: React.FC = () => {
 
       {showSidebar && <div onClick={closeSidebar} className="fixed inset-0 bg-black/30 z-40 transition-opacity" />}
 
-      {/* === MODAL TAMBAH/EDIT KK === */}
-      {showModalKK && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={resetFormKK} />
-          <div className="relative z-10 w-full max-w-2xl mx-4">
-            <Card extra="p-6 rounded-2xl shadow-2xl bg-white dark:bg-navy-800">
-              <h3 className="mb-5 text-xl font-bold text-navy-700 dark:text-white">{editKK ? "Edit" : "Tambah"} Kartu Keluarga</h3>
-              <div className="space-y-4">
-                <div className="gap-3 md:grid grid-cols-2">
-                  <input placeholder="No KK" value={formKK.noKK} onChange={e => setFormKK({ ...formKK, noKK: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
-                  <input placeholder="Kepala Keluarga" value={formKK.kepalaKeluarga} onChange={e => setFormKK({ ...formKK, kepalaKeluarga: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
-                </div>
-                <input placeholder="Alamat" value={formKK.alamat} onChange={e => setFormKK({ ...formKK, alamat: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
-                <div className="grid grid-cols-2 gap-3">
-                  <input placeholder="RT" value={formKK.rt} onChange={e => setFormKK({ ...formKK, rt: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
-                  <input placeholder="RW" value={formKK.rw} onChange={e => setFormKK({ ...formKK, rw: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
-                </div>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formKK.isSementara} onChange={e => setFormKK({ ...formKK, isSementara: e.target.checked })} className="h-5 w-5 rounded border-gray-300 text-brand-500" />
-                  <span className="text-sm font-medium">KK Sementara</span>
-                </label>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload Foto / Scan KK (PDF, JPG, PNG)</label>
-                  <div
-                    className="border-2 border-dashed border-gray-300 dark:border-navy-600 rounded-xl p-6 text-center cursor-pointer hover:border-brand-500 transition-colors"
-                    onDragOver={e => e.preventDefault()}
-                    onDrop={e => { e.preventDefault(); const file = e.dataTransfer.files[0]; if (file) handleFileChange(file); }}
-                    onClick={() => document.getElementById("fileInput")?.click()}
-                  >
-                    {kkFileUrl ? (
-                      <div className="space-y-3">
-                        {kkFile?.type.startsWith("image/") ? (
-                          <img src={kkFileUrl} alt="Preview KK" className="mx-auto max-h-48 rounded-lg shadow-md" />
-                        ) : (
-                          <div className="flex items-center justify-center gap-2 text-blue-600">
-                            <MdDescription className="h-12 w-12" />
-                            <span className="text-sm">{kkFile?.name}</span>
-                          </div>
-                        )}
-                        <button onClick={e => { e.stopPropagation(); setKKFile(null); setKKFileUrl(null); }} className="text-red-600 text-sm hover:underline">Hapus File</button>
-                      </div>
-                    ) : (
-                      <div className="text-gray-500">
-                        <MdUpload className="mx-auto h-12 w-12 mb-2" />
-                        <p className="text-sm">Klik atau drag file ke sini</p>
-                        <p className="text-xs mt-1">Max 5MB</p>
-                      </div>
-                    )}
-                    <input id="fileInput" type="file" accept="image/*,.pdf" className="hidden" onChange={e => { const file = e.target.files?.[0]; if (file) handleFileChange(file); }} />
-                  </div>
-                </div>
-              </div>
-              <div className="mt-6 flex justify-end gap-3">
-                <button onClick={resetFormKK} className="rounded-xl border border-gray-300 px-5 py-2.5 text-gray-700 hover:bg-gray-50 dark:border-navy-600 dark:text-white font-medium transition-colors">Batal</button>
-                <button onClick={handleSubmitKK} className="rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 px-5 py-2.5 text-white font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all">Simpan</button>
-              </div>
-            </Card>
-          </div>
-        </div>
-      )}
-
       {/* === MODAL TAMBAH/EDIT ANGGOTA === */}
       {showModalAnggota && selectedKK && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -808,16 +876,22 @@ const DataKK: React.FC = () => {
               <h3 className="mb-5 text-xl font-bold text-navy-700 dark:text-white">{editAnggota ? "Edit" : "Tambah"} Anggota</h3>
 
               <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  {/* Kolom Kiri */}
-                  <div className="gap-4 grid grid-cols-2">
+                {/* KOLOM KIRI: Data Inti */}
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
                     <input placeholder="NIK" value={formAnggota.nik || ""} onChange={e => setFormAnggota({ ...formAnggota, nik: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
                     <input placeholder="Nama Lengkap" value={formAnggota.nama || ""} onChange={e => setFormAnggota({ ...formAnggota, nama: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
                     <select value={formAnggota.jenisKelamin} onChange={e => setFormAnggota({ ...formAnggota, jenisKelamin: e.target.value as "L" | "P" })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white">
                       <option value="L">Laki-laki</option>
                       <option value="P">Perempuan</option>
                     </select>
                     <input placeholder="Tempat Lahir" value={formAnggota.tempatLahir || ""} onChange={e => setFormAnggota({ ...formAnggota, tempatLahir: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
                     <input type="date" value={formAnggota.tanggalLahir || ""} onChange={e => setFormAnggota({ ...formAnggota, tanggalLahir: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
                     <select value={formAnggota.statusKeluarga} onChange={e => setFormAnggota({ ...formAnggota, statusKeluarga: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white">
                       <option>Kepala Keluarga</option>
@@ -825,28 +899,33 @@ const DataKK: React.FC = () => {
                       <option>Anak</option>
                       <option>Orang Tua</option>
                     </select>
-                    <input placeholder="Pendidikan" value={formAnggota.pendidikan || ""} onChange={e => setFormAnggota({ ...formAnggota, pendidikan: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
-                    <input placeholder="Pekerjaan" value={formAnggota.pekerjaan || ""} onChange={e => setFormAnggota({ ...formAnggota, pekerjaan: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
-                    <select value={formAnggota.status} onChange={e => setFormAnggota({ ...formAnggota, status: e.target.value as StatusAnggota })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white">
-                      <option value="Hidup">Hidup</option>
-                      <option value="Meninggal">Meninggal</option>
-                      <option value="Pindah">Pindah</option>
-                    </select>
-                    <select value={formAnggota.statusKawin} onChange={e => setFormAnggota({ ...formAnggota, statusKawin: e.target.value as any })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white">
-                      <option value="Belum Kawin">Belum Kawin</option>
-                      <option value="Kawin">Kawin</option>
-                      <option value="Cerai Hidup">Cerai Hidup</option>
-                      <option value="Cerai Mati">Cerai Mati</option>
-                    </select>
-                    <input placeholder="Keterangan (opsional)" value={formAnggota.keterangan || ""} onChange={e => setFormAnggota({ ...formAnggota, keterangan: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
-                    <select value={formAnggota.statusWarga} onChange={e => setFormAnggota({ ...formAnggota, statusWarga: e.target.value as "Tetap" | "Tidak Tetap" })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white">
-                      <option value="Tetap">Warga Tetap</option>
-                      <option value="Tidak Tetap">Warga Tidak Tetap</option>
-                    </select>
+                  </div>
+
+                  <select value={formAnggota.status} onChange={e => setFormAnggota({ ...formAnggota, status: e.target.value as StatusAnggota })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white">
+                    <option value="Hidup">Hidup</option>
+                    <option value="Meninggal">Meninggal</option>
+                    <option value="Pindah">Pindah</option>
+                  </select>
+
+                  <select value={formAnggota.statusWarga} onChange={e => setFormAnggota({ ...formAnggota, statusWarga: e.target.value as "Tetap" | "Tidak Tetap" })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white">
+                    <option value="Tetap">Warga Tetap</option>
+                    <option value="Tidak Tetap">Warga Tidak Tetap</option>
+                  </select>
+
+                  {/* Yatim & Piatu */}
+                  <div className="flex gap-6 border border-gray-300 rounded-xl py-[12px] px-5">
+                    <label className="flex items-center gap-2">
+                      <input type="checkbox" checked={formAnggota.yatim || false} onChange={e => setFormAnggota({ ...formAnggota, yatim: e.target.checked })} className="h-4 w-4 rounded border-gray-300 text-brand-500" />
+                      <span className="text-sm">Yatim</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input type="checkbox" checked={formAnggota.piatu || false} onChange={e => setFormAnggota({ ...formAnggota, piatu: e.target.checked })} className="h-4 w-4 rounded border-gray-300 text-brand-500" />
+                      <span className="text-sm">Piatu</span>
+                    </label>
                   </div>
                 </div>
 
-                {/* Upload KTP */}
+                {/* KOLOM KANAN: Upload KTP */}
                 <div className="space-y-4">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload KTP (Opsional - JPG, PNG, PDF)</label>
                   <div
@@ -877,51 +956,106 @@ const DataKK: React.FC = () => {
                     <input id="ktpInput" type="file" accept="image/*,.pdf" className="hidden" onChange={e => { const file = e.target.files?.[0]; if (file) handleKtpChange(file); }} />
                   </div>
 
-                  <div className="w-full">
-                    <div className="flex gap-4 mt-4">
-                      <label className="flex items-center gap-2">
-                        <input type="checkbox" checked={formAnggota.yatim || false} onChange={e => setFormAnggota({ ...formAnggota, yatim: e.target.checked })} className="h-4 w-4 rounded border-gray-300 text-brand-500" />
-                        <span className="text-sm">Yatim</span>
-                      </label>
-                      <label className="flex items-center gap-2">
-                        <input type="checkbox" checked={formAnggota.piatu || false} onChange={e => setFormAnggota({ ...formAnggota, piatu: e.target.checked })} className="h-4 w-4 rounded border-gray-300 text-brand-500" />
-                        <span className="text-sm">Piatu</span>
-                      </label>
-                    </div>
+                  <div className="bg-amber-50 dark:bg-amber-900/30 p-4 rounded-lg text-sm text-amber-800 dark:text-amber-300">
+                    <strong>Catatan:</strong> Status Kawin, Pendidikan, Pekerjaan, Keterangan, dan Arsip RT diedit di halaman <strong>Detail Anggota</strong>.
                   </div>
-                  
-                    {/* Kelengkapan Arsip RT */}
-                    <div className="w-full mt-4">
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Kelengkapan Arsip RT</p>
-                      <div className="w-full flex flex-wrap gap-x-2 gap-y-4">
-                        {ARSIP_RT.map(doc => (
-                          <label key={doc} className="flex items-center gap-2 text-sm border border-black/30 rounded-md p-2">
-                            <input
-                              type="checkbox"
-                              checked={formAnggota.kelengkapanArsipRT?.includes(doc) || false}
-                              onChange={e => {
-                                const checked = e.target.checked;
-                                setFormAnggota(prev => ({
-                                  ...prev,
-                                  kelengkapanArsipRT: checked
-                                    ? [...(prev.kelengkapanArsipRT || []), doc]
-                                    : (prev.kelengkapanArsipRT || []).filter(x => x !== doc),
-                                }));
-                              }}
-                              className="h-4 w-4 rounded border-gray-300 text-brand-500"
-                            />
-                            <span>{doc}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
                 </div>
               </div>
-              <div className="w-full border-t border-black/40 pt-5 mt-6 grid grid-cols-2 gap-3">
-                <button onClick={() => setShowModalAnggota(false)} className="rounded-xl border border-gray-300 px-5 py-2.5 text-gray-700 hover:bg-gray-50 dark:border-navy-600 dark:text-white">Batal</button>
-                <button type="submit" onClick={handleSubmitAnggota} className="rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 px-5 py-2.5 text-white font-medium shadow-md hover:shadow-lg">Simpan</button>
+
+              <div className="mt-6 border-t border-black/50 pt-6 grid grid-cols-2 gap-3 w-full">
+                <button onClick={() => { setShowModalAnggota(false); setEditAnggota(null); setKtpFile(null); setKtpFileUrl(null); }} className="rounded-xl border border-gray-300 px-5 py-2.5 text-gray-700 hover:bg-gray-50 dark:border-navy-600 dark:text-white font-medium">Batal</button>
+                <button onClick={handleSubmitAnggota} className="rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 px-5 py-2.5 text-white font-medium shadow-md hover:shadow-lg">Simpan</button>
               </div>
             </Card>
+          </div>
+        </div>
+      )}
+
+      {/* === MODAL TAMBAH/EDIT KK === */}
+      {showModalKK && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={resetFormKK} />
+          <div className="relative z-10 w-full max-w-[70vw] mx-4">
+            <Card extra="p-6 rounded-2xl shadow-2xl bg-white dark:bg-navy-800">
+              <div className="w-full border-b border-black/40 mb-6">
+                <h3 className="mb-5 text-xl font-bold text-navy-700 dark:text-white">{editKK ? "Edit" : "Tambah"} Kartu Keluarga</h3>
+              </div>
+              <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
+                <div className="gap-4 grid grid-cols-1">
+                  <div className="gap-3 md:grid grid-cols-2">
+                    <input placeholder="No KK" value={formKK.noKK} onChange={e => setFormKK({ ...formKK, noKK: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
+                    <input placeholder="Kepala Keluarga" value={formKK.kepalaKeluarga} onChange={e => setFormKK({ ...formKK, kepalaKeluarga: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
+                  </div>
+                  <input placeholder="Alamat" value={formKK.alamat} onChange={e => setFormKK({ ...formKK, alamat: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
+                  <div className="md:grid grid-cols-2 gap-3">
+                    <input placeholder="RT" value={formKK.rt} onChange={e => setFormKK({ ...formKK, rt: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
+                    <input placeholder="RW" value={formKK.rw} onChange={e => setFormKK({ ...formKK, rw: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
+                  </div>
+                  <label className="flex items-center gap-2 border border-gray-300 rounded-lg px-4">
+                    <input type="checkbox" checked={formKK.isSementara} onChange={e => setFormKK({ ...formKK, isSementara: e.target.checked })} className="h-5 w-5 rounded border-gray-300 text-brand-500" />
+                    <span className="text-sm font-medium">KK Sementara</span>
+                  </label>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload Foto / Scan KK (PDF, JPG, PNG)</label>
+                  <div
+                    className="border-2 border-dashed border-gray-300 dark:border-navy-600 rounded-xl p-6 text-center cursor-pointer hover:border-brand-500 transition-colors"
+                    onDragOver={e => e.preventDefault()}
+                    onDrop={e => { e.preventDefault(); const file = e.dataTransfer.files[0]; if (file) handleFileChange(file); }}
+                    onClick={() => document.getElementById("fileInput")?.click()}
+                  >
+                    {kkFileUrl || editKK?.fileUrl ? (
+                      <div className="space-y-3">
+                        {(kkFile?.type.startsWith("image/") || editKK?.fileType?.startsWith("image/")) ? (
+                          <img src={kkFileUrl || editKK?.fileUrl} alt="Preview KK" className="mx-auto max-h-48 rounded-lg shadow-md" />
+                        ) : (
+                          <div className="flex items-center justify-center gap-2 text-blue-600">
+                            <MdDescription className="h-12 w-12" />
+                            <span className="text-sm">{kkFile?.name || editKK?.fileName}</span>
+                          </div>
+                        )}
+                        <button onClick={e => { e.stopPropagation(); setKKFile(null); setKKFileUrl(null); }} className="text-red-600 text-sm hover:underline">Hapus File</button>
+                      </div>
+                    ) : (
+                      <div className="text-gray-500">
+                        <MdUpload className="mx-auto h-12 w-12 mb-2" />
+                        <p className="text-sm">Klik atau drag file ke sini</p>
+                        <p className="text-xs mt-1">Max 5MB</p>
+                      </div>
+                    )}
+                    <input id="fileInput" type="file" accept="image/*,.pdf" className="hidden" onChange={e => { const file = e.target.files?.[0]; if (file) handleFileChange(file); }} />
+                  </div>
+                </div>
+              </div>
+              <div className="border-t border-black/40 pt-6 mt-6 grid grid-cols-2 justify-between gap-3">
+                <button onClick={resetFormKK} className="rounded-xl border border-gray-300 px-5 py-2.5 text-gray-700 hover:bg-gray-50 dark:border-navy-600 dark:text-white font-medium transition-colors">Batal</button>
+                <button onClick={handleSubmitKK} className="rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 px-5 py-2.5 text-white font-medium shadow-md hover:shadow-lg transform hover:brightness-90 transition-all">Simpan</button>
+              </div>
+            </Card>
+          </div>
+        </div>
+      )}
+
+      {/* === MODAL ZOOM DOKUMEN KK === */}
+      {showKKZoom && selectedKK?.fileUrl && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={() => setShowKKZoom(false)}>
+          <div className="relative w-full max-w-5xl max-h-full bg-white dark:bg-navy-800 rounded-2xl shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-gradient-to-b from-black/50 to-transparent">
+              <p className="text-sm font-medium text-white truncate max-w-md">{selectedKK.fileName}</p>
+              <button onClick={() => setShowKKZoom(false)} className="p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors">
+                <MdClose className="h-5 w-5 text-white" />
+              </button>
+            </div>
+            <div className="h-full max-h-[90vh] overflow-auto">
+              {selectedKK.fileType?.startsWith("image/") ? (
+                <img src={selectedKK.fileUrl} alt="KK Zoom" className="w-full h-auto max-h-[90vh] object-contain" />
+              ) : (
+                <iframe src={selectedKK.fileUrl} className="w-full h-[90vh] border-0" title="KK PDF" />
+              )}
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/50 to-transparent text-right">
+              <p className="text-xs text-white/80">Klik di luar atau tekan <kbd className="px-1.5 py-0.5 rounded bg-white/20 text-xs">ESC</kbd> untuk keluar</p>
+            </div>
           </div>
         </div>
       )}
@@ -953,16 +1087,10 @@ const DataKK: React.FC = () => {
               ))}
             </div>
             <div className="flex gap-3 justify-end border-t border-gray-200 dark:border-navy-600 pt-4">
-              <button 
-                onClick={() => setShowModalBantuan(false)} 
-                className="rounded-xl border border-gray-300 px-5 py-2.5 text-gray-700 hover:bg-gray-50 dark:border-navy-600 dark:text-white font-medium"
-              >
+              <button onClick={() => setShowModalBantuan(false)} className="rounded-xl border border-gray-300 px-5 py-2.5 text-gray-700 hover:bg-gray-50 dark:border-navy-600 dark:text-white font-medium">
                 Batal
               </button>
-              <button 
-                onClick={saveBantuan} 
-                className="rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 px-5 py-2.5 text-white font-medium shadow-md hover:shadow-lg"
-              >
+              <button onClick={saveBantuan} className="rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 px-5 py-2.5 text-white font-medium shadow-md hover:shadow-lg">
                 Simpan
               </button>
             </div>

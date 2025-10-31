@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react";
-import Widget from "components/widget/Widget";
 import Card from "components/card";
-import { MdGroup, MdAdd, MdEdit, MdDelete, MdSearch, MdPhone, MdUpload } from "react-icons/md";
+import Widget from "components/widget/Widget";
+import React, { useEffect, useMemo, useState } from "react";
+import { MdAdd, MdDelete, MdGroup, MdPhone, MdSearch, MdUpload } from "react-icons/md";
 
 type Pegawai = {
   nama: string;

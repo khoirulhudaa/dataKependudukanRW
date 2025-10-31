@@ -20,3 +20,14 @@ html, body {
 * {
   transition: margin 0.2s ease, padding 0.2s ease;
 }
+
+/* src/index.css atau src/App.css */
+.ck-editor-container .ck-editor__editable {
+  min-height: 400px !important; /* Sesuaikan tinggi sesuai kebutuhan */
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.ck-editor-container .ck-editor__editable:focus {
+  min-height: 400px !important;
+}

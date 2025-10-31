@@ -1,482 +1,499 @@
+import React, { useState, useEffect, useMemo } from "react";
+import Widget from "components/widget/Widget";
 import Card from "components/card";
-import { saveAs } from "file-saver";
-import html2pdf from "html2pdf.js";
-import React, { useRef, useState } from "react";
-import {
-    MdDescription,
-    MdDownload,
-    MdImage,
-    MdPictureAsPdf,
-    MdDescription as MdWord
-} from "react-icons/md";
+import { MdMail, MdAdd, MdEdit, MdDelete, MdSearch, MdCheck, MdClose, MdHourglassEmpty } from "react-icons/md";
 
-// GUNAKAN require() → aman untuk CommonJS
-const docx = require("html-docx-js/dist/html-docx");
+// === TIPE DATA ===
+type StatusPengajuan = "Menunggu" | "Diproses" | "Disetujui" | "Ditolak";
 
-interface Template {
+type PengajuanSurat = {
   id: string;
-  title: string;
-  category: "rt-rw" | "kelurahan";
-  headerHtml: string;
-  bodyHtml: string;
-}
+  noPengajuan: string;
+  namaWarga: string;
+  nik: string;
+  jenisSurat: string;
+  keterangan: string;
+  tanggalPengajuan: string;
+  status: StatusPengajuan;
+  catatanAdmin?: string;
+};
 
-const templates: Template[] = [
-  {
-    id: "1",
-    title: "Surat Pengantar KTP",
-    category: "rt-rw",
-    headerHtml: `
-      <div style="font-family: 'Times New Roman', serif; text-align: center; margin-bottom: 30px;">
-        <h2 style="margin: 0; font-size: 16pt; font-weight: bold;">RT 01 / RW 001</h2>
-        <p style="margin: 5px 0; font-size: 12pt;">Kelurahan Cihapit, Kecamatan Bandung Wetan</p>
-        <p style="margin: 5px 0; font-size: 12pt;">Jl. Cihapit No. 10, Kota Bandung</p>
-      </div>
-      <hr style="border: 2px solid #000; margin: 20px 0;">
-    `,
-    bodyHtml: `
-      <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.8; padding: 0 40px;">
-        <p style="text-align: right; margin-bottom: 20px;">
-          <strong>Nomor:</strong> 001/RT.01/RW.001/2025<br>
-          <strong>Lampiran:</strong> -<br>
-          <strong>Perihal:</strong> Pengantar Pembuatan KTP
-        </p>
-
-        <p style="text-indent: 40px; text-align: justify;">
-          Yang bertanda tangan di bawah ini:
-        </p>
-
-        <table style="margin-left: 50px; margin-bottom: 20px; font-size: 12pt;">
-          <tr><td width="150">Nama</td><td width="10">:</td><td>Ahmad Fauzi</td></tr>
-          <tr><td>Jabatan</td><td>:</td><td>Ketua RT 01 / RW 001</td></tr>
-          <tr><td>Alamat</td><td>:</td><td>Kel. Cihapit, Kec. Bandung Wetan</td></tr>
-        </table>
-
-        <p style="text-indent: 40px; text-align: justify;">
-          Dengan ini menerangkan bahwa:
-        </p>
-
-        <table style="margin-left: 50px; margin-bottom: 20px; font-size: 12pt;">
-          <tr><td width="150">Nama</td><td width="10">:</td><td><strong>[NAMA WARGA]</strong></td></tr>
-          <tr><td>NIK</td><td>:</td><td><strong>[NIK]</strong></td></tr>
-          <tr><td>Alamat</td><td>:</td><td><strong>[ALAMAT LENGKAP]</strong></td></tr>
-        </table>
-
-        <p style="text-indent: 40px; text-align: justify;">
-          Adalah benar warga RT 01 / RW 001 Kelurahan Cihapit, Kecamatan Bandung Wetan, Kota Bandung.
-        </p>
-
-        <p style="text-indent: 40px; text-align: justify;">
-          Demikian surat pengantar ini dibuat untuk dipergunakan sebagaimana mestinya.
-        </p>
-
-        <div style="display: flex; justify-content: space-between; margin-top: 50px; font-size: 12pt;">
-          <div></div>
-          <div style="text-align: center;">
-            <p style="margin: 0;">Bandung, 30 Oktober 2025</p>
-            <p style="margin: 30px 0 50px;">Ketua RT 01 / RW 001,</p>
-            <p style="margin: 0; font-weight: bold;">Ahmad Fauzi</p>
-            <div style="margin-top: 5px; height: 1px; width: 200px; background: #000; margin: 0 auto;"></div>
-          </div>
-        </div>
-      </div>
-    `,
-  },
-  {
-    id: "2",
-    title: "Surat Keterangan Domisili",
-    category: "kelurahan",
-    headerHtml: `
-      <div style="font-family: 'Times New Roman', serif; text-align: center; margin-bottom: 30px;">
-        <h2 style="margin: 0; font-size: 16pt; font-weight: bold; text-transform: uppercase;">PEMERINTAH KOTA BANDUNG</h2>
-        <h3 style="margin: 5px 0; font-size: 14pt;">KECAMATAN BANDUNG WETAN</h3>
-        <h2 style="margin: 5px 0; font-size: 16pt; font-weight: bold;">KELURAHAN CIHAPIT</h2>
-        <p style="margin: 5px 0; font-size: 12pt;">Jl. Cihapit No. 10 Telp. (022) 123456</p>
-      </div>
-      <hr style="border: 3px double #000; margin: 20px 0;">
-    `,
-    bodyHtml: `
-      <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.8; padding: 0 50px;">
-        <h3 style="text-align: center; text-decoration: underline; margin: 30px 0 20px;">
-          SURAT KETERANGAN DOMISILI
-        </h3>
-        <p style="text-align: right; margin-bottom: 20px;">
-          <strong>Nomor:</strong> 470/SKD/XX/2025
-        </p>
-
-        <p style="text-indent: 40px; text-align: justify;">
-          Yang bertanda tangan di bawah ini Lurah Cihapit Kecamatan Bandung Wetan Kota Bandung, menerangkan dengan sebenarnya bahwa:
-        </p>
-
-        <ol style="margin-left: 30px; margin-bottom: 20px;">
-          <li>Nama Lengkap: <strong>[NAMA LENGKAP]</strong></li>
-          <li>Tempat, Tanggal Lahir: <strong>[TEMPAT, TANGGAL]</strong></li>
-          <li>Nomor Induk Kependudukan (NIK): <strong>[NIK]</strong></li>
-          <li>Alamat: <strong>[ALAMAT LENGKAP]</strong></li>
-        </ol>
-
-        <p style="text-indent: 40px; text-align: justify;">
-          Berdasarkan data kependudukan yang ada, benar bahwa nama tersebut di atas berdomisili di wilayah Kelurahan Cihapit.
-        </p>
-
-        <p style="text-indent: 40px; text-align: justify;">
-          Surat keterangan ini diberikan untuk keperluan <strong>[KEPERLUAN]</strong>.
-        </p>
-
-        <div style="display: flex; justify-content: space-between; margin-top: 60px;">
-          <div></div>
-          <div style="text-align: center;">
-            <p style="margin: 0;">Bandung, 30 Oktober 2025</p>
-            <p style="margin: 30px 0 50px;">Lurah Cihapit,</p>
-            <p style="margin: 0; font-weight: bold;">[NAMA LURAH]</p>
-            <div style="margin-top: 5px; height: 1px; width: 200px; background: #000; margin: 0 auto;"></div>
-          </div>
-        </div>
-      </div>
-    `,
-  },
-  {
-    id: "3",
-    title: "Surat Pengantar KK Baru",
-    category: "rt-rw",
-    headerHtml: `<div style="font-family: 'Times New Roman'; text-align: center; margin-bottom: 25px;"><h2>RT 01 / RW 001</h2></div><hr style="border: 2px solid #000;">`,
-    bodyHtml: `
-      <div style="font-family: 'Times New Roman'; font-size: 12pt; line-height: 1.8; padding: 0 40px;">
-        <h3 style="text-align: center; margin: 30px 0;">SURAT PENGANTAR PEMBUATAN KARTU KELUARGA BARU</h3>
-        <p style="text-indent: 40px;">
-          RT 01 / RW 001 Kelurahan Cihapit dengan ini mengajukan permohonan pembuatan Kartu Keluarga (KK) baru atas nama:
-        </p>
-        <ul style="margin-left: 50px; margin-bottom: 20px;">
-          <li>Nama Kepala Keluarga: <strong>[NAMA]</strong></li>
-          <li>Alamat: <strong>[ALAMAT]</strong></li>
-          <li>Jumlah Anggota Keluarga: <strong>[JUMLAH]</strong> orang</li>
-        </ul>
-        <p style="text-indent: 40px;">
-          Demikian surat pengantar ini dibuat untuk dapat dipergunakan sebagaimana mestinya.
-        </p>
-        <div style="display: flex; justify-content: flex-end; margin-top: 50px;">
-          <div style="text-align: center;">
-            <p>Ketua RT 01 / RW 001,</p>
-            <p style="margin: 50px 0;">(________________)</p>
-            <p><strong>Ahmad Fauzi</strong></p>
-          </div>
-        </div>
-      </div>
-    `,
-  },
+// Daftar jenis surat (bisa diambil dari localStorage atau API)
+const JENIS_SURAT_LIST = [
+  "Surat Keterangan Domisili",
+  "Surat Keterangan Usaha",
+  "Surat Keterangan Tidak Mampu (SKTM)",
+  "Surat Keterangan Kelahiran",
+  "Surat Keterangan Kematian",
+  "Surat Keterangan Ahli Waris",
+  "Surat Pengantar SKCK",
+  "Surat Pengantar Nikah",
+  "Surat Pengantar untuk instansi lain",
+  "Surat Pengantar Legalisasi",
+  "Surat Izin Rame-rame",
+  "Surat Permohonan",
 ];
 
-const PAPER_SIZES = {
-  a4: { name: "A4", width: 8.27, height: 11.69 },
-  letter: { name: "Letter", width: 8.5, height: 11 },
-  legal: { name: "Legal", width: 8.5, height: 14 },
-} as const;
+// === KOMPONEN UTAMA ===
+const PengajuanSuratPage: React.FC = () => {
+  const [pengajuanList, setPengajuanList] = useState<PengajuanSurat[]>([]);
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState<StatusPengajuan | "Semua">("Semua");
+  const [showModal, setShowModal] = useState(false);
+  const [editItem, setEditItem] = useState<PengajuanSurat | null>(null);
+  const [showDetail, setShowDetail] = useState<PengajuanSurat | null>(null);
 
-type PaperSizeKey = keyof typeof PAPER_SIZES;
+  const [form, setForm] = useState({
+    namaWarga: "",
+    nik: "",
+    jenisSurat: JENIS_SURAT_LIST[0],
+    keterangan: "",
+  });
 
-const TemplateSurat: React.FC = () => {
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
-  const [kopSurat, setKopSurat] = useState<string | null>(null);
-  const [paperSize, setPaperSize] = useState<PaperSizeKey>("a4");
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const previewRef = useRef<HTMLDivElement>(null);
-
-  const [isImageLoading, setIsImageLoading] = useState(false);
-
-  const handleKopUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-        setIsImageLoading(true);
-        const reader = new FileReader();
-        reader.onloadend = () => {
-        setKopSurat(reader.result as string);
-        setIsImageLoading(false);
-        };
-        reader.readAsDataURL(file);
+  // Load dari localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("pengajuanSuratList");
+    if (saved && JSON.parse(saved).length > 0) {
+      setPengajuanList(JSON.parse(saved));
     } else {
-        alert("Hanya gambar (PNG/JPG) yang diizinkan.");
+      // Dummy data
+      const dummy: PengajuanSurat[] = [
+        {
+          id: "1",
+          noPengajuan: "SURAT-2025-001",
+          namaWarga: "Budi Santoso",
+          nik: "3275012345678901",
+          jenisSurat: "Surat Keterangan Domisili",
+          keterangan: "Untuk pendaftaran sekolah anak",
+          tanggalPengajuan: "2025-10-30",
+          status: "Diproses",
+          catatanAdmin: "Dokumen lengkap, sedang diproses",
+        },
+        {
+          id: "2",
+          noPengajuan: "SURAT-2025-002",
+          namaWarga: "Siti Aminah",
+          nik: "3275019876543210",
+          jenisSurat: "Surat Pengantar SKCK",
+          keterangan: "Untuk melamar pekerjaan",
+          tanggalPengajuan: "2025-10-29",
+          status: "Menunggu",
+        },
+      ];
+      setPengajuanList(dummy);
     }
-    };
+  }, []);
 
-  const getFullHtml = () => {
-    if (!selectedTemplate) return "";
+  // Save ke localStorage
+  useEffect(() => {
+    localStorage.setItem("pengajuanSuratList", JSON.stringify(pengajuanList));
+  }, [pengajuanList]);
 
-    const size = PAPER_SIZES[paperSize];
-    const header = kopSurat
-        ? `
-        <div style="width: 100%; text-align: center; margin: 0 0 15px 0; padding: 0; line-height: 0;">
-            <img 
-            src="${kopSurat}" 
-            style="
-                width: 100%; 
-                max-width: ${size.width - 1.0}in; /* kurangi margin */
-                height: auto; 
-                display: block; 
-                margin: 0 auto;
-                object-fit: contain;
-            " 
-            alt="Kop Surat"
-            />
-        </div>
-        <hr style="border: 1.5px solid #000; margin: 10px 0 15px 0;">
-        `
-        : selectedTemplate.headerHtml;
-
-    return `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>${selectedTemplate.title}</title>
-            <style>
-            * { box-sizing: border-box; }
-            html, body { 
-                margin: 0; 
-                padding: 0; 
-                width: 100%; 
-                height: 100%;
-            }
-            .page {
-                width: ${size.width}in;
-                height: ${size.height}in;
-                padding: 0;
-                margin: 0 auto;
-                background: white;
-                font-family: 'Times New Roman', serif;
-                font-size: 12pt;
-                line-height: 1.7;
-                position: relative;
-            }
-            @page { 
-                size: ${size.width}in ${size.height}in; 
-                margin: 0;
-            }
-            img { max-width: 100%; height: auto; }
-            hr { border: none; border-top: 1.5px solid #000; margin: 15px 0; }
-            table { width: 100%; border-collapse: collapse; }
-            td { vertical-align: top; padding: 1px 0; }
-            </style>
-        </head>
-        <body>
-            <div class="page">
-            ${header}
-            <div class="content">
-                ${selectedTemplate.bodyHtml}
-            </div>
-            </div>
-        </body>
-        </html>
-    `;
-    };
-
-  // DOWNLOAD HTML
-  const downloadHtml = () => {
-    if (!selectedTemplate) return;
-    const blob = new Blob([getFullHtml()], { type: "text/html" });
-    saveAs(blob, `${selectedTemplate.title.replace(/ /g, "_")}.html`);
+  // Generate nomor pengajuan otomatis
+  const generateNoPengajuan = () => {
+    const year = new Date().getFullYear();
+    const count = pengajuanList.length + 1;
+    return `SURAT-${year}-${count.toString().padStart(3, "0")}`;
   };
 
-  // DOWNLOAD PDF
-  const downloadPdf = () => {
-    if (!selectedTemplate || !previewRef.current) return;
-
-    const size = PAPER_SIZES[paperSize];
-
-    html2pdf()
-        .from(previewRef.current)
-        .set({
-        margin: 0,
-        filename: `${selectedTemplate.title.replace(/ /g, "_")}.pdf`,
-        image: { type: "jpeg", quality: 1 },
-        html2canvas: {
-            scale: 3, // Naikkan untuk kualitas
-            useCORS: true,
-            letterRendering: true,
-            allowTaint: false,
-            backgroundColor: "#ffffff",
-            logging: false,
-            width: previewRef.current.scrollWidth,
-            height: previewRef.current.scrollHeight,
-        },
-        jsPDF: {
-            unit: "in",
-            format: [size.width, size.height],
-            orientation: "portrait",
-        },
-        })
-        .save();
-    };
-
-  // DOWNLOAD DOCX
-  const downloadDocx = () => {
-    if (!selectedTemplate) return;
-
-    const fullHtml = getFullHtml();
-    const converted = docx.asBlob(fullHtml, {
-      orientation: "portrait",
-      margins: { top: 1152, bottom: 1152, left: 1152, right: 1152 }, // 0.8 inch
+  // Filter data
+  const filteredData = useMemo(() => {
+    return pengajuanList.filter((item) => {
+      const matchesSearch =
+        item.namaWarga.toLowerCase().includes(search.toLowerCase()) ||
+        item.nik.includes(search) ||
+        item.noPengajuan.includes(search) ||
+        item.jenisSurat.toLowerCase().includes(search.toLowerCase());
+      const matchesStatus = filterStatus === "Semua" || item.status === filterStatus;
+      return matchesSearch && matchesStatus;
     });
+  }, [pengajuanList, search, filterStatus]);
 
-    saveAs(converted, `${selectedTemplate.title.replace(/ /g, "_")}.docx`);
+  // Handle submit pengajuan baru
+  const handleSubmit = () => {
+    if (!form.namaWarga.trim() || !form.nik.trim()) {
+      alert("Nama dan NIK wajib diisi!");
+      return;
+    }
+
+    const newPengajuan: PengajuanSurat = {
+      id: Date.now().toString(),
+      noPengajuan: generateNoPengajuan(),
+      namaWarga: form.namaWarga,
+      nik: form.nik,
+      jenisSurat: form.jenisSurat,
+      keterangan: form.keterangan,
+      tanggalPengajuan: new Date().toISOString().split("T")[0],
+      status: "Menunggu",
+    };
+
+    setPengajuanList((prev) => [...prev, newPengajuan]);
+    setShowModal(false);
+    setForm({ namaWarga: "", nik: "", jenisSurat: JENIS_SURAT_LIST[0], keterangan: "" });
   };
+
+  // Update status
+  const updateStatus = (id: string, status: StatusPengajuan, catatan?: string) => {
+    setPengajuanList((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? { ...item, status, catatanAdmin: catatan || item.catatanAdmin }
+          : item
+      )
+    );
+  };
+
+  // Hapus pengajuan
+  const handleDelete = (id: string) => {
+    if (window.confirm("Hapus pengajuan ini?")) {
+      setPengajuanList((prev) => prev.filter((item) => item.id !== id));
+    }
+  };
+
+  // Widget
+  const stats = useMemo(() => {
+    return {
+      total: pengajuanList.length,
+      menunggu: pengajuanList.filter((p) => p.status === "Menunggu").length,
+      diproses: pengajuanList.filter((p) => p.status === "Diproses").length,
+      selesai: pengajuanList.filter((p) => p.status === "Disetujui" || p.status === "Ditolak").length,
+    };
+  }, [pengajuanList]);
 
   return (
-    <div className="flex w-full flex-col gap-5">
-      <div className="mt-3 grid grid-cols-1 gap-5 lg:grid-cols-12">
-        {/* Daftar Template */}
-        <div className="col-span-12 lg:col-span-12">
-          <Card extra="h-full p-4">
-            <h4 className="mb-4 text-xl font-bold text-navy-700 dark:text-white">
-              Template Surat Resmi
-            </h4>
+    <div>
+      {/* Widget Summary */}
+      <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-4">
+        <Widget
+          icon={<MdMail className="h-7 w-7" />}
+          title="Total Pengajuan"
+          subtitle={stats.total.toString()}
+        />
+        <Widget
+          icon={<MdHourglassEmpty className="h-7 w-7" />}
+          title="Menunggu"
+          subtitle={stats.menunggu.toString()}
+        />
+        <Widget
+          icon={<MdEdit className="h-7 w-7" />}
+          title="Diproses"
+          subtitle={stats.diproses.toString()}
+        />
+        <Widget
+          icon={<MdCheck className="h-7 w-7" />}
+          title="Selesai"
+          subtitle={stats.selesai.toString()}
+        />
+      </div>
 
-            {/* Pilihan Ukuran Kertas */}
-            <div className="mb-4 flex items-center gap-3">
-              <label className="text-sm font-medium text-navy-700 dark:text-white">Ukuran Kertas:</label>
-              <select
-                value={paperSize}
-                onChange={(e) => setPaperSize(e.target.value as PaperSizeKey)}
-                className="rounded border border-gray-300 px-3 py-1 text-sm dark:border-navy-600 dark:bg-navy-800 dark:text-white"
-              >
-                {Object.entries(PAPER_SIZES).map(([key, { name }]) => (
-                  <option key={key} value={key}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-            </div>
+      {/* Header + Tombol Ajukan */}
+      <div className="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-center gap-3 ml-[1px]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-brand-500/20 text-brand-500">
+            <MdMail className="h-6 w-6" />
+          </div>
+          <h3 className="text-xl font-bold text-navy-700 dark:text-white">
+            Pengajuan Surat Warga
+          </h3>
+        </div>
+        <button
+          onClick={() => setShowModal(true)}
+          className="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-white hover:bg-brand-600"
+        >
+          <MdAdd className="h-5 w-5" />
+          Ajukan Surat
+        </button>
+      </div>
 
-            <div className="gap-4 grid grid-cols-1 md:grid-cols-3">
-              {templates.map((tmpl) => (
-                <div
-                  key={tmpl.id}
-                  className={`flex items-center justify-between rounded-lg border p-3 transition-all cursor-pointer ${
-                    selectedTemplate?.id === tmpl.id
-                      ? "border-brand-500 bg-brand-50 dark:bg-brand-900/20"
-                      : "border-gray-200 dark:border-navy-600 hover:border-gray-300"
-                  }`}
-                  onClick={() => setSelectedTemplate(tmpl)}
-                >
-                  <div className="flex items-center gap-3">
-                    <MdDescription className="h-8 w-8 text-red-500" />
-                    <div>
-                      <p className="font-medium text-navy-700 dark:text-white">{tmpl.title}</p>
-                      <p className="text-xs text-gray-500">
-                        {tmpl.category === "rt-rw" ? "RT/RW" : "Kelurahan"}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedTemplate(tmpl);
-                      setTimeout(() => downloadPdf(), 150);
-                    }}
-                    className="flex items-center gap-1 rounded bg-red-600 px-2 py-1 text-xs text-white hover:bg-red-700"
-                    title="Download PDF"
-                  >
-                    <MdPictureAsPdf className="h-4 w-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
+      {/* Search + Filter */}
+      <div className="mt-5 flex flex-col gap-3 md:flex-row">
+        <div className="relative flex-1">
+          <MdSearch className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Cari nama, NIK, no pengajuan..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 py-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white"
+          />
+        </div>
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value as any)}
+          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white"
+        >
+          <option value="Semua">Semua Status</option>
+          <option value="Menunggu">Menunggu</option>
+          <option value="Diproses">Diproses</option>
+          <option value="Disetujui">Disetujui</option>
+          <option value="Ditolak">Ditolak</option>
+        </select>
+      </div>
 
-            {/* Upload Kop */}
-            <div className="mt-6 border-t pt-4 dark:border-navy-600">
-              <h5 className="mb-2 text-sm font-semibold text-navy-700 dark:text-white">
-                Upload Kop Surat (Opsional)
-              </h5>
-              <div
-                className="relative rounded-lg border-2 border-dashed border-gray-300 p-4 text-center cursor-pointer hover:border-gray-400 dark:border-navy-600"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <MdImage className="mx-auto mb-2 h-8 w-8 text-gray-400" />
-                <p className="text-xs text-gray-600 dark:text-gray-300">
-                  {kopSurat ? "Ganti Kop" : "Upload Kop (PNG/JPG)"}
-                </p>
-                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleKopUpload} className="hidden" />
+      {/* Tabel */}
+      <div className="mt-5">
+        <Card extra="w-full p-5">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[800px] table-auto">
+              <thead>
+                <tr className="border-b border-gray-200 dark:border-navy-600">
+                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white">
+                    NO PENGAJUAN
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white">
+                    WARGA
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white">
+                    JENIS SURAT
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white">
+                    TANGGAL
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white">
+                    STATUS
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white">
+                    AKSI
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredData.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500">
+                      Belum ada pengajuan surat.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredData.map((item) => (
+                    <tr key={item.id} className="border-b border-gray-100 dark:border-navy-700">
+                      <td className="px-4 py-3 font-medium text-navy-700 dark:text-white">
+                        {item.noPengajuan}
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <div>
+                          <div className="font-medium">{item.namaWarga}</div>
+                          <div className="text-xs text-gray-500">{item.nik}</div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                        {item.jenisSurat}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                        {item.tanggalPengajuan}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`rounded-full px-2 py-1 text-xs font-medium ${
+                            item.status === "Menunggu"
+                              ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300"
+                              : item.status === "Diproses"
+                              ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
+                              : item.status === "Disetujui"
+                              ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                              : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
+                          }`}
+                        >
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => setShowDetail(item)}
+                            className="text-blue-500 hover:text-blue-700"
+                            title="Lihat Detail"
+                          >
+                            <MdEdit className="h-5 w-5" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(item.id)}
+                            className="text-red-500 hover:text-red-700"
+                            title="Hapus"
+                          >
+                            <MdDelete className="h-5 w-5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      </div>
+
+      {/* Modal Ajukan Surat */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => {
+              setShowModal(false);
+              setForm({ namaWarga: "", nik: "", jenisSurat: JENIS_SURAT_LIST[0], keterangan: "" });
+            }}
+          />
+          <Card extra="w-full max-w-md p-6">
+            <h3 className="mb-4 text-xl font-bold text-navy-700 dark:text-white">
+              Ajukan Surat Baru
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Nama Lengkap
+                </label>
+                <input
+                  type="text"
+                  value={form.namaWarga}
+                  onChange={(e) => setForm({ ...form, namaWarga: e.target.value })}
+                  placeholder="Masukkan nama lengkap"
+                  className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-navy-600 dark:bg-navy-700 dark:text-white"
+                />
               </div>
-              {kopSurat && (
-                <div className="mt-2 flex justify-between rounded bg-green-50 p-2 dark:bg-green-900/20">
-                  <span className="text-xs text-green-700 dark:text-green-300">Kop terupload</span>
-                  <button onClick={() => setKopSurat(null)} className="text-xs text-red-600 hover:underline">
-                    Hapus
-                  </button>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  NIK
+                </label>
+                <input
+                  type="text"
+                  value={form.nik}
+                  onChange={(e) => setForm({ ...form, nik: e.target.value.replace(/\D/g, "").slice(0, 16) })}
+                  placeholder="16 digit NIK"
+                  maxLength={16}
+                  className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-navy-600 dark:bg-navy-700 dark:text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Jenis Surat
+                </label>
+                <select
+                  value={form.jenisSurat}
+                  onChange={(e) => setForm({ ...form, jenisSurat: e.target.value })}
+                  className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-navy-600 dark:bg-navy-700 dark:text-white"
+                >
+                  {JENIS_SURAT_LIST.map((jenis) => (
+                    <option key={jenis} value={jenis}>
+                      {jenis}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Keterangan (Opsional)
+                </label>
+                <textarea
+                  value={form.keterangan}
+                  onChange={(e) => setForm({ ...form, keterangan: e.target.value })}
+                  placeholder="Contoh: Untuk pendaftaran sekolah anak"
+                  rows={2}
+                  className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-navy-600 dark:bg-navy-700 dark:text-white"
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowModal(false);
+                  setForm({ namaWarga: "", nik: "", jenisSurat: JENIS_SURAT_LIST[0], keterangan: "" });
+                }}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 dark:border-navy-600 dark:text-white"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={!form.namaWarga.trim() || !form.nik.trim()}
+                className="rounded-lg bg-brand-500 px-4 py-2 text-white hover:bg-brand-600 disabled:opacity-50"
+              >
+                Ajukan
+              </button>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Modal Detail & Update Status */}
+      {showDetail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowDetail(null)}
+          />
+          <Card extra="w-full max-w-lg p-6">
+            <h3 className="mb-4 text-xl font-bold text-navy-700 dark:text-white">
+              Detail Pengajuan
+            </h3>
+            <div className="space-y-3 text-sm">
+              <div>
+                <span className="font-medium">No Pengajuan:</span> {showDetail.noPengajuan}
+              </div>
+              <div>
+                <span className="font-medium">Nama:</span> {showDetail.namaWarga}
+              </div>
+              <div>
+                <span className="font-medium">NIK:</span> {showDetail.nik}
+              </div>
+              <div>
+                <span className="font-medium">Jenis Surat:</span> {showDetail.jenisSurat}
+              </div>
+              <div>
+                <span className="font-medium">Tanggal:</span> {showDetail.tanggalPengajuan}
+              </div>
+              {showDetail.keterangan && (
+                <div>
+                  <span className="font-medium">Keterangan:</span> {showDetail.keterangan}
+                </div>
+              )}
+              <div className="mt-4">
+                <label className="block font-medium mb-1">Update Status</label>
+                <div className="flex gap-2 flex-wrap">
+                  {(["Menunggu", "Diproses", "Disetujui", "Ditolak"] as StatusPengajuan[]).map(
+                    (status) => (
+                      <button
+                        key={status}
+                        onClick={() => {
+                          if (status === "Ditolak") {
+                            const alasan = prompt("Alasan penolakan:");
+                            if (alasan) updateStatus(showDetail.id, status, alasan);
+                          } else {
+                            updateStatus(showDetail.id, status);
+                          }
+                          setShowDetail(null);
+                        }}
+                        className={`px-3 py-1 rounded text-xs font-medium ${
+                          showDetail.status === status
+                            ? "bg-brand-500 text-white"
+                            : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-navy-600 dark:text-gray-300"
+                        }`}
+                      >
+                        {status}
+                      </button>
+                    )
+                  )}
+                </div>
+              </div>
+              {showDetail.catatanAdmin && (
+                <div className="mt-3 p-2 bg-gray-50 dark:bg-navy-700 rounded text-xs">
+                  <span className="font-medium">Catatan:</span> {showDetail.catatanAdmin}
                 </div>
               )}
             </div>
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => setShowDetail(null)}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 dark:border-navy-600 dark:text-white"
+              >
+                Tutup
+              </button>
+            </div>
           </Card>
         </div>
-
-        {/* Preview + Tombol */}
-        <div className="col-span-12 lg:col-span-12">
-          <Card extra="h-full p-4">
-            <h4 className="mb-4 text-xl font-bold text-navy-700 dark:text-white">
-              {selectedTemplate ? "Preview Dokumen" : "Pilih Template"}
-            </h4>
-
-            {selectedTemplate ? (
-              <>
-                {/* Tombol Download */}
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex gap-2">
-                    <button
-                      onClick={downloadHtml}
-                      className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                    >
-                      <MdDownload className="h-5 w-5" /> HTML
-                    </button>
-                    <button
-                      onClick={downloadPdf}
-                      className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700"
-                    >
-                      <MdPictureAsPdf className="h-5 w-5" /> PDF
-                    </button>
-                    <button
-                      onClick={downloadDocx}
-                      className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
-                    >
-                      <MdWord className="h-5 w-5" /> DOCX
-                    </button>
-                  </div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Ukuran: <strong>{PAPER_SIZES[paperSize].name}</strong>
-                  </span>
-                </div>
-
-                {/* Preview */}
-                <div
-                    className="overflow-auto rounded-lg border border-gray-300 dark:border-navy-600 bg-gray-50 p-4"
-                    style={{ maxHeight: "800px" }}
-                    >
-                    <div
-                        style={{
-                        width: `${PAPER_SIZES[paperSize].width * 96}px`, // 1in = 96px
-                        minHeight: `${PAPER_SIZES[paperSize].height * 96}px`,
-                        margin: "0 auto",
-                        background: "white",
-                        boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-                        padding: "0",
-                        position: "relative",
-                        fontFamily: "'Times New Roman', serif",
-                        fontSize: "12pt",
-                        lineHeight: "1.7",
-                        }}
-                        ref={previewRef}
-                        dangerouslySetInnerHTML={{ __html: getFullHtml() }}
-                    />
-                    </div>
-              </>
-            ) : (
-              <div className="flex h-[700px] items-center justify-center rounded-lg border-2 border-dashed border-gray-300 dark:border-navy-600">
-                <p className="text-gray-500">Pilih template untuk melihat preview</p>
-              </div>
-            )}
-          </Card>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
 
-export default TemplateSurat;
+export default PengajuanSuratPage;
