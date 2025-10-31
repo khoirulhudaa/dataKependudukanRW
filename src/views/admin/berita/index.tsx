@@ -1,9 +1,9 @@
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
 import Card from "components/card";
 import Widget from "components/widget/Widget";
 import React, { useEffect, useMemo, useState } from "react";
 import { MdAdd, MdArticle, MdDelete, MdEdit, MdSearch } from "react-icons/md";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 type Berita = {
   id: string;
@@ -257,7 +257,7 @@ const BeritaPage: React.FC = () => {
               <div className="mt-1 border border-gray-300 rounded-lg dark:border-navy-600">
                 <div className="ck-editor-container">
                   <CKEditor
-                    editor={ClassicEditor}
+                    editor={ClassicEditor as any}
                     data={form.isi}
                     onChange={(event, editor) => {
                       const data = editor.getData();
@@ -270,6 +270,7 @@ const BeritaPage: React.FC = () => {
                         'outdent', 'indent', '|',
                         'blockQuote', 'insertTable', 'mediaEmbed', 'undo', 'redo'
                       ],
+                      removePlugins: ['Title']  // Tambahkan ini → fix React 19
                     }}
                   />
                 </div>
