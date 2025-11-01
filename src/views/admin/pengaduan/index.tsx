@@ -253,9 +253,6 @@ const PengaduanPage: React.FC = () => {
           {/* Filter Tanggal + Reset */}
           <div className="flex gap-2">
             <div className="flex-1">
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                Tanggal Pengaduan
-              </label>
               <input
                 type="date"
                 value={filterTanggal}
