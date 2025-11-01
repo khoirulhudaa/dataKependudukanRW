@@ -281,6 +281,16 @@ const Dashboard: React.FC = () => {
     Balita: 38,
   };
 
+  const CHART_COLORS = {
+    primary: "#6366F1",    // Indigo
+    secondary: "#8B5CF6",  // Purple
+    success: "#10B981",    // Emerald
+    danger: "#EF4444",     // Red
+    gray: "#94A3B8",
+    light: "#E2E8F0",
+    bg: "#F8FAFC",         // Light background
+  };
+
   return (
     <div>
       {/* ==================== WIDGET GRID ==================== */}
@@ -298,91 +308,35 @@ const Dashboard: React.FC = () => {
       {/* ==================== CHARTS GRID – MODERN & VARIATIF ==================== */}
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-12 gap-6">
 
-      {/* 1. KK PER RT – 3D ORBS DENGAN WARNA JELAS & TEBAL */}
-      <Card
-        extra="p-6 xl:col-span-12 bg-white dark:from-navy-900 dark:via-navy-800 dark:to-navy-700 rounded-3xl shadow-lg"
-      >
-        <div className="w-full border-b border-black/40 mb-6">
-          <h4 className="text-xl font-bold text-navy-700 dark:text-white mb-6 text-left">
-              Jumlah warga per-RT
-          </h4>
+     {/* 1. KK PER RT – ORB ELEGAN */}
+      <Card extra="p-6 xl:col-span-12 bg-white dark:bg-navy-900 rounded-3xl shadow-lg">
+        <div className="w-full border-b border-gray-200 dark:border-navy-700 mb-6 pb-4">
+          <h4 className="text-xl font-bold text-navy-700 dark:text-white">Jumlah KK per RT</h4>
         </div>
-
 
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-5">
           {Object.entries(stats.kk_per_rt).map(([rt, jumlah], index) => {
-            const maxKK = Math.max(...Object.values(stats.kk_per_rt));
-            const size = 60 + (jumlah / maxKK) * 40; // 60–100px
-
-            // WARNA JELAS & TEBAL (vibrant, deep, bold)
-            const colors = [
-              { h: 215, s: 85, l: 55 }, // Deep Blue
-              { h: 175, s: 80, l: 50 }, // Deep Teal
-              { h: 85,  s: 75, l: 48 }, // Deep Green
-              { h: 45,  s: 90, l: 55 }, // Deep Yellow
-              { h: 285, s: 80, l: 58 }, // Deep Purple
-              { h: 335, s: 85, l: 58 }, // Deep Pink
-              { h: 195, s: 85, l: 52 }, // Deep Cyan
-              { h: 25,  s: 90, l: 58 }, // Deep Orange
-            ];
-            const { h, s, l } = colors[index % colors.length];
+            const size = 70;
 
             return (
-              <div
-                key={rt}
-                className="flex flex-col items-center space-y-2"
-              >
-                {/* 3D Orb – Warna Jelas & Tebal */}
+              <div key={rt} className="flex flex-col items-center">
                 <div
-                  className="relative rounded-full shadow-xl border-2 border-white/50 
-                            flex items-center justify-center overflow-hidden
-                            animate-float"
+                  className="relative rounded-full shadow-lg flex items-center justify-center overflow-hidden border border-gray-200 dark:border-navy-700"
                   style={{
                     width: `${size}px`,
                     height: `${size}px`,
                     background: `radial-gradient(circle at 30% 30%, 
-                      hsl(${h}, ${s}%, ${l + 15}%), 
-                      hsl(${h}, ${s}%, ${l}%), 
-                      hsl(${h}, ${s - 10}%, ${l - 10}%))`,
-                    boxShadow: `0 8px 24px rgba(0,0,0,0.15), 
-                                inset 0 2px 6px rgba(255,255,255,0.6), 
-                                0 0 0 4px rgba(255,255,255,0.7)`,
+                      ${index % 2 === 0 ? '#818CF8' : '#C4B5FD'}, 
+                      ${index % 2 === 0 ? '#6366F1' : '#8B5CF6'})`,
+                    boxShadow: `0 6px 16px rgba(99, 102, 241, 0.15), 
+                                inset 0 1px 3px rgba(255,255,255,0.4)`,
                   }}
                 >
-                  {/* Inner Bold Number */}
-                  <div className="absolute inset-2 rounded-full bg-white/70 backdrop-blur-sm flex items-center justify-center">
-                    <span className="text-xl font-extrabold text-slate-800 dark:text-slate-100 drop-shadow-md">
-                      {jumlah}
-                    </span>
-                  </div>
-
-                  {/* Bold Sparkle */}
-                  <div className="absolute inset-0 opacity-60">
-                    <div
-                      className="absolute w-1.5 h-1.5 bg-white rounded-full animate-ping"
-                      style={{
-                        top: "25%",
-                        left: "20%",
-                        animationDelay: "0s",
-                      }}
-                    />
-                    <div
-                      className="absolute w-1 h-1 bg-white rounded-full animate-ping"
-                      style={{
-                        top: "48%",
-                        left: "68%",
-                        animationDelay: "0.5s",
-                      }}
-                    />
-                  </div>
+                  <span className="text-lg font-bold text-white drop-shadow-sm">
+                    {jumlah}
+                  </span>
                 </div>
-
-                {/* NAMA RT – LANGSUNG TAMPIL & TEBAL */}
-                <div className="text-center">
-                  <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
-                    RT {rt}
-                  </p>
-                </div>
+                <p className="mt-2 text-xs font-medium text-gray-600 dark:text-gray-300">RT {rt}</p>
               </div>
             );
           })}
@@ -424,68 +378,41 @@ const Dashboard: React.FC = () => {
 
         {/* GROUPED BAR CHART */}
           <div className="h-64">
-            <ApexCharts
+           <ApexCharts
               type="bar"
               height={256}
               series={[
-                { name: "Hidup",     data: safeFilteredData.map(d => d.hidup) },
-                { name: "Pindah",    data: safeFilteredData.map(d => d.pindah) },
+                { name: "Hidup", data: safeFilteredData.map(d => d.hidup) },
+                { name: "Pindah", data: safeFilteredData.map(d => d.pindah) },
                 { name: "Meninggal", data: safeFilteredData.map(d => d.meninggal) }
               ]}
               options={{
-                chart: {
-                  type: "bar",
-                  toolbar: { show: false },
-                  animations: { enabled: true, speed: 800, easing: "easeinout" }
-                },
+                chart: { toolbar: { show: false }, animations: { enabled: true } },
                 plotOptions: {
                   bar: {
                     horizontal: false,
-                    columnWidth: "80%",   // ← Dari 55% → 80% (lebih lebar)
-                    borderRadius: 6,      // Sudut lebih bulat (opsional, lebih tebal terasa)
+                    columnWidth: "70%",
+                    borderRadius: 8,
                     dataLabels: { position: "top" }
                   }
                 },
-              colors: ["#3B82F6", "#8B5CF6", "#EF4444"],
-              dataLabels: {
-                enabled: true,
-                offsetY: -20,
-                style: { fontSize: "11px", colors: ["#304758"] }
-              },
-              stroke: {
-                show: true,
-                width: 2,
-                colors: ["transparent"]       // Membuat grouped (tidak stacked)
-              },
-              xaxis: {
-                categories: safeFilteredData.map(d => d.label),
-                labels: { style: { fontSize: "11px", colors: "#64748B" } },
-                axisBorder: { show: false },
-                axisTicks: { show: false }
-              },
-              yaxis: {
-                title: { text: "Jumlah Orang" },
-                labels: { style: { colors: "#64748B" } }
-              },
-              grid: {
-                show: true,
-                strokeDashArray: 5,
-                borderColor: "rgba(148,163,184,0.1)"
-              },
-              tooltip: {
-                theme: "dark",
-                shared: true,
-                intersect: false,
-                y: { formatter: val => `${val} orang` }
-              },
-              legend: {
-                show: false,
-              },
-              responsive: [
-                { breakpoint: 768, options: { chart: { height: 220 } } }
-              ]
-            }}
-          />
+                colors: [CHART_COLORS.primary, CHART_COLORS.success, CHART_COLORS.danger],
+                dataLabels: {
+                  enabled: true,
+                  offsetY: -20,
+                  style: { fontSize: "11px", colors: ["#1E293B"] }
+                },
+                stroke: { width: 2, colors: ["transparent"] },
+                xaxis: {
+                  categories: safeFilteredData.map(d => d.label),
+                  labels: { style: { fontSize: "11px", colors: CHART_COLORS.gray } }
+                },
+                yaxis: { labels: { style: { colors: CHART_COLORS.gray } } },
+                grid: { strokeDashArray: 6, borderColor: "#E2E8F0" },
+                tooltip: { theme: "light", y: { formatter: val => `${val} orang` } },
+                legend: { show: false },
+              }}
+            />
         </div>
         </Card>
 
@@ -839,11 +766,11 @@ const Dashboard: React.FC = () => {
                     dataLabels: {
                       show: true,
                       name: { show: false },
-                      value: { fontSize: "22px", fontWeight: 700, color: "#EF4444" },
+                      value: { fontSize: "22px", fontWeight: 700, color: "#8B5CF6" },
                     },
                   },
                 },
-                colors: ["#EF4444"],
+                colors: ["#8B5CF6"],
                 labels: [""],
               }}
             />
@@ -857,21 +784,74 @@ const Dashboard: React.FC = () => {
         <Card extra="p-6 xl:col-span-8">
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-lg font-bold text-navy-700 dark:text-white">Trend Pengajuan Surat (7 Hari)</h4>
-            <MdOutlineTrendingUp className="h-5 w-5 text-green-500" />
+            <MdOutlineTrendingUp className="h-5 w-5 text-purple-500" />
           </div>
           <ApexCharts
             type="line"
             height={200}
             series={[{ name: "Pengajuan", data: [12, 19, 15, 25, 22, 30, 28] }]}
             options={{
-              chart: { toolbar: { show: false } },
-              stroke: { curve: "smooth", width: 3 },
-              markers: { size: 5, colors: ["#10B981"], strokeColors: "#fff", strokeWidth: 2 },
-              xaxis: { categories: ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"], labels: { style: { colors: "#9CA3AF" } } },
-              yaxis: { labels: { style: { colors: "#9CA3AF" } } },
-              colors: ["#10B981"],
-              tooltip: { theme: "dark" },
-              grid: { show: true, strokeDashArray: 5, borderColor: "#E5E7EB" },
+              chart: { 
+                toolbar: { show: false },
+                animations: { enabled: true, easing: "easeinout", speed: 800 }
+              },
+              stroke: { 
+                curve: "smooth",
+                width: 5, // LEBIH TEBAL & JELAS
+                colors: ["#8B5CF6"],
+                lineCap: "round",
+              },
+              markers: { 
+                size: 7, // LEBIH BESAR
+                colors: ["#8B5CF6"],
+                strokeColors: "#FFFFFF",
+                strokeWidth: 3, // BORDER PUTIH TEBAL
+                hover: { size: 8 }
+              },
+              xaxis: { 
+                categories: ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"], 
+                labels: { 
+                  style: { 
+                    colors: "#94A3B8", 
+                    fontSize: "11px",
+                    fontWeight: 500
+                  } 
+                },
+                axisBorder: { show: false },
+                axisTicks: { show: false }
+              },
+              yaxis: { 
+                labels: { 
+                  style: { colors: "#94A3B8", fontSize: "11px" } 
+                },
+                min: 0,
+                max: 35,
+                tickAmount: 5
+              },
+              colors: ["#8B5CF6"],
+              fill: {
+                type: "gradient",
+                gradient: {
+                  shade: "light",
+                  type: "vertical",
+                  shadeIntensity: 0.3,
+                  gradientToColors: ["#C4B5FD"],
+                  opacityFrom: 0.4,
+                  opacityTo: 0.1,
+                  stops: [0, 100]
+                }
+              },
+              tooltip: { 
+                theme: "dark",
+                y: { formatter: (val) => `${val} pengajuan` }
+              },
+              grid: { 
+                show: true, 
+                strokeDashArray: 6, 
+                borderColor: "#E2E8F0",
+                xaxis: { lines: { show: false } },
+                yaxis: { lines: { show: true } }
+              },
             }}
           />
         </Card>

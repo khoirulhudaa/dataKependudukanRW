@@ -301,7 +301,7 @@ const FasilitasPage: React.FC = () => {
 
       {/* MODAL */}
       {showModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[rgba(0,0,0,0.5)] p-4">
         {/* OVERLAY GELAP + BLUR */}
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
@@ -406,17 +406,6 @@ const FasilitasPage: React.FC = () => {
                     </MapContainer>
                 </div>
                 <p className="mt-1 text-xs text-gray-500">Klik peta untuk memperbarui koordinat.</p>
-                </div>
-                <div className="md:col-span-2">
-                <label className="flex items-center gap-2">
-                    <input
-                    type="checkbox"
-                    checked={form.aktif}
-                    onChange={(e) => setForm({ ...form, aktif: e.target.checked })}
-                    className="h-4 w-4 rounded border-gray-300 text-brand-500"
-                    />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Fasilitas Aktif</span>
-                </label>
                 </div>
             </div>
             <div className="mt-6 flex justify-end gap-3">

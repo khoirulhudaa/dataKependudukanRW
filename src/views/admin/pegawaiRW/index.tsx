@@ -144,7 +144,7 @@ const PegawaiRWPage: React.FC = () => {
     <div>
       {/* Widget */}
       <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-2">
-        <Widget icon={<MdPeople className="h-7 w-7" />} title="Total Pegawai" subtitle={pegawaiList.length.toString()} />
+        <Widget icon={<MdPeople className="h-7 w-7" />} title="Total RW" subtitle={pegawaiList.length.toString()} />
         <Widget icon={<MdPeople className="h-7 w-7" />} title="Aktif" subtitle={pegawaiList.filter((b) => b.aktif).length.toString()} />
       </div>
 
@@ -154,14 +154,14 @@ const PegawaiRWPage: React.FC = () => {
           <div className="flex h-10 w-10 items-center justify-center rounded-md bg-brand-500/20 text-brand-500">
             <MdPeople className="h-6 w-6" />
           </div>
-          <h3 className="text-xl font-bold text-navy-700 dark:text-white">Kelola Pegawai RW</h3>
+          <h3 className="text-xl font-bold text-navy-700 dark:text-white">Kelola Pengurus  RW</h3>
         </div>
         <button
           onClick={() => setShowModal(true)}
           className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-brand-500 to-brand-600 px-4 py-2 text-white hover:shadow-lg transform hover:scale-105 transition-all"
         >
           <MdAdd className="h-5 w-5" />
-          Tambah Pegawai
+          Tambah Pengurus
         </button>
       </div>
 
@@ -247,7 +247,7 @@ const PegawaiRWPage: React.FC = () => {
 
       {/* MODAL FORM */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.5)] backdrop-blur-sm p-4">
         {/* OVERLAY GELAP + BLUR */}
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
@@ -255,7 +255,7 @@ const PegawaiRWPage: React.FC = () => {
           />
           <Card extra="w-full max-w-lg p-6 rounded-2xl shadow-2xl bg-white dark:bg-navy-800">
             <h3 className="mb-5 text-xl font-bold text-navy-700 dark:text-white">
-              {editItem ? "Edit" : "Tambah"} Pegawai RW
+              {editItem ? "Edit" : "Tambah"} Pengurus RW
             </h3>
 
             {/* Upload Foto */}
@@ -288,8 +288,10 @@ const PegawaiRWPage: React.FC = () => {
             <div className="space-y-4">
               <input placeholder="Nama Lengkap" value={form.nama} onChange={(e) => setForm({ ...form, nama: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
               <input placeholder="Jabatan" value={form.jabatan} onChange={(e) => setForm({ ...form, jabatan: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
-              <input placeholder="Telepon" value={form.telepon} onChange={(e) => setForm({ ...form, telepon: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
-              <input placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <input placeholder="Telepon" value={form.telepon} onChange={(e) => setForm({ ...form, telepon: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
+                <input placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
+              </div>
               <label className="flex items-center gap-2">
                 <input type="checkbox" checked={form.aktif} onChange={(e) => setForm({ ...form, aktif: e.target.checked })} className="h-5 w-5 rounded border-gray-300 text-brand-500" />
                 <span className="text-sm font-medium">Aktif</span>

@@ -1,7 +1,7 @@
 import Card from "components/card";
 import Widget from "components/widget/Widget";
 import React, { useEffect, useMemo, useState } from "react";
-import { MdAdd, MdDelete, MdEdit, MdPeople, MdSearch } from "react-icons/md";
+import { MdCheckCircle, MdPeople, MdSearch, MdWarning } from "react-icons/md";
 
 type Anggota = {
   id: string;
@@ -31,7 +31,6 @@ type BantuanItem = {
   status: "Diterima" | "Diproses" | "Ditolak";
 };
 
-// === DAFTAR JENIS BANTUAN ===
 const JENIS_BANTUAN_MAP: Record<string, string> = {
   bst: "BST",
   bpnt: "BPNT",
@@ -45,21 +44,7 @@ const PenerimaBantuan: React.FC = () => {
   const [search, setSearch] = useState("");
   const [filterRtRw, setFilterRtRw] = useState("all");
   const [filterJenisBantuan, setFilterJenisBantuan] = useState("all");
-  const [showModal, setShowModal] = useState(false);
-  const [editItem, setEditItem] = useState<BantuanItem | null>(null);
   const [sortConfig, setSortConfig] = useState<{ key: keyof BantuanItem | "action"; direction: "asc" | "desc" } | null>(null);
-
-  const [form, setForm] = useState<{
-    anggotaId: string; // ID anggota di KK
-    jenisBantuan: string;
-    tanggal: string;
-    status: "Diterima" | "Diproses" | "Ditolak";
-  }>({
-    anggotaId: "",
-    jenisBantuan: "",
-    tanggal: new Date().toISOString().split("T")[0],
-    status: "Diproses",
-  });
 
   // === AMBIL DATA KK DARI LOCALSTORAGE ===
   const kkList: KKItem[] = useMemo(() => {
@@ -74,26 +59,27 @@ const PenerimaBantuan: React.FC = () => {
     return [];
   }, []);
 
-  // === EKSTRAK SEMUA PENERIMA BANTUAN DARI KK ===
+  // === EKSTRAK SEMUA PENERIMA BANTUAN (UNIK) ===
   const semuaPenerima = useMemo(() => {
     const penerima: BantuanItem[] = [];
+    const seen = new Set<string>();
+
     kkList.forEach((kk) => {
       kk.anggota.forEach((anggota) => {
         anggota.bantuan.forEach((bantuanId) => {
-          const existing = penerima.find(
-            (p) => p.anggotaId === anggota.id && p.jenisBantuan === JENIS_BANTUAN_MAP[bantuanId]
-          );
-          if (!existing) {
+          const key = `${anggota.id}-${bantuanId}`;
+          if (!seen.has(key)) {
+            seen.add(key);
             penerima.push({
-              id: `${anggota.id}-${bantuanId}`,
+              id: key,
+              anggotaId: anggota.id,
               nik: anggota.nik,
               nama: anggota.nama,
               rt: kk.rt,
               rw: kk.rw,
               jenisBantuan: JENIS_BANTUAN_MAP[bantuanId],
-              tanggal: new Date().toISOString().split("T")[0], // default
+              tanggal: new Date().toISOString().split("T")[0],
               status: "Diproses",
-              anggotaId: anggota.id,
             });
           }
         });
@@ -102,7 +88,7 @@ const PenerimaBantuan: React.FC = () => {
     return penerima;
   }, [kkList]);
 
-  // === LOAD DATA BANTUAN DARI LOCALSTORAGE (jika ada custom edit) ===
+  // === LOAD & SYNC DARI LOCALSTORAGE ===
   useEffect(() => {
     const saved = localStorage.getItem("bantuanList");
     if (saved && JSON.parse(saved).length > 0) {
@@ -112,38 +98,13 @@ const PenerimaBantuan: React.FC = () => {
     }
   }, [semuaPenerima]);
 
-  // === SIMPAN KE LOCALSTORAGE ===
   useEffect(() => {
     localStorage.setItem("bantuanList", JSON.stringify(bantuanList));
   }, [bantuanList]);
 
-  // === DAFTAR RT/RW UNIK ===
+  // === FILTER OPTIONS ===
   const rtRwOptions = Array.from(new Set(kkList.map((k) => `${k.rt}/${k.rw}`))).sort();
-
-  // === DAFTAR JENIS BANTUAN UNIK ===
-  const jenisBantuanOptions = Array.from(
-    new Set(bantuanList.map((b) => b.jenisBantuan))
-  ).sort();
-
-  // === DAFTAR ANGGOTA YANG BISA DITAMBAH (hanya yang punya bantuan) ===
-  const daftarAnggotaPenerima = useMemo(() => {
-    const list: { id: string; nik: string; nama: string; rt: string; rw: string; jenis: string }[] = [];
-    kkList.forEach((kk) => {
-      kk.anggota.forEach((a) => {
-        a.bantuan.forEach((bId) => {
-          list.push({
-            id: a.id,
-            nik: a.nik,
-            nama: a.nama,
-            rt: kk.rt,
-            rw: kk.rw,
-            jenis: JENIS_BANTUAN_MAP[bId],
-          });
-        });
-      });
-    });
-    return list;
-  }, [kkList]);
+  const jenisBantuanOptions = Array.from(new Set(bantuanList.map((b) => b.jenisBantuan))).sort();
 
   // === FILTER & SEARCH ===
   const filteredData = useMemo(() => {
@@ -172,72 +133,13 @@ const PenerimaBantuan: React.FC = () => {
     return data;
   }, [filteredData, sortConfig]);
 
-  // === SUBMIT (Tambah/Edit) ===
-  const handleSubmit = () => {
-    const anggota = daftarAnggotaPenerima.find((a) => a.id === form.anggotaId);
-    if (!anggota) {
-      alert("Pilih penerima bantuan!");
-      return;
-    }
-    if (!form.jenisBantuan) {
-      alert("Pilih jenis bantuan!");
-      return;
-    }
-
-    if (editItem) {
-      setBantuanList((prev) =>
-        prev.map((item) =>
-          item.id === editItem.id
-            ? { ...item, ...form, nama: anggota.nama, rt: anggota.rt, rw: anggota.rw }
-            : item
-        )
-      );
-    } else {
-      const newItem: BantuanItem = {
-        id: Date.now().toString(),
-        nik: anggota.nik,
-        nama: anggota.nama,
-        rt: anggota.rt,
-        rw: anggota.rw,
-        jenisBantuan: form.jenisBantuan,
-        tanggal: form.tanggal,
-        status: form.status,
-        anggotaId: form.anggotaId,
-      };
-      setBantuanList((prev) => [...prev, newItem]);
-    }
-    resetModal();
-  };
-
-  const resetModal = () => {
-    setShowModal(false);
-    setEditItem(null);
-    setForm({
-      anggotaId: "",
-      jenisBantuan: "",
-      tanggal: new Date().toISOString().split("T")[0],
-      status: "Diproses",
-    });
-  };
-
-  const handleDelete = (id: string) => {
-    if (window.confirm("Hapus data penerima bantuan ini?")) {
-      setBantuanList((prev) => prev.filter((item) => item.id !== id));
-    }
-  };
-
-  const openEdit = (item: BantuanItem) => {
-    const anggota = daftarAnggotaPenerima.find((a) => a.nik === item.nik && a.jenis === item.jenisBantuan);
-    if (anggota) {
-      setEditItem(item);
-      setForm({
-        anggotaId: anggota.id,
-        jenisBantuan: item.jenisBantuan,
-        tanggal: item.tanggal,
-        status: item.status,
-      });
-      setShowModal(true);
-    }
+  // === VALIDASI: BISA DIUBAH KAPAN SAJA ===
+  const handleValidasi = (id: string, status: "Diterima" | "Ditolak") => {
+    setBantuanList((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, status } : item
+      )
+    );
   };
 
   const requestSort = (key: keyof BantuanItem | "action") => {
@@ -253,26 +155,17 @@ const PenerimaBantuan: React.FC = () => {
       {/* Widget Summary */}
       <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         <Widget icon={<MdPeople className="h-7 w-7" />} title="Total Penerima" subtitle={bantuanList.length.toString()} />
-        <Widget icon={<MdPeople className="h-7 w-7" />} title="Diterima" subtitle={bantuanList.filter((b) => b.status === "Diterima").length.toString()} />
-        <Widget icon={<MdPeople className="h-7 w-7" />} title="Diproses" subtitle={bantuanList.filter((b) => b.status === "Diproses").length.toString()} />
-        <Widget icon={<MdPeople className="h-7 w-7" />} title="Ditolak" subtitle={bantuanList.filter((b) => b.status === "Ditolak").length.toString()} />
+        <Widget icon={<MdCheckCircle className="h-7 w-7 text-green-600" />} title="Layak" subtitle={bantuanList.filter((b) => b.status === "Diterima").length.toString()} />
+        <Widget icon={<MdWarning className="h-7 w-7 text-yellow-600" />} title="Diproses" subtitle={bantuanList.filter((b) => b.status === "Diproses").length.toString()} />
+        <Widget icon={<MdPeople className="h-7 w-7 text-red-600" />} title="Tidak Layak" subtitle={bantuanList.filter((b) => b.status === "Ditolak").length.toString()} />
       </div>
 
-      {/* Header + Tombol Tambah */}
-      <div className="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-3 ml-[1px]">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-brand-500/20 text-brand-500">
-            <MdPeople className="h-6 w-6" />
-          </div>
-          <h3 className="text-xl font-bold text-navy-700 dark:text-white">Penerima Bantuan Kelurahan</h3>
+      {/* Header */}
+      <div className="mt-8 flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-purple-500/20 text-purple-600">
+          <MdPeople className="h-6 w-6" />
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-white hover:bg-brand-600"
-        >
-          <MdAdd className="h-5 w-5" />
-          Tambah Penerima
-        </button>
+        <h3 className="text-xl font-bold text-navy-700 dark:text-white">Validasi Penerima Bantuan</h3>
       </div>
 
       {/* Filter & Search */}
@@ -297,9 +190,7 @@ const PenerimaBantuan: React.FC = () => {
         >
           <option value="all">Semua RT/RW</option>
           {rtRwOptions.map((rtRw) => (
-            <option key={rtRw} value={rtRw}>
-              RT {rtRw}
-            </option>
+            <option key={rtRw} value={rtRw}>RT {rtRw}</option>
           ))}
         </select>
 
@@ -308,11 +199,9 @@ const PenerimaBantuan: React.FC = () => {
           onChange={(e) => setFilterJenisBantuan(e.target.value)}
           className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white min-w-[160px]"
         >
-          <option value="all">Semua Jenis Bantuan</option>
+          <option value="all">Semua Bantuan</option>
           {jenisBantuanOptions.map((jenis) => (
-            <option key={jenis} value={jenis}>
-              {jenis}
-            </option>
+            <option key={jenis} value={jenis}>{jenis}</option>
           ))}
         </select>
       </div>
@@ -326,20 +215,20 @@ const PenerimaBantuan: React.FC = () => {
                 <tr className="border-b border-gray-200 dark:border-navy-600">
                   <th
                     onClick={() => requestSort("nik")}
-                    className="cursor-pointer px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white hover:text-brand-500"
+                    className="cursor-pointer px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white hover:text-purple-500"
                   >
                     NIK {sortConfig?.key === "nik" && (sortConfig.direction === "asc" ? "Up" : "Down")}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white">NAMA</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white">JENIS BANTUAN</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white">BANTUAN</th>
                   <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white">STATUS</th>
                   <th
                     onClick={() => requestSort("tanggal")}
-                    className="cursor-pointer px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white hover:text-brand-500"
+                    className="cursor-pointer px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white hover:text-purple-500"
                   >
                     TANGGAL {sortConfig?.key === "tanggal" && (sortConfig.direction === "asc" ? "Up" : "Down")}
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white">AKSI</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 dark:text-white">VALIDASI</th>
                 </tr>
               </thead>
               <tbody>
@@ -376,19 +265,30 @@ const PenerimaBantuan: React.FC = () => {
                       <td className="px-4 py-3 text-sm">{item.tanggal}</td>
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
+                          {/* Tombol Layak */}
                           <button
-                            onClick={() => openEdit(item)}
-                            className="text-blue-500 hover:text-blue-700 transition-colors"
-                            title="Edit"
+                            onClick={() => handleValidasi(item.id, "Diterima")}
+                            className={`flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-all ${
+                              item.status === "Diterima"
+                                ? "bg-green-200 text-green-800 dark:bg-green-800 dark:text-green-200 ring-2 ring-green-500"
+                                : "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900 dark:text-green-300"
+                            }`}
+                            title="Tandai sebagai Layak"
                           >
-                            <MdEdit className="h-5 w-5" />
+                            <MdCheckCircle className="h-3 w-3" /> Layak
                           </button>
+
+                          {/* Tombol Tidak Layak */}
                           <button
-                            onClick={() => handleDelete(item.id)}
-                            className="text-red-500 hover:text-red-700 transition-colors"
-                            title="Hapus"
+                            onClick={() => handleValidasi(item.id, "Ditolak")}
+                            className={`flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-all ${
+                              item.status === "Ditolak"
+                                ? "bg-red-200 text-red-800 dark:bg-red-800 dark:text-red-200 ring-2 ring-red-500"
+                                : "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900 dark:text-red-300"
+                            }`}
+                            title="Tandai sebagai Tidak Layak"
                           >
-                            <MdDelete className="h-5 w-5" />
+                            <MdWarning className="h-3 w-3" /> Tidak
                           </button>
                         </div>
                       </td>
@@ -400,86 +300,6 @@ const PenerimaBantuan: React.FC = () => {
           </div>
         </Card>
       </div>
-
-      {/* Modal Form */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={resetModal} />
-          <Card extra="relative w-full max-w-lg p-6">
-            <h3 className="mb-4 text-xl font-bold text-navy-700 dark:text-white">
-              {editItem ? "Edit" : "Tambah"} Penerima Bantuan
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Penerima</label>
-                <select
-                  value={form.anggotaId}
-                  onChange={(e) => setForm({ ...form, anggotaId: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-navy-600 dark:bg-navy-700 dark:text-white"
-                >
-                  <option value="">Pilih penerima</option>
-                  {daftarAnggotaPenerima.map((a) => (
-                    <option key={`${a.id}-${a.jenis}`} value={a.id}>
-                      {a.nik} - {a.nama} ({a.jenis}) - RT {a.rt}/RW {a.rw}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Jenis Bantuan</label>
-                <select
-                  value={form.jenisBantuan}
-                  onChange={(e) => setForm({ ...form, jenisBantuan: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-navy-600 dark:bg-navy-700 dark:text-white"
-                >
-                  <option value="">Pilih bantuan</option>
-                  {Object.values(JENIS_BANTUAN_MAP).map((jenis) => (
-                    <option key={jenis} value={jenis}>
-                      {jenis}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tanggal</label>
-                <input
-                  type="date"
-                  value={form.tanggal}
-                  onChange={(e) => setForm({ ...form, tanggal: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-navy-600 dark:bg-navy-700 dark:text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
-                <select
-                  value={form.status}
-                  onChange={(e) => setForm({ ...form, status: e.target.value as any })}
-                  className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-navy-600 dark:bg-navy-700 dark:text-white"
-                >
-                  <option value="Diproses">Diproses</option>
-                  <option value="Diterima">Diterima</option>
-                  <option value="Ditolak">Ditolak</option>
-                </select>
-              </div>
-            </div>
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                onClick={resetModal}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 dark:border-navy-600 dark:text-white dark:hover:bg-navy-700"
-              >
-                Batal
-              </button>
-              <button
-                onClick={handleSubmit}
-                disabled={!form.anggotaId || !form.jenisBantuan}
-                className="rounded-lg bg-brand-500 px-4 py-2 text-white hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {editItem ? "Simpan" : "Tambah"}
-              </button>
-            </div>
-          </Card>
-        </div>
-      )}
     </div>
   );
 };

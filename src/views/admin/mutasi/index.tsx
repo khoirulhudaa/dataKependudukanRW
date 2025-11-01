@@ -359,7 +359,7 @@ const MutasiPenduduk: React.FC = () => {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.5)] p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={resetModal} />
           <Card extra="relative w-full max-w-2xl p-6">
             <h3 className="mb-4 text-xl font-bold">Mutasi Penduduk</h3>

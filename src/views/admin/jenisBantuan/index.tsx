@@ -208,10 +208,10 @@ useEffect(() => {
 
       {/* Modal Form */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.5)] p-4">
           {/* OVERLAY GELAP + BLUR */}
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            className="absolute inset-0 bg-[rgba(0,0,0,0.5)] backdrop-blur-sm transition-opacity"
             onClick={() => {
               setShowModal(false);
               setEditItem(null);

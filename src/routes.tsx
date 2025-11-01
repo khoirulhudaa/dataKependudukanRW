@@ -32,6 +32,7 @@ import PengaduanPage from "views/admin/pengaduan";
 import AnggotaDetailPage from "views/admin/statusPenduduk";
 import PengajuanSuratPage from "views/admin/templateSurat";
 import VisiMisiPage from "views/admin/visiMisi";
+import EditAnggota from "views/admin/editAnggota";
 
 const routes: any = [
   // ==================== DASHBOARD ====================
@@ -51,13 +52,35 @@ const routes: any = [
     icon: <MdFamilyRestroom className="h-6 w-6" />,
     component: <DataKK />,
   },
+  // ==================== MENU UTAMA LAINNYA ====================
   {
-    name: "Detail anggota",
+    name: "Mutasi Penduduk",
     layout: "/admin",
-    path: "detail-anggota",
-    icon: <MdNotes className="h-6 w-6" />,
-    component: <AnggotaDetailPage />,
+    path: "mutaasi-penduduk",
+    icon: <MdSystemUpdate className="h-6 w-6" />,
+    component: <MutasiPenduduk />,
   },
+  {
+    name: "Data Pengaduan",
+    layout: "/admin",
+    path: "pengaduan",
+    icon: <MdForum className="h-6 w-6" />,
+    component: <PengaduanPage />,
+  },
+  {
+    name: "Pengajuan Surat",
+    layout: "/admin",
+    path: "pengajuan-surat",
+    icon: <MdDescription className="h-6 w-6" />,
+    component: <PengajuanSuratPage />,
+  },
+  // {
+  //   name: "Detail anggota",
+  //   layout: "/admin",
+  //   path: "detail-anggota",
+  //   icon: <MdNotes className="h-6 w-6" />,
+  //   component: <AnggotaDetailPage />,
+  // },
   // ==================== BANTUAN KELURAHAN ====================
   {
     name: "Bantuan Kelurahan",
@@ -80,6 +103,14 @@ const routes: any = [
         component: <PenerimaBantuan />,
       },
     ],
+  },
+
+  {
+    name: "Berita",
+    layout: "/admin",
+    path: "berita",
+    icon: <MdArticle className="h-6 w-6" />,
+    component: <BeritaPage />,
   },
 
   // ==================== MANAJEMEN KONTEN ====================
@@ -127,41 +158,16 @@ const routes: any = [
     ],
   },
   {
-    name: "Berita",
-    layout: "/admin",
-    path: "berita",
-    icon: <MdArticle className="h-6 w-6" />,
-    component: <BeritaPage />,
-  },
-
-  // ==================== MENU UTAMA LAINNYA ====================
-  {
-    name: "Mutasi Penduduk",
-    layout: "/admin",
-    path: "mutaasi-penduduk",
-    icon: <MdSystemUpdate className="h-6 w-6" />,
-    component: <MutasiPenduduk />,
-  },
-  {
-    name: "Data Pengaduan",
-    layout: "/admin",
-    path: "pengaduan",
-    icon: <MdForum className="h-6 w-6" />,
-    component: <PengaduanPage />,
-  },
-  {
-    name: "pengajuan Surat",
-    layout: "/admin",
-    path: "pengajuan-surat",
-    icon: <MdDescription className="h-6 w-6" />,
-    component: <PengajuanSuratPage />,
-  },
-  {
     name: "Manajemen Admin",
     layout: "/admin",
     path: "akun",
     icon: <MdAdminPanelSettings className="h-6 w-6" />,
     component: <AdminPage />,
+  },
+  {
+    layout: "/admin",
+    path: "anggota/edit/:id", // ← Dinamis
+    component: <EditAnggota />,
   },
   {
     name: "Data Kontak RW",

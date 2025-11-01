@@ -26,6 +26,7 @@ import {
   MdZoomIn,
   MdSave,
 } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 
 type StatusAnggota = "Hidup" | "Meninggal" | "Pindah";
 
@@ -222,7 +223,8 @@ const DataKK: React.FC = () => {
   const [showModalBantuan, setShowModalBantuan] = useState(false);
   const [selectedAnggota, setSelectedAnggota] = useState<Anggota | null>(null);
   const [filterNoKK, setFilterNoKK] = useState<string>("all");
-
+  const [filterRT, setFilterRT] = useState<string>("all");
+  
   const [formKK, setFormKK] = useState({
     noKK: "",
     kepalaKeluarga: "",
@@ -270,10 +272,17 @@ const DataKK: React.FC = () => {
   const filteredData = useMemo(() => {
     let data = kkList;
 
+    // Filter RT
+    if (filterRT !== "all") {
+      data = data.filter(k => k.rt === filterRT);
+    }
+
+    // Filter No KK
     if (filterNoKK !== "all") {
       data = data.filter(k => k.noKK === filterNoKK);
     }
 
+    // Search
     if (search) {
       data = data.filter(
         (item) =>
@@ -284,7 +293,7 @@ const DataKK: React.FC = () => {
     }
 
     return data;
-  }, [kkList, search, filterNoKK]);
+  }, [kkList, search, filterNoKK, filterRT]);
 
   const hitungUsia = (tanggalLahir: string): number => {
     if (!tanggalLahir) return 0;
@@ -404,11 +413,16 @@ const DataKK: React.FC = () => {
     setShowModalAnggota(true);
   };
 
+  // const openEditAnggota = (anggota: Anggota) => {
+  //   setEditAnggota(anggota);
+  //   setFormAnggota({ ...anggota });
+  //   setKtpFileUrl(anggota.ktpUrl || null);
+  //   setShowModalAnggota(true);
+  // };
+
+  const navigate = useNavigate();
   const openEditAnggota = (anggota: Anggota) => {
-    setEditAnggota(anggota);
-    setFormAnggota({ ...anggota });
-    setKtpFileUrl(anggota.ktpUrl || null);
-    setShowModalAnggota(true);
+    navigate(`/admin/anggota/edit/${anggota.id}`);
   };
 
   const handleSubmitAnggota = () => {
@@ -523,6 +537,15 @@ const DataKK: React.FC = () => {
     }
   }, [showKKZoom]);
 
+  // === DAFTAR RT YANG ADA ===
+  const daftarRT = useMemo(() => {
+    const rtSet = new Set<string>();
+    kkList.forEach(kk => {
+      if (kk.rt) rtSet.add(kk.rt);
+    });
+    return Array.from(rtSet).sort();
+  }, [kkList]);
+
   return (
     <div className="relative min-h-screen">
       {/* Widget */}
@@ -534,31 +557,49 @@ const DataKK: React.FC = () => {
       </div>
 
       {/* Header + Filter + Simpan */}
-      <div className="mt-8 bg-white p-4 rounded-3xl shadow flex flex-col md:flex-row md:items-end gap-4">
-        <div className="flex-1">
-          <label className="block font-medium mb-2 text-gray-700">Filter berdasarkan No. KK</label>
-          <select
-            value={filterNoKK}
-            onChange={(e) => setFilterNoKK(e.target.value)}
-            className="w-full p-3 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="all">Semua KK</option>
-            {kkList.map((kk) => (
-              <option key={kk.noKK} value={kk.noKK}>
-                {kk.noKK} ({kk.alamat.split(",")[0]})
-              </option>
-            ))}
-          </select>
-        </div>
+        <div className="mt-8 bg-white p-4 rounded-3xl shadow flex flex-col md:flex-row md:items-end gap-4">
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Filter RT */}
+            <div>
+              <label className="block font-medium mb-2 text-gray-700">Filter berdasarkan RT</label>
+              <select
+                value={filterRT}
+                onChange={(e) => setFilterRT(e.target.value)}
+                className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              >
+                <option value="all">Semua RT</option>
+                {daftarRT.map(rt => (
+                  <option key={rt} value={rt}>RT {rt}</option>
+                ))}
+              </select>
+            </div>
 
-        {/* Tombol Simpan */}
-        <button
-          onClick={handleSaveAll}
-          className="px-6 py-3 bg-green-600 text-white rounded-lg flex items-center gap-2 text-base font-medium shadow hover:bg-green-700 transition whitespace-nowrap"
-        >
-          <MdSave /> Simpan Perubahan
-        </button>
-      </div>
+            {/* Filter No KK */}
+            <div>
+              <label className="block font-medium mb-2 text-gray-700">Filter berdasarkan No. KK</label>
+              <select
+                value={filterNoKK}
+                onChange={(e) => setFilterNoKK(e.target.value)}
+                className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              >
+                <option value="all">Semua KK</option>
+                {kkList.map((kk) => (
+                  <option key={kk.noKK} value={kk.noKK}>
+                    {kk.noKK} ({kk.alamat.split(",")[0]})
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Tombol Simpan */}
+          <button
+            onClick={handleSaveAll}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2 text-base font-medium shadow hover:bg-blue-700 transition whitespace-nowrap"
+          >
+            <MdSave /> Simpan Perubahan
+          </button>
+        </div>
 
       {/* Search */}
       <div className="mt-5">
@@ -805,7 +846,15 @@ const DataKK: React.FC = () => {
                         </div>
                         <div className="flex gap-2">
                           <button onClick={(e) => { e.stopPropagation(); openTagging(a); }} className="border border-black/40 rounded-md p-1 px-2 text-xs text-blue-600 hover:underline">Tag</button>
-                          <button onClick={(e) => { e.stopPropagation(); openEditAnggota(a); }} className="border border-black/40 rounded-md p-1 px-2 text-yellow-500"><MdEdit className="h-4 w-4" /></button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openEditAnggota(a);
+                            }}
+                            className="border border-black/40 rounded-md p-1 px-2 text-yellow-500"
+                          >
+                            <MdEdit className="h-4 w-4" />
+                          </button>
                           <button onClick={(e) => { e.stopPropagation(); handleDeleteAnggota(a.id); }} className="border border-black/40 rounded-md p-1 px-2 text-red-500"><MdDelete className="h-4 w-4" /></button>
                         </div>
                       </div>
@@ -868,7 +917,7 @@ const DataKK: React.FC = () => {
       {showSidebar && <div onClick={closeSidebar} className="fixed inset-0 bg-black/30 z-40 transition-opacity" />}
 
       {/* === MODAL TAMBAH/EDIT ANGGOTA === */}
-      {showModalAnggota && selectedKK && (
+      {/* {showModalAnggota && selectedKK && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => { setShowModalAnggota(false); setEditAnggota(null); setKtpFile(null); setKtpFileUrl(null); }} />
           <div className="relative z-10 w-full max-w-[80vw] mx-4 overflow-y-auto max-h-screen">
@@ -876,7 +925,6 @@ const DataKK: React.FC = () => {
               <h3 className="mb-5 text-xl font-bold text-navy-700 dark:text-white">{editAnggota ? "Edit" : "Tambah"} Anggota</h3>
 
               <div className="grid md:grid-cols-2 gap-6">
-                {/* KOLOM KIRI: Data Inti */}
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-3">
                     <input placeholder="NIK" value={formAnggota.nik || ""} onChange={e => setFormAnggota({ ...formAnggota, nik: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
@@ -912,7 +960,6 @@ const DataKK: React.FC = () => {
                     <option value="Tidak Tetap">Warga Tidak Tetap</option>
                   </select>
 
-                  {/* Yatim & Piatu */}
                   <div className="flex gap-6 border border-gray-300 rounded-xl py-[12px] px-5">
                     <label className="flex items-center gap-2">
                       <input type="checkbox" checked={formAnggota.yatim || false} onChange={e => setFormAnggota({ ...formAnggota, yatim: e.target.checked })} className="h-4 w-4 rounded border-gray-300 text-brand-500" />
@@ -925,7 +972,6 @@ const DataKK: React.FC = () => {
                   </div>
                 </div>
 
-                {/* KOLOM KANAN: Upload KTP */}
                 <div className="space-y-4">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload KTP (Opsional - JPG, PNG, PDF)</label>
                   <div
@@ -969,7 +1015,7 @@ const DataKK: React.FC = () => {
             </Card>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* === MODAL TAMBAH/EDIT KK === */}
       {showModalKK && (

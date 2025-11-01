@@ -187,7 +187,7 @@ const PegawaiRTPage: React.FC = () => {
       {/* Widget */}
       <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         <Widget icon={<MdGroup className="h-7 w-7" />} title="Total RT" subtitle={rtList.length.toString()} />
-        <Widget icon={<MdGroup className="h-7 w-7" />} title="Pegawai Aktif" subtitle={getTotalAktif().toString()} />
+        <Widget icon={<MdGroup className="h-7 w-7" />} title="Pengurus Aktif" subtitle={getTotalAktif().toString()} />
         <Widget icon={<MdGroup className="h-7 w-7" />} title="Ketua" subtitle={rtList.filter(r => r.ketua).length.toString()} />
         <Widget icon={<MdGroup className="h-7 w-7" />} title="Sekretaris" subtitle={rtList.filter(r => r.sekretaris).length.toString()} />
       </div>
@@ -198,11 +198,11 @@ const PegawaiRTPage: React.FC = () => {
           <div className="flex h-10 w-10 items-center justify-center rounded-md bg-brand-500/20 text-brand-500">
             <MdGroup className="h-6 w-6" />
           </div>
-          <h3 className="text-xl font-bold text-navy-700 dark:text-white">Kelola Pegawai RT</h3>
+          <h3 className="text-xl font-bold text-navy-700 dark:text-white">Kelola Pengurus RT</h3>
         </div>
         <button onClick={() => openModal()} className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-brand-500 to-brand-600 px-4 py-2 text-white hover:shadow-lg transform hover:scale-105 transition-all">
           <MdAdd className="h-5 w-5" />
-          Tambah RT
+          Tambah Pengurus
         </button>
       </div>
 
@@ -210,7 +210,7 @@ const PegawaiRTPage: React.FC = () => {
       <div className="mt-5">
         <div className="relative">
           <MdSearch className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-          <input type="text" placeholder="Cari RT atau nama pegawai..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full rounded-xl border border-gray-300 bg-white pl-10 pr-4 py-3 text-sm shadow-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
+          <input type="text" placeholder="Cari RT atau nama pengurus..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full rounded-xl border border-gray-300 bg-white pl-10 pr-4 py-3 text-sm shadow-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
         </div>
       </div>
 
@@ -278,7 +278,7 @@ const PegawaiRTPage: React.FC = () => {
 
       {/* MODAL FORM - 3 POSISI + FOTO */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.5)] backdrop-blur-sm p-4 overflow-y-auto">
         {/* OVERLAY GELAP + BLUR */}
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
