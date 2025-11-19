@@ -14,7 +14,7 @@ Get started and build your dream web app with Horizon UI, the trendiest & innova
 
 ---
 
-### Introduction
+### Introduction NEW
 
 Designed for those who like modern UI elements and beautiful websites. Made of hundred of elements, designed blocks and fully coded pages, Horizon UI is ready to help you create stunning websites and webapps.
 
