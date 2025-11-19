@@ -96,15 +96,23 @@ const PengajuanSuratPage: React.FC = () => {
     return `SURAT-${year}-${count.toString().padStart(3, "0")}`;
   };
 
-  // Filter data
   const filteredData = useMemo(() => {
+    const searchLower = search.toLowerCase();
+
     return pengajuanList.filter((item) => {
+      // Aman untuk namaWarga yang bisa null/undefined
+      const namaWargaLower = item.namaWarga 
+        ? item.namaWarga.toLowerCase() 
+        : "";
+
       const matchesSearch =
-        item.namaWarga?.toLowerCase()?.includes(search.toLowerCase()) ||
-        item.nik.includes(search) ||
-        item.noPengajuan.includes(search) ||
-        item.jenisSurat.toLowerCase().includes(search.toLowerCase());
+        namaWargaLower.includes(searchLower) ||
+        item.nik.includes(search) ||                    // pastikan nik selalu string
+        item.noPengajuan.includes(search) ||            // sama, pastikan string
+        item.jenisSurat.toLowerCase().includes(searchLower);
+
       const matchesStatus = filterStatus === "Semua" || item.status === filterStatus;
+
       return matchesSearch && matchesStatus;
     });
   }, [pengajuanList, search, filterStatus]);

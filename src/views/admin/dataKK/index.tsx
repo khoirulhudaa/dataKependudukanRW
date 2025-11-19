@@ -257,7 +257,7 @@ const DataKK: React.FC = () => {
   // Load & Save
   useEffect(() => {
     const saved = localStorage.getItem("dataKK");
-    if (saved) {
+    if (saved?.length > 0) {
       setKKList(JSON.parse(saved));
     } else {
       setKKList(DEMO_DATA);
