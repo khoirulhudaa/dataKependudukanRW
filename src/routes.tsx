@@ -10,7 +10,7 @@ import {
   MdDescription, // Beranda
   MdFamilyRestroom, // Pegawai RT/RW
   MdForum,
-  MdHome, MdNotes, // Jenis Bantuan
+  MdHome, // Jenis Bantuan
   MdPeople, // Layanan / Berita
   MdStadium, MdSystemUpdate, // Penerima Bantuan
   MdWeb
@@ -19,6 +19,7 @@ import {
 import { IoMdGlobe } from "react-icons/io";
 import BeritaPage from "views/admin/berita";
 import DataKK from "views/admin/dataKK";
+import EditAnggota from "views/admin/editAnggota";
 import FasilitasPage from "views/admin/fasilitas";
 import JenisBantuanPage from "views/admin/jenisBantuan";
 import KontakPage from "views/admin/kontak";
@@ -29,11 +30,10 @@ import PegawaiRTPage from "views/admin/pegawaiRT";
 import PegawaiRWPage from "views/admin/pegawaiRW";
 import PenerimaBantuan from "views/admin/penerimaBantuan";
 import PengaduanPage from "views/admin/pengaduan";
-import AnggotaDetailPage from "views/admin/statusPenduduk";
+import ProfileOverview from "views/admin/profile";
 import PengajuanSuratPage from "views/admin/templateSurat";
 import VisiMisiPage from "views/admin/visiMisi";
-import EditAnggota from "views/admin/editAnggota";
-import ProfileOverview from "views/admin/profile";
+import SignIn from "views/auth/SignIn";
 
 const routes: any = [
   // ==================== DASHBOARD ====================
@@ -80,13 +80,6 @@ const routes: any = [
     path: "profile",
     component: <ProfileOverview />,
   },
-  // {
-  //   name: "Detail anggota",
-  //   layout: "/admin",
-  //   path: "detail-anggota",
-  //   icon: <MdNotes className="h-6 w-6" />,
-  //   component: <AnggotaDetailPage />,
-  // },
   // ==================== BANTUAN KELURAHAN ====================
   {
     name: "Bantuan Kelurahan",
@@ -174,6 +167,11 @@ const routes: any = [
     layout: "/admin",
     path: "anggota/edit/:id", // ← Dinamis
     component: <EditAnggota />,
+  },
+  {
+    layout: "/auth",
+    path: "sign-in",           // ← penting: path tanpa slash awal
+    component: <SignIn />,      // ← import dulu di atas
   },
   {
     name: "Data Kontak RW",
