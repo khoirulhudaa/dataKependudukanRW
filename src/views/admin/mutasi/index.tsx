@@ -270,7 +270,7 @@ const MutasiPenduduk: React.FC = () => {
   return (
     <div>
       {/* Widget */}
-      <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-5">
+      <div className="mt-3 grid grid-cols-2 gap-5 md:grid-cols-2 lg:grid-cols-5">
         {/* <Widget icon={<MdPeople className="h-7 w-7" />} title="Total" subtitle={mutasiList.length.toString()} /> */}
         {["Masuk", "Keluar", "Meninggal", "Lahir", "Pisah KK"].map(j => (
           <Widget key={j} icon={getJenisIcon(j as MutasiType)} title={j} subtitle={mutasiList.filter(m => m.jenis === j).length.toString()} />

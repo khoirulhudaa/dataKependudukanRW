@@ -116,7 +116,7 @@ const KontakPage: React.FC = () => {
   return (
     <div className="pt-3 pb-6 max-w-full mx-auto">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mdblock hidden mb-8">
         <h1 className="text-3xl font-bold text-navy-700 dark:text-white flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-500/20 text-brand-500">
             <MdPhone className="h-7 w-7" />
@@ -129,7 +129,7 @@ const KontakPage: React.FC = () => {
       </div>
 
       {/* Form Tambah Baru */}
-      <div className="mb-10 p-6 bg-gradient-to-br from-brand-50 to-brand-100 dark:from-navy-800 dark:to-navy-700 rounded-2xl shadow-lg">
+      <div className="mb-10 p-6 bg-white border border-gray-400 md:border-0 md:bg-gradient-to-br from-brand-50 to-brand-100 dark:from-navy-800 dark:to-navy-700 rounded-2xl shadow-lg">
         <h3 className="text-lg font-semibold text-navy-700 dark:text-white mb-4">Tambah Kontak Baru</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
@@ -180,7 +180,7 @@ const KontakPage: React.FC = () => {
       </div>
 
       {/* Daftar Kontak – Full Form Inline Edit */}
-      <div className={`gap-4 grid ${kontakList.length === 1 ? 'grid-cols-1' : kontakList.length === 0 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+      <div className={`gap-4 grid ${kontakList.length === 1 ? 'grid-cols-1' : kontakList.length === 0 ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
         {kontakList.length === 0 ? (
           <div className="w-full flex items-center justify-center flex-col text-center py-16 text-gray-500 dark:text-gray-400">
             <MdPhone className="mx-auto h-16 w-16 mb-3 text-gray-300 dark:text-gray-600" />

@@ -1,4 +1,3 @@
-// src/layouts/admin/index.tsx
 import Footer from "components/footer/Footer";
 import Navbar from "components/navbar";
 import Sidebar from "components/sidebar";
@@ -76,7 +75,7 @@ export default function Admin(props: { [x: string]: any }) {
       <Sidebar open={open} onClose={() => setOpen(false)} />
 
       {/* MAIN CONTENT */}
-      <div className="h-full w-full bg-lightPrimary dark:!bg-navy-900 flex-1">
+      <div className="h-full w-full bg-gray-100 dark:!bg-navy-900 flex-1">
         <main
           className={`
             mx-3 h-full px-2 flex-none transition-all duration-200

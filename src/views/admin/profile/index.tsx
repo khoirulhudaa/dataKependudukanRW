@@ -1,7 +1,7 @@
 // src/views/admin/profile/ProfileOverview.tsx
+import { useState } from "react";
 import Banner from "./components/Banner";
 import General from "./components/General";
-import { useState } from "react";
 
 const ProfileOverview = () => {
   const [refreshKey, setRefreshKey] = useState(0);

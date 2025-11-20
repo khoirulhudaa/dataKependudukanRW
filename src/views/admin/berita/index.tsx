@@ -135,7 +135,7 @@ const BeritaPage: React.FC = () => {
   return (
     <div>
       {/* Widget Stats */}
-      <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-3">
+      <div className="mt-3 grid grid-cols-2 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-3">
         <Widget icon={<MdArticle className="h-7 w-7" />} title="Total Berita" subtitle={beritaList.length.toString()} />
         <Widget icon={<MdArticle className="h-7 w-7" />} title="Aktif" subtitle={beritaList.filter((b) => b.aktif).length.toString()} />
         <Widget icon={<MdArticle className="h-7 w-7" />} title="Nonaktif" subtitle={beritaList.filter((b) => !b.aktif).length.toString()} />
@@ -236,7 +236,7 @@ const BeritaPage: React.FC = () => {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={resetModal}
           />
-          <Card extra="relative w-full max-w-[80vw] p-6">
+          <Card extra="relative w-full w-[96vw] overflow-auto h-[90vh] md:max-w-[80vw] p-6">
             <h3 className="mb-4 text-xl font-bold text-navy-700 dark:text-white">
               {editItem ? "Edit" : "Tambah"} Berita
             </h3>

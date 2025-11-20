@@ -23,8 +23,7 @@ import {
   MdSearch,
   MdUpload,
   MdWarning,
-  MdZoomIn,
-  MdSave,
+  MdZoomIn
 } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 
@@ -549,7 +548,7 @@ const DataKK: React.FC = () => {
   return (
     <div className="relative min-h-screen">
       {/* Widget */}
-      <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-3 grid grid-cols-2 gap-5 md:grid-cols-2 lg:grid-cols-4">
         <Widget icon={<MdFamilyRestroom className="h-7 w-7" />} title="Total KK" subtitle={kkList.length.toString()} />
         <Widget icon={<MdFamilyRestroom className="h-7 w-7" />} title="Resmi" subtitle={kkList.filter(k => !k.isSementara).length.toString()} />
         <Widget icon={<MdFamilyRestroom className="h-7 w-7" />} title="Sementara" subtitle={kkList.filter(k => k.isSementara).length.toString()} />
@@ -557,7 +556,7 @@ const DataKK: React.FC = () => {
       </div>
 
       {/* Header + Filter + Simpan */}
-        <div className="mt-8 bg-white p-4 rounded-3xl shadow flex flex-col md:flex-row md:items-end gap-4">
+        <div className="mt-8 bg-white p-4 rounded-xl shadow flex flex-col md:flex-row md:items-end gap-4">
           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Filter RT */}
             <div>
@@ -592,13 +591,26 @@ const DataKK: React.FC = () => {
             </div>
           </div>
 
-          {/* Tombol Simpan */}
           <button
-            onClick={handleSaveAll}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2 text-base font-medium shadow hover:bg-blue-700 transition whitespace-nowrap"
+            onClick={() => {
+                setEditKK(null);
+                setFormKK({
+                  noKK: "",
+                  kepalaKeluarga: "",
+                  alamat: "",
+                  rt: "",
+                  rw: "",
+                  isSementara: false,
+                });
+                setKKFile(null);
+                setKKFileUrl(null);
+                setShowModalKK(true);
+            }}
+            className="w-max px-6 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2 text-base font-medium shadow hover:bg-blue-700 transition whitespace-nowrap"
           >
-            <MdSave /> Simpan Perubahan
+            <MdAdd /> Tambah KK
           </button>
+
         </div>
 
       {/* Search */}
@@ -916,128 +928,27 @@ const DataKK: React.FC = () => {
 
       {showSidebar && <div onClick={closeSidebar} className="fixed inset-0 bg-black/30 z-40 transition-opacity" />}
 
-      {/* === MODAL TAMBAH/EDIT ANGGOTA === */}
-      {/* {showModalAnggota && selectedKK && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => { setShowModalAnggota(false); setEditAnggota(null); setKtpFile(null); setKtpFileUrl(null); }} />
-          <div className="relative z-10 w-full max-w-[80vw] mx-4 overflow-y-auto max-h-screen">
-            <Card extra="p-6 rounded-2xl shadow-2xl bg-white dark:bg-navy-800">
-              <h3 className="mb-5 text-xl font-bold text-navy-700 dark:text-white">{editAnggota ? "Edit" : "Tambah"} Anggota</h3>
-
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <input placeholder="NIK" value={formAnggota.nik || ""} onChange={e => setFormAnggota({ ...formAnggota, nik: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
-                    <input placeholder="Nama Lengkap" value={formAnggota.nama || ""} onChange={e => setFormAnggota({ ...formAnggota, nama: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <select value={formAnggota.jenisKelamin} onChange={e => setFormAnggota({ ...formAnggota, jenisKelamin: e.target.value as "L" | "P" })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white">
-                      <option value="L">Laki-laki</option>
-                      <option value="P">Perempuan</option>
-                    </select>
-                    <input placeholder="Tempat Lahir" value={formAnggota.tempatLahir || ""} onChange={e => setFormAnggota({ ...formAnggota, tempatLahir: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <input type="date" value={formAnggota.tanggalLahir || ""} onChange={e => setFormAnggota({ ...formAnggota, tanggalLahir: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
-                    <select value={formAnggota.statusKeluarga} onChange={e => setFormAnggota({ ...formAnggota, statusKeluarga: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white">
-                      <option>Kepala Keluarga</option>
-                      <option>Istri</option>
-                      <option>Anak</option>
-                      <option>Orang Tua</option>
-                    </select>
-                  </div>
-
-                  <select value={formAnggota.status} onChange={e => setFormAnggota({ ...formAnggota, status: e.target.value as StatusAnggota })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white">
-                    <option value="Hidup">Hidup</option>
-                    <option value="Meninggal">Meninggal</option>
-                    <option value="Pindah">Pindah</option>
-                  </select>
-
-                  <select value={formAnggota.statusWarga} onChange={e => setFormAnggota({ ...formAnggota, statusWarga: e.target.value as "Tetap" | "Tidak Tetap" })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white">
-                    <option value="Tetap">Warga Tetap</option>
-                    <option value="Tidak Tetap">Warga Tidak Tetap</option>
-                  </select>
-
-                  <div className="flex gap-6 border border-gray-300 rounded-xl py-[12px] px-5">
-                    <label className="flex items-center gap-2">
-                      <input type="checkbox" checked={formAnggota.yatim || false} onChange={e => setFormAnggota({ ...formAnggota, yatim: e.target.checked })} className="h-4 w-4 rounded border-gray-300 text-brand-500" />
-                      <span className="text-sm">Yatim</span>
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input type="checkbox" checked={formAnggota.piatu || false} onChange={e => setFormAnggota({ ...formAnggota, piatu: e.target.checked })} className="h-4 w-4 rounded border-gray-300 text-brand-500" />
-                      <span className="text-sm">Piatu</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload KTP (Opsional - JPG, PNG, PDF)</label>
-                  <div
-                    className="border-2 border-dashed border-gray-300 dark:border-navy-600 rounded-xl p-6 text-center cursor-pointer hover:border-brand-500 transition-colors"
-                    onDragOver={e => e.preventDefault()}
-                    onDrop={e => { e.preventDefault(); const file = e.dataTransfer.files[0]; if (file) handleKtpChange(file); }}
-                    onClick={() => document.getElementById("ktpInput")?.click()}
-                  >
-                    {ktpFileUrl || editAnggota?.ktpUrl ? (
-                      <div className="space-y-3">
-                        {(ktpFile?.type.startsWith("image/") || editAnggota?.ktpType?.startsWith("image/")) ? (
-                          <img src={ktpFileUrl || editAnggota?.ktpUrl} alt="Preview KTP" className="mx-auto max-h-48 rounded-lg shadow-md" />
-                        ) : (
-                          <div className="flex items-center justify-center gap-2 text-blue-600">
-                            <MdDescription className="h-12 w-12" />
-                            <span className="text-sm">{ktpFile?.name || editAnggota?.ktpName}</span>
-                          </div>
-                        )}
-                        <button onClick={e => { e.stopPropagation(); setKtpFile(null); setKtpFileUrl(null); }} className="text-red-600 text-sm hover:underline">Hapus KTP</button>
-                      </div>
-                    ) : (
-                      <div className="text-gray-500">
-                        <MdUpload className="mx-auto h-12 w-12 mb-2" />
-                        <p className="text-sm">Klik atau drag KTP ke sini</p>
-                        <p className="text-xs mt-1">Opsional - Max 5MB</p>
-                      </div>
-                    )}
-                    <input id="ktpInput" type="file" accept="image/*,.pdf" className="hidden" onChange={e => { const file = e.target.files?.[0]; if (file) handleKtpChange(file); }} />
-                  </div>
-
-                  <div className="bg-amber-50 dark:bg-amber-900/30 p-4 rounded-lg text-sm text-amber-800 dark:text-amber-300">
-                    <strong>Catatan:</strong> Status Kawin, Pendidikan, Pekerjaan, Keterangan, dan Arsip RT diedit di halaman <strong>Detail Anggota</strong>.
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6 border-t border-black/50 pt-6 grid grid-cols-2 gap-3 w-full">
-                <button onClick={() => { setShowModalAnggota(false); setEditAnggota(null); setKtpFile(null); setKtpFileUrl(null); }} className="rounded-xl border border-gray-300 px-5 py-2.5 text-gray-700 hover:bg-gray-50 dark:border-navy-600 dark:text-white font-medium">Batal</button>
-                <button onClick={handleSubmitAnggota} className="rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 px-5 py-2.5 text-white font-medium shadow-md hover:shadow-lg">Simpan</button>
-              </div>
-            </Card>
-          </div>
-        </div>
-      )} */}
-
       {/* === MODAL TAMBAH/EDIT KK === */}
       {showModalKK && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={resetFormKK} />
-          <div className="relative z-10 w-full max-w-[70vw] mx-4">
-            <Card extra="p-6 rounded-2xl shadow-2xl bg-white dark:bg-navy-800">
+          <div className="absolute inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm" onClick={resetFormKK} />
+          <div className="relative z-10 w-full w-[96vw] md:max-w-[70vw] mx-4">
+            <Card extra="h-[86vh] md:h-max overflow-auto p-6 border border-gray-400 rounded-2xl shadow-2xl bg-white dark:bg-navy-800">
               <div className="w-full border-b border-black/40 mb-6">
                 <h3 className="mb-5 text-xl font-bold text-navy-700 dark:text-white">{editKK ? "Edit" : "Tambah"} Kartu Keluarga</h3>
               </div>
               <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
                 <div className="gap-4 grid grid-cols-1">
-                  <div className="gap-3 md:grid grid-cols-2">
+                  <div className="gap-3 md:grid grid-cols-2 md:space-y-0 space-y-4">
                     <input placeholder="No KK" value={formKK.noKK} onChange={e => setFormKK({ ...formKK, noKK: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
                     <input placeholder="Kepala Keluarga" value={formKK.kepalaKeluarga} onChange={e => setFormKK({ ...formKK, kepalaKeluarga: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
                   </div>
                   <input placeholder="Alamat" value={formKK.alamat} onChange={e => setFormKK({ ...formKK, alamat: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
-                  <div className="md:grid grid-cols-2 gap-3">
+                  <div className="md:grid grid-cols-2 gap-3 md:space-y-0 space-y-4">
                     <input placeholder="RT" value={formKK.rt} onChange={e => setFormKK({ ...formKK, rt: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
                     <input placeholder="RW" value={formKK.rw} onChange={e => setFormKK({ ...formKK, rw: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
                   </div>
-                  <label className="flex items-center gap-2 border border-gray-300 rounded-lg px-4">
+                  <label className="w-max py-2 flex items-center gap-2 border border-gray-300 rounded-lg px-4">
                     <input type="checkbox" checked={formKK.isSementara} onChange={e => setFormKK({ ...formKK, isSementara: e.target.checked })} className="h-5 w-5 rounded border-gray-300 text-brand-500" />
                     <span className="text-sm font-medium">KK Sementara</span>
                   </label>

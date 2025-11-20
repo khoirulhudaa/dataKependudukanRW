@@ -12,10 +12,11 @@ interface Route {
 }
 
 interface LinksProps {
-  routes: Route[];
+  routes: any[];
+  onLinkClick?: () => void;   // <-- tambahkan ini
 }
 
-const Links = ({ routes }: LinksProps) => {
+const Links = ({ routes, onLinkClick }: LinksProps) => {
   const location = useLocation();
 
   // Inisialisasi: semua submenu terbuka secara default
@@ -32,6 +33,13 @@ const Links = ({ routes }: LinksProps) => {
     (path: string) => location.pathname.includes(path),
     [location.pathname]
   );
+
+  const handleClick = () => {
+    // Hanya close otomatis di mobile (lebar < xl = 1280px)
+    if (window.innerWidth < 1280 && onLinkClick) {
+      onLinkClick();
+    }
+  };
 
   // Toggle submenu
   const toggleMenu = useCallback((name: string) => {
@@ -117,6 +125,7 @@ const Links = ({ routes }: LinksProps) => {
           key={key}
           to={`${route.layout}/${route.path}`}
           className="block"
+          onClick={handleClick}   // <-- ini yang penting
         >
           <div
             className={`

@@ -197,7 +197,7 @@ const PengaduanPage: React.FC = () => {
   return (
     <div>
       {/* Widget Summary */}
-      <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
+      <div className="mt-3 grid grid-cols-2 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
         <Widget icon={<MdReport className="h-7 w-7" />} title="Total" subtitle={stats.total.toString()} />
         <Widget icon={<MdPending className="h-7 w-7 text-yellow-500" />} title="Menunggu" subtitle={stats.menunggu.toString()} />
         <Widget icon={<MdPending className="h-7 w-7 text-blue-500" />} title="Diproses" subtitle={stats.diproses.toString()} />

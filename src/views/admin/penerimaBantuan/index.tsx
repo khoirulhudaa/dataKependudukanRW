@@ -153,7 +153,7 @@ const PenerimaBantuan: React.FC = () => {
   return (
     <div>
       {/* Widget Summary */}
-      <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+      <div className="mt-3 grid grid-cols-2 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         <Widget icon={<MdPeople className="h-7 w-7" />} title="Total Penerima" subtitle={bantuanList.length.toString()} />
         <Widget icon={<MdCheckCircle className="h-7 w-7 text-green-600" />} title="Layak" subtitle={bantuanList.filter((b) => b.status === "Diterima").length.toString()} />
         <Widget icon={<MdWarning className="h-7 w-7 text-yellow-600" />} title="Diproses" subtitle={bantuanList.filter((b) => b.status === "Diproses").length.toString()} />
@@ -170,7 +170,7 @@ const PenerimaBantuan: React.FC = () => {
 
       {/* Filter & Search */}
       <div className="mt-5 flex flex-col gap-4 md:flex-row">
-        <div className="flex-1">
+        <div className="min-w-[40%] flex-1">
           <div className="relative">
             <MdSearch className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
             <input
@@ -183,27 +183,29 @@ const PenerimaBantuan: React.FC = () => {
           </div>
         </div>
 
-        <select
-          value={filterRtRw}
-          onChange={(e) => setFilterRtRw(e.target.value)}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white min-w-[140px]"
-        >
-          <option value="all">Semua RT/RW</option>
-          {rtRwOptions.map((rtRw) => (
-            <option key={rtRw} value={rtRw}>RT {rtRw}</option>
-          ))}
-        </select>
+        <div className="flex items-center md:w-max w-full gap-3 justify-between">
+          <select
+            value={filterRtRw}
+            onChange={(e) => setFilterRtRw(e.target.value)}
+            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full md:min-w-[140px]"
+          >
+            <option value="all">Semua RT/RW</option>
+            {rtRwOptions.map((rtRw) => (
+              <option key={rtRw} value={rtRw}>RT {rtRw}</option>
+            ))}
+          </select>
 
-        <select
-          value={filterJenisBantuan}
-          onChange={(e) => setFilterJenisBantuan(e.target.value)}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white min-w-[160px]"
-        >
-          <option value="all">Semua Bantuan</option>
-          {jenisBantuanOptions.map((jenis) => (
-            <option key={jenis} value={jenis}>{jenis}</option>
-          ))}
-        </select>
+          <select
+            value={filterJenisBantuan}
+            onChange={(e) => setFilterJenisBantuan(e.target.value)}
+            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full md:min-w-[160px]"
+          >
+            <option value="all">Semua Bantuan</option>
+            {jenisBantuanOptions.map((jenis) => (
+              <option key={jenis} value={jenis}>{jenis}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* TABEL */}

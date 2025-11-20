@@ -33,6 +33,7 @@ import AnggotaDetailPage from "views/admin/statusPenduduk";
 import PengajuanSuratPage from "views/admin/templateSurat";
 import VisiMisiPage from "views/admin/visiMisi";
 import EditAnggota from "views/admin/editAnggota";
+import ProfileOverview from "views/admin/profile";
 
 const routes: any = [
   // ==================== DASHBOARD ====================
@@ -56,7 +57,7 @@ const routes: any = [
   {
     name: "Mutasi Penduduk",
     layout: "/admin",
-    path: "mutaasi-penduduk",
+    path: "mutasi-penduduk",
     icon: <MdSystemUpdate className="h-6 w-6" />,
     component: <MutasiPenduduk />,
   },
@@ -73,6 +74,11 @@ const routes: any = [
     path: "pengajuan-surat",
     icon: <MdDescription className="h-6 w-6" />,
     component: <PengajuanSuratPage />,
+  },
+  {
+    layout: "/admin",
+    path: "profile",
+    component: <ProfileOverview />,
   },
   // {
   //   name: "Detail anggota",

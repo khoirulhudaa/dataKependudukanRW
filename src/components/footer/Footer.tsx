@@ -18,7 +18,7 @@ const Footer = () => {
           </li>
           <li>
             <a
-              href="/admin/data-kartu-keluarga"
+              href="/admin/data-kependudukan"
               className="text-base font-medium text-gray-600 hover:text-gray-600"
             >
               Kartu Keluarga
@@ -26,10 +26,10 @@ const Footer = () => {
           </li>
           <li>
             <a
-              href="/admin/data-kartu-tanda-penduduk"
+              href="/admin/mutasi-penduduk"
               className="text-base font-medium text-gray-600 hover:text-gray-600"
             >
-              KTP
+              Mutasi
             </a>
           </li>
           <li>

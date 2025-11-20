@@ -185,7 +185,7 @@ const PegawaiRTPage: React.FC = () => {
   return (
     <div>
       {/* Widget */}
-      <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+      <div className="mt-3 grid grid-cols-2 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         <Widget icon={<MdGroup className="h-7 w-7" />} title="Total RT" subtitle={rtList.length.toString()} />
         <Widget icon={<MdGroup className="h-7 w-7" />} title="Pengurus Aktif" subtitle={getTotalAktif().toString()} />
         <Widget icon={<MdGroup className="h-7 w-7" />} title="Ketua" subtitle={rtList.filter(r => r.ketua).length.toString()} />
@@ -286,7 +286,7 @@ const PegawaiRTPage: React.FC = () => {
                 setShowModal(false); setEditRT(null);
             }}
           />
-          <Card extra="w-full max-w-[80vw] p-6 rounded-2xl shadow-2xl bg-white dark:bg-navy-800">
+          <Card extra="w-[96vw] md:max-w-[80vw] h-[90vh] overflow-auto p-6 rounded-2xl shadow-2xl bg-white dark:bg-navy-800">
             <h3 className="mb-5 text-xl font-bold text-navy-700 dark:text-white">{editRT ? "Edit" : "Tambah"} {form.nomorRT}</h3>
 
             <div className="mb-6">
@@ -294,7 +294,7 @@ const PegawaiRTPage: React.FC = () => {
               <input type="text" value={form.nomorRT} onChange={(e) => setForm({ ...form, nomorRT: e.target.value })} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:border-navy-600 dark:bg-navy-700 dark:text-white" />
             </div>
 
-            <div className="flex gap-4">
+            <div className="md:flex gap-4">
                 {(["Ketua", "Sekretaris", "Bendahara"] as const).map((posisi) => {
                 const key = posisi.toLowerCase() as "ketua" | "sekretaris" | "bendahara";
                 return (
