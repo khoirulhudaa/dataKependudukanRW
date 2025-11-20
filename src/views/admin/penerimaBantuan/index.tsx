@@ -153,7 +153,7 @@ const PenerimaBantuan: React.FC = () => {
   return (
     <div>
       {/* Widget Summary */}
-      <div className="mt-3 grid grid-cols-2 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+      <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         <Widget icon={<MdPeople className="h-7 w-7" />} title="Total Penerima" subtitle={bantuanList.length.toString()} />
         <Widget icon={<MdCheckCircle className="h-7 w-7 text-green-600" />} title="Layak" subtitle={bantuanList.filter((b) => b.status === "Diterima").length.toString()} />
         <Widget icon={<MdWarning className="h-7 w-7 text-yellow-600" />} title="Diproses" subtitle={bantuanList.filter((b) => b.status === "Diproses").length.toString()} />

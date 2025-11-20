@@ -143,7 +143,7 @@ const PegawaiRWPage: React.FC = () => {
   return (
     <div>
       {/* Widget */}
-      <div className="mt-3 grid grid-cols-2 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-2">
+      <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-2">
         <Widget icon={<MdPeople className="h-7 w-7" />} title="Total RW" subtitle={pegawaiList.length.toString()} />
         <Widget icon={<MdPeople className="h-7 w-7" />} title="Aktif" subtitle={pegawaiList.filter((b) => b.aktif).length.toString()} />
       </div>

@@ -12,7 +12,7 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
   return (
     <aside
         className={`
-          fixed inset-y-0 left-0 z-50 flex w-[70vw] md:w-[280px] flex-col overflow-y-auto bg-white pb-10 shadow-2xl transition-transform duration-300 ease-in-out
+          fixed inset-y-0 left-0 z-50 flex w-[85vw] md:w-[280px] flex-col overflow-y-auto bg-white pb-10 shadow-2xl transition-transform duration-300 ease-in-out
           dark:bg-navy-800 dark:text-white
           /* Mobile: muncul hanya saat open, overlay gelap */
           ${open ? "translate-x-0" : "-translate-x-full"}
@@ -23,7 +23,7 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
       {/* Close Button (Mobile) */}
       <button
         onClick={onClose}
-        className="absolute right-4 top-4 xl:hidden"
+        className="absolute right-4 top-7 xl:hidden"
         aria-label="Tutup sidebar"
       >
         <HiX className="h-6 w-6 text-gray-600 dark:text-white" />

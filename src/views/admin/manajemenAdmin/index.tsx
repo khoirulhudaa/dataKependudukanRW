@@ -147,7 +147,7 @@ const AdminPage: React.FC = () => {
   return (
     <div>
       {/* Widget Statistik */}
-      <div className="mt-3 grid grid-cols-2 gap-5 md:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-4">
+      <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-4">
         <Widget
           icon={<MdPeople className="h-7 w-7" />}
           title="Total Admin"

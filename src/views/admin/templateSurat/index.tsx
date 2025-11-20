@@ -200,7 +200,7 @@ const PengajuanSuratPage: React.FC = () => {
       )}
 
       {/* Widget */}
-      <div className="mt-3 grid grid-cols-2 gap-5 md:grid-cols-4">
+      <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-4">
         <Widget icon={<MdMail className="h-7 w-7" />} title="Total" subtitle={stats.total.toString()} />
         <Widget icon={<MdHourglassEmpty className="h-7 w-7" />} title="Menunggu" subtitle={stats.menunggu.toString()} />
         <Widget icon={<MdEdit className="h-7 w-7" />} title="Diproses" subtitle={stats.diproses.toString()} />

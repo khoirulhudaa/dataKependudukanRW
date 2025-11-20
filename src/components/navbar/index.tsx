@@ -90,13 +90,13 @@ const Navbar = (props: {
         <Dropdown
           button={
             <img
-              className="h-10 w-10 rounded-full cursor-pointer active:scale-[0.98] hover:brightness-90"
+              className="relative top-[-5px] h-10 w-10 rounded-full cursor-pointer active:scale-[0.98] hover:brightness-90"
               src={avatar}
               alt="Avatar"
             />
           }
           children={
-            <div className="flex h-max pb-3 w-max md:w-56 flex-col justify-start rounded-[20px] bg-white bg-cover bg-no-repeat shadow-xl dark:!bg-navy-700 dark:text-white dark:shadow-none">
+            <div className="flex h-max pb-3 w-56 md:w-56 flex-col justify-start rounded-[20px] bg-white bg-cover bg-no-repeat shadow-xl dark:!bg-navy-700 dark:text-white dark:shadow-none">
               <div className="mt-3 ml-4">
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-bold text-navy-700 dark:text-white">

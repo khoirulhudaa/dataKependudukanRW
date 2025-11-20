@@ -548,7 +548,7 @@ const DataKK: React.FC = () => {
   return (
     <div className="relative min-h-screen">
       {/* Widget */}
-      <div className="mt-3 grid grid-cols-2 gap-5 md:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
         <Widget icon={<MdFamilyRestroom className="h-7 w-7" />} title="Total KK" subtitle={kkList.length.toString()} />
         <Widget icon={<MdFamilyRestroom className="h-7 w-7" />} title="Resmi" subtitle={kkList.filter(k => !k.isSementara).length.toString()} />
         <Widget icon={<MdFamilyRestroom className="h-7 w-7" />} title="Sementara" subtitle={kkList.filter(k => k.isSementara).length.toString()} />
@@ -606,7 +606,7 @@ const DataKK: React.FC = () => {
                 setKKFileUrl(null);
                 setShowModalKK(true);
             }}
-            className="w-max px-6 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2 text-base font-medium shadow hover:bg-blue-700 transition whitespace-nowrap"
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2 text-base font-medium shadow hover:bg-blue-700 transition whitespace-nowrap"
           >
             <MdAdd /> Tambah KK
           </button>

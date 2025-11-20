@@ -92,7 +92,7 @@ export default function Admin(props: { [x: string]: any }) {
             />
 
             {/* Content */}
-            <div className="flex-1 mx-auto w-full max-w-full p-2 md:p-4">
+            <div className="flex-1 mx-auto w-full max-w-full p-0 md:p-4">
               <Routes>
                 {getRoutes(routes)}
                 <Route path="/" element={<Navigate to="/admin/default" replace />} />

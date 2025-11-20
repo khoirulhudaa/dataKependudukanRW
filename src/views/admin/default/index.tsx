@@ -294,7 +294,7 @@ const Dashboard: React.FC = () => {
   return (
     <div>
       {/* ==================== WIDGET GRID ==================== */}
-      <div className="mt-3 grid grid-cols-2 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6">
+      <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6">
         <Widget icon={<MdHome className="h-7 w-7" />} title="Total RT/RW" subtitle={Object.keys(groupedData).length.toString()} />
         <Widget icon={<MdPerson className="h-7 w-7" />} title="Total KTP" subtitle={ktpKkData.filter(d => d.jenis === "KTP").length.toString()} />
         <Widget icon={<IoDocuments className="h-6 w-6" />} title="Total KK" subtitle={ktpKkData.filter(d => d.jenis === "KK").length.toString()} />

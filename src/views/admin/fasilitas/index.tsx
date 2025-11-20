@@ -148,7 +148,7 @@ const FasilitasPage: React.FC = () => {
   return (
     <div>
       {/* Widget */}
-      <div className="mt-3 grid grid-cols-2 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-3">
+      <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-3">
         <Widget icon={<MdLocationOn className="h-7 w-7" />} title="Total Fasilitas" subtitle={fasilitasList.length.toString()} />
         <Widget icon={<MdLocationOn className="h-7 w-7" />} title="Aktif" subtitle={fasilitasList.filter((b) => b.aktif).length.toString()} />
         <Widget icon={<MdLocationOn className="h-7 w-7" />} title="Nonaktif" subtitle={fasilitasList.filter((b) => !b.aktif).length.toString()} />

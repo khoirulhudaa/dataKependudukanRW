@@ -147,7 +147,7 @@ export default function SignIn() {
   };
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-navy-900">
+    <div className="relative min-h-screen w-full bg-navy-900">
       {/* Background */}
       <div
         className="inset-0 bg-cover bg-center bg-no-repeat brightness-50 lg:brightness-100 
@@ -169,7 +169,7 @@ export default function SignIn() {
           </div>
 
           {/* Card Form */}
-          <div className="relative overflow-hidden rounded-2xl bg-white/95 shadow-2xl backdrop-blur-xl dark:bg-navy-800/95">
+          <div className="relative h-max overflow-hidden rounded-2xl bg-white/95 shadow-2xl backdrop-blur-xl dark:bg-navy-800/95">
             <div className="px-4 py-8 md:p-8">
               {/* Back Button Mobile */}
               <Link to="/admin" className="mb-8 flex items-center justify-center text-sm text-gray-700 hover:text-brand-500 dark:text-gray-400 lg:hidden">

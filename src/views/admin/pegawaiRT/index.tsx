@@ -185,7 +185,7 @@ const PegawaiRTPage: React.FC = () => {
   return (
     <div>
       {/* Widget */}
-      <div className="mt-3 grid grid-cols-2 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+      <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         <Widget icon={<MdGroup className="h-7 w-7" />} title="Total RT" subtitle={rtList.length.toString()} />
         <Widget icon={<MdGroup className="h-7 w-7" />} title="Pengurus Aktif" subtitle={getTotalAktif().toString()} />
         <Widget icon={<MdGroup className="h-7 w-7" />} title="Ketua" subtitle={rtList.filter(r => r.ketua).length.toString()} />
