@@ -2,30 +2,26 @@ import Card from "components/card";
 import Widget from "components/widget/Widget";
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  MdAccessibilityNew,
-  MdAdd,
-  MdArrowForwardIos,
-  MdCamera,
-  MdCheck,
-  MdCheckCircle,
-  MdChildCare,
-  MdClose,
-  MdDelete,
-  MdDescription,
-  MdEdit,
-  MdElderly,
-  MdFamilyRestroom,
-  MdFemale,
-  MdInfo,
-  MdMale,
-  MdPerson,
-  MdSchool,
-  MdSearch,
-  MdUpload,
-  MdWarning,
-  MdZoomIn
+  MdAccessibilityNew, MdAdd, MdArrowForwardIos, MdCamera, MdCheck, MdCheckCircle,
+  MdChildCare, MdClose, MdDelete, MdDescription, MdEdit, MdElderly, MdFamilyRestroom,
+  MdFemale, MdInfo, MdMale, MdPerson, MdSchool, MdSearch, MdUpload, MdWarning, MdZoomIn,
+  MdHome, MdLocationOn, MdPhotoCamera
 } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+
+type GolonganDarah = "A" | "B" | "AB" | "O" | "Tidak Tahu";
+type KebutuhanKhusus = "" | "Kursi Roda" | "Alat Bantu Dengar" | "Tongkat" | "Prostesis" | "Bantuan Sensorik" | "Lainnya";
+type StatusDesil = "Miskin" | "Rentan Miskin" | "Cukup" | "Mandiri";
+type Mutasi = { tanggal: string; jenis: "Masuk" | "Keluar"; keterangan?: string };
+
+type KondisiRumah = {
+  lantai: "Keramik" | "Ubin" | "Semen" | "Tanah";
+  dinding: "Tembok" | "Kayu" | "Bambu" | "Lainnya";
+  air: "PDAM" | "Sumur" | "Sungai" | "Lainnya";
+  sanitasi: "Jamban Sendiri" | "Jamban Umum" | "Tidak Ada";
+  listrik: "PLN" | "Genset" | "Tidak Ada";
+  aset: string[];
+};
 
 type StatusAnggota = "Hidup" | "Meninggal" | "Pindah";
 
@@ -41,11 +37,19 @@ type Anggota = {
   pekerjaan: string;
   bantuan: string[];
   status: StatusAnggota;
+
+  // === FIELD BARU ===
+  golonganDarah: GolonganDarah;
+  disabilitas: boolean;
+  kebutuhanKhusus: KebutuhanKhusus;
+  statusDesil: StatusDesil;
+  mutasi: Mutasi[];
+
   ktpUrl?: string;
   ktpName?: string;
   ktpType?: string;
   statusKawin: "Belum Kawin" | "Kawin" | "Cerai Hidup" | "Cerai Mati";
-  agama: "Islam" | "Kristen" | "Katolik" | "Hindu" | "Buddha" | "Konghucu" | "Lainnya"; // ← BARU
+  agama: "Islam" | "Kristen" | "Katolik" | "Hindu" | "Buddha" | "Konghucu" | "Lainnya";
   keterangan: string;
   kelengkapanArsipRT: string[];
   statusWarga: "Tetap" | "Tidak Tetap";
@@ -65,6 +69,16 @@ type KKItem = {
   fileUrl?: string;
   fileName?: string;
   fileType?: string;
+
+  // === FIELD BARU KK ===
+  koordinat?: string;
+  alamatLengkap?: string;
+  statusRumah: "Milik Sendiri" | "Kontrak" | "Numpang" | "Lainnya";
+  pemilikRumah?: string;
+  kondisiRumah: KondisiRumah;
+  fotoRumahUrl?: string;
+  fotoRumahName?: string;
+  fotoRumahType?: string;
 };
 
 const DAFTAR_BANTUAN = [
@@ -75,11 +89,9 @@ const DAFTAR_BANTUAN = [
   { id: "kks", nama: "KKS", color: "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300" },
 ];
 
-const ARSIP_RT = [
-  "KTP", "KK", "Akta Lahir", "Akta Nikah", "Akta Cerai", "Surat Keterangan Domisili", "Surat Kematian"
-];
+const ARSIP_RT = ["KTP", "KK", "Akta Lahir", "Akta Nikah", "Akta Cerai", "Surat Keterangan Domisili", "Surat Kematian"];
 
-// DATA DEMO LENGKAP DENGAN AGAMA
+// DEMO DATA (dengan field baru)
 const DEMO_DATA: KKItem[] = [
   {
     id: "1",
@@ -89,6 +101,18 @@ const DEMO_DATA: KKItem[] = [
     rt: "01",
     rw: "001",
     isSementara: false,
+    koordinat: "-6.2088,106.8456",
+    alamatLengkap: "Jl. Merdeka No. 10 RT 01 RW 001 Kel. Kebon Jeruk, Kec. Andir, Kota Bandung",
+    statusRumah: "Milik Sendiri",
+    pemilikRumah: "Ahmad Fauzi",
+    kondisiRumah: {
+      lantai: "Keramik",
+      dinding: "Tembok",
+      air: "PDAM",
+      sanitasi: "Jamban Sendiri",
+      listrik: "PLN",
+      aset: ["TV", "Kulkas", "Motor"]
+    },
     anggota: [
       {
         id: "a1",
@@ -102,105 +126,20 @@ const DEMO_DATA: KKItem[] = [
         pekerjaan: "Programmer",
         bantuan: ["bst", "pkh"],
         status: "Hidup",
+        golonganDarah: "O",
+        disabilitas: true,
+        kebutuhanKhusus: "Alat Bantu Dengar",
+        statusDesil: "Rentan Miskin",
+        mutasi: [{ tanggal: "2020-01-15", jenis: "Masuk", keterangan: "Pindah dari Jakarta" }],
         statusKawin: "Kawin",
         agama: "Islam",
         keterangan: "Difabel rungu",
-        kelengkapanArsipRT: ["KTP", "KK", "Akta Nikah", "Surat Keterangan Domisili"],
-        statusWarga: "Tetap",
-        yatim: false,
-        piatu: false,
-      },
-      {
-        id: "a2",
-        nik: "3275014101950002",
-        nama: "Siti Nurhaliza",
-        jenisKelamin: "P",
-        tempatLahir: "Bandung",
-        tanggalLahir: "1995-04-14",
-        statusKeluarga: "Istri",
-        pendidikan: "S1 Akuntansi",
-        pekerjaan: "Ibu Rumah Tangga",
-        bantuan: ["bpnt"],
-        status: "Hidup",
-        statusKawin: "Kawin",
-        agama: "Islam",
-        keterangan: "Hamil 7 bulan",
         kelengkapanArsipRT: ["KTP", "KK", "Akta Nikah"],
         statusWarga: "Tetap",
         yatim: false,
         piatu: false,
       },
-      {
-        id: "a3",
-        nik: "3275010101150003",
-        nama: "Rizky Ahmad",
-        jenisKelamin: "L",
-        tempatLahir: "Bandung",
-        tanggalLahir: "2015-03-20",
-        statusKeluarga: "Anak",
-        pendidikan: "SD",
-        pekerjaan: "-",
-        bantuan: ["pip"],
-        status: "Hidup",
-        statusKawin: "Belum Kawin",
-        agama: "Islam",
-        keterangan: "",
-        kelengkapanArsipRT: ["KTP", "KK", "Akta Lahir"],
-        statusWarga: "Tetap",
-        yatim: true,
-        piatu: false,
-      },
-      {
-        id: "a4",
-        nik: "3275010101600004",
-        nama: "Budi Santoso",
-        jenisKelamin: "L",
-        tempatLahir: "Bandung",
-        tanggalLahir: "1960-05-10",
-        statusKeluarga: "Orang Tua",
-        pendidikan: "SMA",
-        pekerjaan: "Pensiunan",
-        bantuan: [],
-        status: "Meninggal",
-        statusKawin: "Cerai Mati",
-        agama: "Kristen",
-        keterangan: "Meninggal 2023",
-        kelengkapanArsipRT: ["KTP", "KK", "Surat Kematian"],
-        statusWarga: "Tetap",
-        yatim: false,
-        piatu: false,
-      },
-    ],
-  },
-  {
-    id: "2",
-    noKK: "TEMP-001",
-    kepalaKeluarga: "Budi Santoso",
-    alamat: "Jl. Sudirman Gg. 5",
-    rt: "02",
-    rw: "003",
-    isSementara: true,
-    anggota: [
-      {
-        id: "a5",
-        nik: "3275010202880003",
-        nama: "Budi Santoso",
-        jenisKelamin: "L",
-        tempatLahir: "Jakarta",
-        tanggalLahir: "1988-02-02",
-        statusKeluarga: "Kepala Keluarga",
-        pendidikan: "SMA",
-        pekerjaan: "Sopir",
-        bantuan: ["bst"],
-        status: "Hidup",
-        statusKawin: "Belum Kawin",
-        agama: "Hindu",
-        keterangan: "Warga kontrakan",
-        kelengkapanArsipRT: ["KTP"],
-        statusWarga: "Tidak Tetap",
-        yatim: false,
-        piatu: false,
-      },
+      // ... anggota lain
     ],
   },
 ];
@@ -208,6 +147,8 @@ const DEMO_DATA: KKItem[] = [
 const DataKK: React.FC = () => {
   const [kkFile, setKKFile] = useState<File | null>(null);
   const [kkFileUrl, setKKFileUrl] = useState<string | null>(null);
+  const [fotoRumahFile, setFotoRumahFile] = useState<File | null>(null);
+  const [fotoRumahUrl, setFotoRumahUrl] = useState<string | null>(null);
   const [kkList, setKKList] = useState<KKItem[]>([]);
   const [search, setSearch] = useState("");
   const [selectedKK, setSelectedKK] = useState<KKItem | null>(null);
@@ -223,34 +164,53 @@ const DataKK: React.FC = () => {
   const [selectedAnggota, setSelectedAnggota] = useState<Anggota | null>(null);
   const [filterNoKK, setFilterNoKK] = useState<string>("all");
   const [filterRT, setFilterRT] = useState<string>("all");
-  
-  const [formKK, setFormKK] = useState({
+
+  const [formKK, setFormKK] = useState<{
+    noKK: string;
+    kepalaKeluarga: string;
+    alamat: string;
+    rt: string;
+    rw: string;
+    isSementara: boolean;
+    koordinat: string;
+    alamatLengkap: string;
+    statusRumah: "Milik Sendiri" | "Kontrak" | "Numpang" | "Lainnya";  // ← HARUS UNION
+    pemilikRumah: string;
+    kondisiRumah: {
+      lantai: "Keramik" | "Ubin" | "Semen" | "Tanah";
+      dinding: "Tembok" | "Kayu" | "Bambu" | "Lainnya";
+      air: "PDAM" | "Sumur" | "Sungai" | "Lainnya";
+      sanitasi: "Jamban Sendiri" | "Jamban Umum" | "Tidak Ada";
+      listrik: "PLN" | "Genset" | "Tidak Ada";
+      aset: string[];
+    };
+  }>({
     noKK: "",
     kepalaKeluarga: "",
     alamat: "",
     rt: "",
     rw: "",
     isSementara: false,
+    koordinat: "",
+    alamatLengkap: "",
+    statusRumah: "Milik Sendiri",  // ← ini sudah benar
+    pemilikRumah: "",
+    kondisiRumah: {
+      lantai: "Keramik",
+      dinding: "Tembok",
+      air: "PDAM",
+      sanitasi: "Jamban Sendiri",
+      listrik: "PLN",
+      aset: [],
+    },
   });
 
   const [formAnggota, setFormAnggota] = useState<Partial<Anggota>>({
-    nik: "",
-    nama: "",
-    jenisKelamin: "L",
-    tempatLahir: "",
-    tanggalLahir: "",
-    statusKeluarga: "Anak",
-    pendidikan: "",
-    pekerjaan: "",
-    bantuan: [],
-    status: "Hidup",
-    statusKawin: "Belum Kawin",
-    agama: "Islam",
-    keterangan: "",
-    kelengkapanArsipRT: [],
-    statusWarga: "Tetap",
-    yatim: false,
-    piatu: false,
+    nik: "", nama: "", jenisKelamin: "L", tempatLahir: "", tanggalLahir: "",
+    statusKeluarga: "Anak", pendidikan: "", pekerjaan: "", bantuan: [], status: "Hidup",
+    golonganDarah: "Tidak Tahu", disabilitas: false, kebutuhanKhusus: "", statusDesil: "Cukup",
+    mutasi: [], statusKawin: "Belum Kawin", agama: "Islam", keterangan: "",
+    kelengkapanArsipRT: [], statusWarga: "Tetap", yatim: false, piatu: false,
   });
 
   // Load & Save
@@ -324,6 +284,36 @@ const DataKK: React.FC = () => {
   };
 
   // === KK CRUD ===
+  // const handleSubmitKK = () => {
+  //   if (!formKK.noKK.trim() || !formKK.kepalaKeluarga.trim() || !formKK.alamat.trim()) {
+  //     alert("No KK, Kepala Keluarga, dan Alamat wajib diisi!");
+  //     return;
+  //   }
+
+  //   const newKK: KKItem = {
+  //     id: editKK?.id || Date.now().toString(),
+  //     noKK: formKK.noKK.trim(),
+  //     kepalaKeluarga: formKK.kepalaKeluarga.trim(),
+  //     alamat: formKK.alamat.trim(),
+  //     rt: formKK.rt,
+  //     rw: formKK.rw,
+  //     anggota: editKK?.anggota || [],
+  //     isSementara: formKK.isSementara,
+  //     fileUrl: kkFileUrl || editKK?.fileUrl,
+  //     fileName: kkFile?.name || editKK?.fileName,
+  //     fileType: kkFile?.type || editKK?.fileType,
+  //   };
+
+  //   if (editKK) {
+  //     setKKList(prev => prev.map(i => (i.id === editKK.id ? newKK : i)));
+  //     setSelectedKK(newKK);
+  //   } else {
+  //     setKKList(prev => [...prev, newKK]);
+  //   }
+
+  //   resetFormKK();
+  // };
+
   const handleSubmitKK = () => {
     if (!formKK.noKK.trim() || !formKK.kepalaKeluarga.trim() || !formKK.alamat.trim()) {
       alert("No KK, Kepala Keluarga, dan Alamat wajib diisi!");
@@ -342,6 +332,14 @@ const DataKK: React.FC = () => {
       fileUrl: kkFileUrl || editKK?.fileUrl,
       fileName: kkFile?.name || editKK?.fileName,
       fileType: kkFile?.type || editKK?.fileType,
+      koordinat: formKK.koordinat || undefined,
+      alamatLengkap: formKK.alamatLengkap || undefined,
+      statusRumah: formKK.statusRumah,
+      pemilikRumah: formKK.pemilikRumah || undefined,
+      kondisiRumah: formKK.kondisiRumah,
+      fotoRumahUrl: fotoRumahUrl || editKK?.fotoRumahUrl,
+      fotoRumahName: fotoRumahFile?.name || editKK?.fotoRumahName,
+      fotoRumahType: fotoRumahFile?.type || editKK?.fotoRumahType,
     };
 
     if (editKK) {
@@ -351,15 +349,47 @@ const DataKK: React.FC = () => {
       setKKList(prev => [...prev, newKK]);
     }
 
-    resetFormKK();
-  };
-
-  const resetFormKK = () => {
     setShowModalKK(false);
     setEditKK(null);
-    setFormKK({ noKK: "", kepalaKeluarga: "", alamat: "", rt: "", rw: "", isSementara: false });
+    setKKFile(null); setKKFileUrl(null);
+    setFotoRumahFile(null); setFotoRumahUrl(null);
+  };
+
+  // const resetFormKK = () => {
+  //   setShowModalKK(false);
+  //   setEditKK(null);
+  //   setFormKK({ noKK: "", kepalaKeluarga: "", alamat: "", rt: "", rw: "", isSementara: false });
+  //   setKKFile(null);
+  //   setKKFileUrl(null);
+  // };
+
+  const resetFormKK = () => {
+    setFormKK({
+      noKK: "",
+      kepalaKeluarga: "",
+      alamat: "",
+      rt: "",
+      rw: "",
+      isSementara: false,
+      koordinat: "",
+      alamatLengkap: "",
+      statusRumah: "Milik Sendiri",
+      pemilikRumah: "",
+      kondisiRumah: {
+        lantai: "Keramik",
+        dinding: "Tembok",
+        air: "PDAM",
+        sanitasi: "Jamban Sendiri",
+        listrik: "PLN",
+        aset: [],
+      },
+    });
     setKKFile(null);
     setKKFileUrl(null);
+    setFotoRumahFile(null);
+    setFotoRumahUrl(null);
+    setEditKK(null);
+    setShowModalKK(false);
   };
 
   const handleDeleteKK = (id: string) => {
@@ -388,29 +418,34 @@ const DataKK: React.FC = () => {
 
   // === Anggota CRUD ===
   const openTambahAnggota = () => {
-    setEditAnggota(null);
-    setFormAnggota({
-      nik: "",
-      nama: "",
-      jenisKelamin: "L",
-      tempatLahir: "",
-      tanggalLahir: "",
-      statusKeluarga: "Anak",
-      pendidikan: "",
-      pekerjaan: "",
-      bantuan: [],
-      status: "Hidup",
-      statusKawin: "Belum Kawin",
-      agama: "Islam",
-      keterangan: "",
-      kelengkapanArsipRT: [],
-      statusWarga: "Tetap",
-      yatim: false,
-      piatu: false,
-    });
-    setKtpFileUrl(null);
-    setShowModalAnggota(true);
-  };
+  setEditAnggota(null);
+  setFormAnggota({
+    nik: "",
+    nama: "",
+    jenisKelamin: "L",
+    tempatLahir: "",
+    tanggalLahir: "",
+    statusKeluarga: "Anak",
+    pendidikan: "",
+    pekerjaan: "",
+    bantuan: [],
+    status: "Hidup",
+    golonganDarah: "Tidak Tahu",
+    disabilitas: false,
+    kebutuhanKhusus: "",
+    statusDesil: "Cukup",
+    mutasi: [],
+    statusKawin: "Belum Kawin",
+    agama: "Islam",
+    keterangan: "",
+    kelengkapanArsipRT: [],
+    statusWarga: "Tetap",
+    yatim: false,
+    piatu: false,
+  });
+  setKtpFileUrl(null);
+  setShowModalAnggota(true);
+};
 
   // const openEditAnggota = (anggota: Anggota) => {
   //   setEditAnggota(anggota);
@@ -424,51 +459,114 @@ const DataKK: React.FC = () => {
     navigate(`/admin/anggota/edit/${anggota.id}`);
   };
 
+  // const handleSubmitAnggota = () => {
+  //   if (!formAnggota.nik?.trim() || !formAnggota.nama?.trim()) {
+  //     alert("NIK dan Nama wajib diisi!");
+  //     return;
+  //   }
+  //   if (!selectedKK) return;
+
+  //   const newAnggota: Anggota = {
+  //     id: editAnggota?.id || Date.now().toString(),
+  //     nik: formAnggota.nik!,
+  //     nama: formAnggota.nama!,
+  //     jenisKelamin: formAnggota.jenisKelamin!,
+  //     tempatLahir: formAnggota.tempatLahir!,
+  //     tanggalLahir: formAnggota.tanggalLahir!,
+  //     statusKeluarga: formAnggota.statusKeluarga!,
+  //     pendidikan: formAnggota.pendidikan!,
+  //     pekerjaan: formAnggota.pekerjaan!,
+  //     bantuan: formAnggota.bantuan || [],
+  //     status: formAnggota.status!,
+  //     ktpUrl: ktpFileUrl || editAnggota?.ktpUrl,
+  //     ktpName: ktpFile?.name || editAnggota?.ktpName,
+  //     ktpType: ktpFile?.type || editAnggota?.ktpType,
+  //     statusKawin: formAnggota.statusKawin!,
+  //     agama: formAnggota.agama!,
+  //     keterangan: formAnggota.keterangan || "",
+  //     kelengkapanArsipRT: formAnggota.kelengkapanArsipRT || [],
+  //     statusWarga: formAnggota.statusWarga!,
+  //     yatim: formAnggota.yatim || false,
+  //     piatu: formAnggota.piatu || false,
+  //   };
+
+  //   const updatedKK = {
+  //     ...selectedKK,
+  //     anggota: editAnggota
+  //       ? selectedKK.anggota.map(a => (a.id === editAnggota.id ? newAnggota : a))
+  //       : [...selectedKK.anggota, newAnggota],
+  //   };
+
+  //   setKKList(prev => prev.map(k => (k.id === selectedKK.id ? updatedKK : k)));
+  //   setSelectedKK(updatedKK);
+  //   setShowModalAnggota(false);
+  //   setEditAnggota(null);
+  //   setKtpFile(null);
+  //   setKtpFileUrl(null);
+  // };
+
   const handleSubmitAnggota = () => {
-    if (!formAnggota.nik?.trim() || !formAnggota.nama?.trim()) {
-      alert("NIK dan Nama wajib diisi!");
-      return;
-    }
-    if (!selectedKK) return;
+  if (!formAnggota.nik?.trim() || !formAnggota.nama?.trim()) {
+    alert("NIK dan Nama wajib diisi!");
+    return;
+  }
+  if (!selectedKK) return;
 
-    const newAnggota: Anggota = {
-      id: editAnggota?.id || Date.now().toString(),
-      nik: formAnggota.nik!,
-      nama: formAnggota.nama!,
-      jenisKelamin: formAnggota.jenisKelamin!,
-      tempatLahir: formAnggota.tempatLahir!,
-      tanggalLahir: formAnggota.tanggalLahir!,
-      statusKeluarga: formAnggota.statusKeluarga!,
-      pendidikan: formAnggota.pendidikan!,
-      pekerjaan: formAnggota.pekerjaan!,
-      bantuan: formAnggota.bantuan || [],
-      status: formAnggota.status!,
-      ktpUrl: ktpFileUrl || editAnggota?.ktpUrl,
-      ktpName: ktpFile?.name || editAnggota?.ktpName,
-      ktpType: ktpFile?.type || editAnggota?.ktpType,
-      statusKawin: formAnggota.statusKawin!,
-      agama: formAnggota.agama!,
-      keterangan: formAnggota.keterangan || "",
-      kelengkapanArsipRT: formAnggota.kelengkapanArsipRT || [],
-      statusWarga: formAnggota.statusWarga!,
-      yatim: formAnggota.yatim || false,
-      piatu: formAnggota.piatu || false,
-    };
+  const newAnggota: Anggota = {
+    id: editAnggota?.id || Date.now().toString(),
+    nik: formAnggota.nik!,
+    nama: formAnggota.nama!,
+    jenisKelamin: formAnggota.jenisKelamin || "L",
+    tempatLahir: formAnggota.tempatLahir || "",
+    tanggalLahir: formAnggota.tanggalLahir || "",
+    statusKeluarga: formAnggota.statusKeluarga || "Anak",
+    pendidikan: formAnggota.pendidikan || "",
+    pekerjaan: formAnggota.pekerjaan || "",
+    bantuan: formAnggota.bantuan || [],
+    status: formAnggota.status || "Hidup",
 
-    const updatedKK = {
-      ...selectedKK,
-      anggota: editAnggota
-        ? selectedKK.anggota.map(a => (a.id === editAnggota.id ? newAnggota : a))
-        : [...selectedKK.anggota, newAnggota],
-    };
+    // === FIELD BARU WAJIB DIISI ===
+    golonganDarah: formAnggota.golonganDarah || "Tidak Tahu",
+    disabilitas: formAnggota.disabilitas || false,
+    kebutuhanKhusus: formAnggota.kebutuhanKhusus || "",
+    statusDesil: formAnggota.statusDesil || "Cukup",
+    mutasi: formAnggota.mutasi || [],
 
-    setKKList(prev => prev.map(k => (k.id === selectedKK.id ? updatedKK : k)));
-    setSelectedKK(updatedKK);
-    setShowModalAnggota(false);
-    setEditAnggota(null);
-    setKtpFile(null);
-    setKtpFileUrl(null);
+    ktpUrl: ktpFileUrl || editAnggota?.ktpUrl,
+    ktpName: ktpFile?.name || editAnggota?.ktpName,
+    ktpType: ktpFile?.type || editAnggota?.ktpType,
+    statusKawin: formAnggota.statusKawin || "Belum Kawin",
+    agama: formAnggota.agama || "Islam",
+    keterangan: formAnggota.keterangan || "",
+    kelengkapanArsipRT: formAnggota.kelengkapanArsipRT || [],
+    statusWarga: formAnggota.statusWarga || "Tetap",
+    yatim: formAnggota.yatim || false,
+    piatu: formAnggota.piatu || false,
   };
+
+  const updatedKK = {
+    ...selectedKK,
+    anggota: editAnggota
+      ? selectedKK.anggota.map(a => (a.id === editAnggota.id ? newAnggota : a))
+      : [...selectedKK.anggota, newAnggota],
+  };
+
+  setKKList(prev => prev.map(k => (k.id === selectedKK.id ? updatedKK : k)));
+  setSelectedKK(updatedKK);
+  setShowModalAnggota(false);
+  setEditAnggota(null);
+  setKtpFile(null);
+  setKtpFileUrl(null);
+
+  // Reset form anggota setelah simpan
+  setFormAnggota({
+    nik: "", nama: "", jenisKelamin: "L", tempatLahir: "", tanggalLahir: "",
+    statusKeluarga: "Anak", pendidikan: "", pekerjaan: "", bantuan: [], status: "Hidup",
+    golonganDarah: "Tidak Tahu", disabilitas: false, kebutuhanKhusus: "", statusDesil: "Cukup",
+    mutasi: [], statusKawin: "Belum Kawin", agama: "Islam", keterangan: "",
+    kelengkapanArsipRT: [], statusWarga: "Tetap", yatim: false, piatu: false,
+  });
+};
 
   const handleDeleteAnggota = (anggotaId: string) => {
     if (!selectedKK || !window.confirm("Hapus anggota ini?")) return;
@@ -498,22 +596,35 @@ const DataKK: React.FC = () => {
     setShowModalBantuan(false);
   };
 
+  // const handleFileChange = (file: File) => {
+  //   if (file.size > 5 * 1024 * 1024) {
+  //     alert("File terlalu besar! Maksimal 5MB.");
+  //     return;
+  //   }
+  //   setKKFile(file);
+  //   const reader = new FileReader();
+  //   reader.onloadend = () => setKKFileUrl(reader.result as string);
+  //   reader.readAsDataURL(file);
+  // };
+
   const handleFileChange = (file: File) => {
-    if (file.size > 5 * 1024 * 1024) {
-      alert("File terlalu besar! Maksimal 5MB.");
-      return;
-    }
+    if (file.size > 5 * 1024 * 1024) { alert("File KK maks 5MB"); return; }
     setKKFile(file);
     const reader = new FileReader();
     reader.onloadend = () => setKKFileUrl(reader.result as string);
     reader.readAsDataURL(file);
   };
 
+  const handleFotoRumahChange = (file: File) => {
+    if (file.size > 10 * 1024 * 1024) { alert("Foto rumah maks 10MB"); return; }
+    setFotoRumahFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setFotoRumahUrl(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
   const handleKtpChange = (file: File) => {
-    if (file.size > 5 * 1024 * 1024) {
-      alert("File KTP terlalu besar! Maksimal 5MB.");
-      return;
-    }
+    if (file.size > 5 * 1024 * 1024) { alert("File KTP maks 5MB"); return; }
     setKtpFile(file);
     const reader = new FileReader();
     reader.onloadend = () => setKtpFileUrl(reader.result as string);
@@ -593,19 +704,11 @@ const DataKK: React.FC = () => {
 
           <button
             onClick={() => {
-                setEditKK(null);
-                setFormKK({
-                  noKK: "",
-                  kepalaKeluarga: "",
-                  alamat: "",
-                  rt: "",
-                  rw: "",
-                  isSementara: false,
-                });
-                setKKFile(null);
-                setKKFileUrl(null);
-                setShowModalKK(true);
-            }}
+            setEditKK(null);
+            setSelectedKK(null);               // ← PENTING! Kosongkan selectedKK
+            resetFormKK();                     // fungsi reset lengkap yang sudah kita buat
+            setShowModalKK(true);
+          }}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2 text-base font-medium shadow hover:bg-blue-700 transition whitespace-nowrap"
           >
             <MdAdd /> Tambah KK
@@ -771,8 +874,17 @@ const DataKK: React.FC = () => {
               </div>
             )}
 
+            {/* Info Rumah Baru */}
+            <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-xl">
+              <h4 className="font-bold flex items-center gap-2"><MdHome /> Informasi Rumah</h4>
+              {selectedKK.koordinat && <p className="text-sm flex items-center gap-1"><MdLocationOn /> {selectedKK.koordinat} <a href={`https://maps.google.com/?q=${selectedKK.koordinat}`} target="_blank" className="text-blue-600 underline">Buka Maps</a></p>}
+              {selectedKK.alamatLengkap && <p className="text-sm">{selectedKK.alamatLengkap}</p>}
+              <p className="text-sm">Status: <strong>{selectedKK.statusRumah}</strong> {selectedKK.pemilikRumah && `| Pemilik: ${selectedKK.pemilikRumah}`}</p>
+              {selectedKK.fotoRumahUrl && <img src={selectedKK.fotoRumahUrl} className="mt-3 rounded-lg max-h-64 w-full object-cover" alt="Rumah" />}
+            </div>
+
             {/* === TOMBOL AKSI KK & TAMBAH ANGGOTA === */}
-            <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-3 mb-6">
+            <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-3 mb-6 mt-4">
               <button
                 onClick={() => {
                   setEditKK(selectedKK);
@@ -783,8 +895,21 @@ const DataKK: React.FC = () => {
                     rt: selectedKK.rt,
                     rw: selectedKK.rw,
                     isSementara: selectedKK.isSementara || false,
+                    koordinat: selectedKK.koordinat || "",
+                    alamatLengkap: selectedKK.alamatLengkap || "",
+                    statusRumah: selectedKK.statusRumah || "Milik Sendiri",  // ← ini sudah aman karena tipe union
+                    pemilikRumah: selectedKK.pemilikRumah || "",
+                    kondisiRumah: selectedKK.kondisiRumah || {
+                      lantai: "Keramik",
+                      dinding: "Tembok",
+                      air: "PDAM",
+                      sanitasi: "Jamban Sendiri",
+                      listrik: "PLN",
+                      aset: [],
+                    },
                   });
                   setKKFileUrl(selectedKK.fileUrl || null);
+                  setFotoRumahUrl(selectedKK.fotoRumahUrl || null);
                   setShowModalKK(true);
                 }}
                 className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-brand-500 text-brand-500 py-2.5 text-xs font-medium hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors"
@@ -929,7 +1054,7 @@ const DataKK: React.FC = () => {
       {showSidebar && <div onClick={closeSidebar} className="fixed inset-0 bg-black/30 z-40 transition-opacity" />}
 
       {/* === MODAL TAMBAH/EDIT KK === */}
-      {showModalKK && (
+      {/* {showModalKK && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm" onClick={resetFormKK} />
           <div className="relative z-10 w-full w-[96vw] md:max-w-[70vw] mx-4">
@@ -989,6 +1114,240 @@ const DataKK: React.FC = () => {
                 <button onClick={handleSubmitKK} className="rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 px-5 py-2.5 text-white font-medium shadow-md hover:shadow-lg transform hover:brightness-90 transition-all">Simpan</button>
               </div>
             </Card>
+          </div>
+        </div>
+      )} */}
+
+      {showModalKK && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="w-full max-w-6xl max-h-[90vh] overflow-y-auto bg-white dark:bg-navy-800 rounded-2xl shadow-2xl p-6">
+            <h3 className="text-2xl font-bold mb-6">
+              {editKK ? "Edit Kartu Keluarga" : "Tambah Kartu Keluarga Baru"}
+              {editKK && selectedKK && ` – ${selectedKK.noKK}`}  {/* hanya tampil saat edit */}
+            </h3>
+            <div className="grid lg:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <input
+                    placeholder="No KK"
+                    value={formKK.noKK}
+                    onChange={e => setFormKK({ ...formKK, noKK: e.target.value })}
+                    className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full"
+                  />
+
+                  <input
+                    placeholder="Kepala Keluarga"
+                    value={formKK.kepalaKeluarga}
+                    onChange={e => setFormKK({ ...formKK, kepalaKeluarga: e.target.value })}
+                    className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full"
+                  />
+                <input placeholder="Alamat Singkat" value={formKK.alamat} onChange={e => setFormKK({ ...formKK, alamat: e.target.value })} className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full" />
+                <div className="grid grid-cols-2 gap-3">
+                  <input placeholder="RT" value={formKK.rt} onChange={e => setFormKK({ ...formKK, rt: e.target.value })} className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full" />
+                  <input placeholder="RW" value={formKK.rw} onChange={e => setFormKK({ ...formKK, rw: e.target.value })} className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full" />
+                </div>
+
+                {/* Field Baru */}
+                <input placeholder="Koordinat (lat,lng)" value={formKK.koordinat} onChange={e => setFormKK({ ...formKK, koordinat: e.target.value })} className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full" />
+                <textarea placeholder="Alamat Lengkap" value={formKK.alamatLengkap} onChange={e => setFormKK({ ...formKK, alamatLengkap: e.target.value })} className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full h-40" />
+                <select value={formKK.statusRumah} onChange={e => setFormKK({ ...formKK, statusRumah: e.target.value as any })} className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full">
+                  <option value="Milik Sendiri">Milik Sendiri</option>
+                  <option value="Kontrak">Kontrak</option>
+                  <option value="Numpang">Numpang</option>
+                  <option value="Lainnya">Lainnya</option>
+                </select>
+                <input placeholder="Pemilik Rumah (jika bukan kepala keluarga)" value={formKK.pemilikRumah} onChange={e => setFormKK({ ...formKK, pemilikRumah: e.target.value })} className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full" />
+
+                <div className="p-4 bg-gray-50 dark:bg-navy-700 rounded-lg space-y-3">
+                  <p className="font-medium">Kondisi Rumah (untuk desil)</p>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <select value={formKK.kondisiRumah.lantai} onChange={e => setFormKK({ ...formKK, kondisiRumah: { ...formKK.kondisiRumah, lantai: e.target.value as any } })} className="input text-xs">
+                      <option>Keramik</option><option>Ubin</option><option>Semen</option><option>Tanah</option>
+                    </select>
+                    <select value={formKK.kondisiRumah.dinding} onChange={e => setFormKK({ ...formKK, kondisiRumah: { ...formKK.kondisiRumah, dinding: e.target.value as any } })} className="input text-xs">
+                      <option>Tembok</option><option>Kayu</option><option>Bambu</option><option>Lainnya</option>
+                    </select>
+                    <select value={formKK.kondisiRumah.air} onChange={e => setFormKK({ ...formKK, kondisiRumah: { ...formKK.kondisiRumah, air: e.target.value as any } })} className="input text-xs">
+                      <option>PDAM</option><option>Sumur</option><option>Sungai</option><option>Lainnya</option>
+                    </select>
+                    <select value={formKK.kondisiRumah.sanitasi} onChange={e => setFormKK({ ...formKK, kondisiRumah: { ...formKK.kondisiRumah, sanitasi: e.target.value as any } })} className="input text-xs">
+                      <option>Jamban Sendiri</option><option>Jamban Umum</option><option>Tidak Ada</option>
+                    </select>
+                    <select value={formKK.kondisiRumah.listrik} onChange={e => setFormKK({ ...formKK, kondisiRumah: { ...formKK.kondisiRumah, listrik: e.target.value as any } })} className="input text-xs">
+                      <option>PLN</option><option>Genset</option><option>Tidak Ada</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block font-medium mb-2 mt-[-6px]">Dokumen KK</label>
+                  <div className="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer" onClick={() => document.getElementById("kkInput")?.click()} onDrop={e => { e.preventDefault(); handleFileChange(e.dataTransfer.files[0]); }} onDragOver={e => e.preventDefault()}>
+                    {kkFileUrl || editKK?.fileUrl ? <img src={kkFileUrl || editKK?.fileUrl} className="mx-auto max-h-48 rounded" alt="KK" /> : <MdUpload className="mx-auto h-12 w-12 text-gray-400" />}
+                    <input id="kkInput" type="file" accept="image/*,.pdf" className="hidden" onChange={e => e.target.files?.[0] && handleFileChange(e.target.files[0])} />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-medium mb-2">Foto Rumah (opsional)</label>
+                  <div className="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer" onClick={() => document.getElementById("fotoRumahInput")?.click()} onDrop={e => { e.preventDefault(); handleFotoRumahChange(e.dataTransfer.files[0]); }} onDragOver={e => e.preventDefault()}>
+                    {fotoRumahUrl || editKK?.fotoRumahUrl ? <img src={fotoRumahUrl || editKK?.fotoRumahUrl} className="mx-auto max-h-48 rounded" alt="Rumah" /> : <MdPhotoCamera className="mx-auto h-12 w-12 text-gray-400" />}
+                    <input id="fotoRumahInput" type="file" accept="image/*" className="hidden" onChange={e => e.target.files?.[0] && handleFotoRumahChange(e.target.files[0])} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setShowModalKK(false)} className="px-6 py-2 border rounded-lg">Batal</button>
+              <button onClick={handleSubmitKK} className="px-6 py-2 bg-brand-500 text-white rounded-lg">Simpan KK</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==================== MODAL TAMBAH / EDIT ANGGOTA KELUARGA ==================== */}
+      {showModalAnggota && selectedKK && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 overflow-y-auto">
+          <div className="w-full max-w-5xl max-h-[90vh] overflow-auto bg-white dark:bg-navy-800 rounded-2xl shadow-2xl p-6 my-8">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold text-navy-700 dark:text-white">
+                {editAnggota ? "Edit" : "Tambah"} Anggota Keluarga
+                {editAnggota && <span className="text-lg font-normal"> – {editAnggota.nama}</span>}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowModalAnggota(false);
+                  setEditAnggota(null);
+                }}
+                className="text-gray-500 hover:text-gray-800 dark:hover:text-gray-300"
+              >
+                <MdClose className="h-8 w-8" />
+              </button>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-8 overflow-y-auto">
+              {/* KOLOM KIRI */}
+              <div className="space-y-5">
+                <input placeholder="NIK (16 digit)" value={formAnggota.nik || ""} onChange={e => setFormAnggota({ ...formAnggota, nik: e.target.value })} className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full" />
+                <input placeholder="Nama Lengkap" value={formAnggota.nama || ""} onChange={e => setFormAnggota({ ...formAnggota, nama: e.target.value })} className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full" />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <select value={formAnggota.jenisKelamin || "L"} onChange={e => setFormAnggota({ ...formAnggota, jenisKelamin: e.target.value as "L" | "P" })} className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full">
+                    <option value="L">Laki-laki</option>
+                    <option value="P">Perempuan</option>
+                  </select>
+                  <select value={formAnggota.statusKeluarga || "Anak"} onChange={e => setFormAnggota({ ...formAnggota, statusKeluarga: e.target.value })} className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full">
+                    <option value="Kepala Keluarga">Kepala Keluarga</option>
+                    <option value="Istri">Istri</option>
+                    <option value="Anak">Anak</option>
+                    <option value="Orang Tua">Orang Tua</option>
+                    <option value="Menantu">Menantu</option>
+                    <option value="Cucu">Cucu</option>
+                    <option value="Lainnya">Lainnya</option>
+                  </select>
+                </div>
+
+                <input placeholder="Tempat Lahir" value={formAnggota.tempatLahir || ""} onChange={e => setFormAnggota({ ...formAnggota, tempatLahir: e.target.value })} className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full" />
+                <input type="date" placeholder="Tanggal Lahir" value={formAnggota.tanggalLahir || ""} onChange={e => setFormAnggota({ ...formAnggota, tanggalLahir: e.target.value })} className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full" />
+
+                <select value={formAnggota.golonganDarah || "Tidak Tahu"} onChange={e => setFormAnggota({ ...formAnggota, golonganDarah: e.target.value as GolonganDarah })} className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full">
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="AB">AB</option>
+                  <option value="O">O</option>
+                  <option value="Tidak Tahu">Tidak Tahu</option>
+                </select>
+
+                <div className="flex items-center gap-3">
+                  <input type="checkbox" checked={formAnggota.disabilitas || false} onChange={e => setFormAnggota({ ...formAnggota, disabilitas: e.target.checked })} className="h-5 w-5" />
+                  <label>Memiliki Disabilitas</label>
+                </div>
+
+                {formAnggota.disabilitas && (
+                  <select value={formAnggota.kebutuhanKhusus || ""} onChange={e => setFormAnggota({ ...formAnggota, kebutuhanKhusus: e.target.value as KebutuhanKhusus })} className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full">
+                    <option value="">Pilih Kebutuhan Khusus</option>
+                    <option>Kursi Roda</option>
+                    <option>Alat Bantu Dengar</option>
+                    <option>Tongkat</option>
+                    <option>Prostesis</option>
+                    <option>Bantuan Sensorik</option>
+                    <option>Lainnya</option>
+                  </select>
+                )}
+
+                <select value={formAnggota.statusDesil || "Cukup"} onChange={e => setFormAnggota({ ...formAnggota, statusDesil: e.target.value as StatusDesil })} className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full">
+                  <option value="Miskin">Miskin</option>
+                  <option value="Rentan Miskin">Rentan Miskin</option>
+                  <option value="Cukup">Cukup</option>
+                  <option value="Mandiri">Mandiri</option>
+                </select>
+
+                <input placeholder="Pendidikan Terakhir" value={formAnggota.pendidikan || ""} onChange={e => setFormAnggota({ ...formAnggota, pendidikan: e.target.value })} className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full" />
+                <input placeholder="Pekerjaan" value={formAnggota.pekerjaan || ""} onChange={e => setFormAnggota({ ...formAnggota, pekerjaan: e.target.value })} className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full" />
+              </div>
+
+              {/* KOLOM KANAN */}
+              <div className="space-y-5">
+                <select value={formAnggota.statusKawin || "Belum Kawin"} onChange={e => setFormAnggota({ ...formAnggota, statusKawin: e.target.value as any })} className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full">
+                  <option value="Belum Kawin">Belum Kawin</option>
+                  <option value="Kawin">Kawin</option>
+                  <option value="Cerai Hidup">Cerai Hidup</option>
+                  <option value="Cerai Mati">Cerai Mati</option>
+                </select>
+
+                <select value={formAnggota.agama || "Islam"} onChange={e => setFormAnggota({ ...formAnggota, agama: e.target.value as any })} className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white w-full">
+                  <option>Islam</option>
+                  <option>Kristen</option>
+                  <option>Katolik</option>
+                  <option>Hindu</option>
+                  <option>Buddha</option>
+                  <option>Konghucu</option>
+                  <option>Lainnya</option>
+                </select>
+
+                <textarea placeholder="Keterangan (opsional)" value={formAnggota.keterangan || ""} onChange={e => setFormAnggota({ ...formAnggota, keterangan: e.target.value })} className="input min-h-24" />
+
+                {/* Upload KTP */}
+                <div>
+                  <label className="block font-medium mb-2">Foto KTP (opsional)</label>
+                  <div
+                    className="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer"
+                    onClick={() => document.getElementById("ktpInput")?.click()}
+                    onDrop={e => { e.preventDefault(); if (e.dataTransfer.files[0]) handleKtpChange(e.dataTransfer.files[0]); }}
+                    onDragOver={e => e.preventDefault()}
+                  >
+                    {ktpFileUrl || editAnggota?.ktpUrl ? (
+                      <img src={ktpFileUrl || editAnggota?.ktpUrl} alt="KTP" className="mx-auto max-h-48 rounded" />
+                    ) : (
+                      <MdUpload className="mx-auto h-12 w-12 text-gray-400" />
+                    )}
+                    <p className="text-sm text-gray-500 mt-2">Klik atau drag file ke sini</p>
+                    <input id="ktpInput" type="file" accept="image/*" className="hidden" onChange={e => e.target.files?.[0] && handleKtpChange(e.target.files[0])} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Tombol Aksi */}
+            <div className="flex justify-end gap-4 mt-8">
+              <button
+                onClick={() => {
+                  setShowModalAnggota(false);
+                  setEditAnggota(null);
+                }}
+                className="px-6 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleSubmitAnggota}
+                className="px-8 py-2.5 bg-brand-500 text-white rounded-lg hover:bg-brand-600 font-medium"
+              >
+                Simpan Anggota
+              </button>
+            </div>
           </div>
         </div>
       )}

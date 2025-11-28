@@ -43,6 +43,24 @@
   <body class="font-dm bg-lightPrimary" >
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div> 
+
+    <script>
+      function initMapPicker() {
+        document.addEventListener("click", function(e) {
+          if (e.target && e.target.closest('a[href*="openstreetmap.org"]')) {
+            const marker = e.target.closest('a');
+            if (marker && marker.href) {
+              const match = marker.href.match(/marker=([-\d.]+),([-\d.]+)/);
+              if (match) {
+                const lat = match[1];
+                const lng = match[2];
+                window.parent.postMessage({ type: "COORDINATE_SELECTED", lat, lng }, "*");
+              }
+            }
+          }
+        });
+      }
+    </script>
   </body>
 </html>
 
