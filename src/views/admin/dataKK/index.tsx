@@ -1164,7 +1164,7 @@ const DataKK: React.FC = () => {
                     <div className="p-6 space-y-6">
                       {/* === SECTION 1: Identitas Utama === */}
                       <div className="border-b border-gray-200/50 dark:border-navy-700/50 pb-4">
-                        <div className="flex justify-between items-start gap-4">
+                        <div className="md:flex justify-between items-start gap-4">
                           {/* Identitas */}
                           <div className="flex items-center gap-3 flex-1 min-w-0">
                             <div className={`p-2.5 rounded-xl shadow-sm ${
@@ -1187,24 +1187,24 @@ const DataKK: React.FC = () => {
                           </div>
 
                           {/* Action Buttons */}
-                          <div className="flex gap-1.5">
+                          <div className="md:flex gap-2 md:gap-1.5 md:mt-0 mt-4 grid grid-cols-3">
                             <button 
                               onClick={() => openTagging(a)}
-                              className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-600 transition-all duration-200 shadow-sm"
+                              className="flex items-center justify-center p-2.5 rounded-xl bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-600 transition-all duration-200 shadow-sm"
                               title="Tag Bantuan"
                             >
                               <MdLocalOffer className="w-5 h-5" />
                             </button>
                             <button 
                               onClick={() => openEditAnggota(a)}
-                              className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 text-amber-600 transition-all duration-200 shadow-sm"
+                              className="flex items-center justify-center p-2.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 text-amber-600 transition-all duration-200 shadow-sm"
                               title="Edit Data"
                             >
                               <MdEdit className="w-5 h-5" />
                             </button>
                             <button 
                               onClick={() => handleDeleteAnggota(a.id)}
-                              className="p-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 transition-all duration-200 shadow-sm"
+                              className="flex items-center justify-center p-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 transition-all duration-200 shadow-sm"
                               title="Hapus Anggota"
                             >
                               <MdDelete className="w-5 h-5" />

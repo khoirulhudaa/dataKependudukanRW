@@ -56,7 +56,7 @@ const Navbar = (props: {
   const pageTitle = getPageTitle();
 
   return (
-    <nav className="sticky border-b border-black/30 top-0 md:py-0 py-4 mb-2 md:mb-4 z-40 flex flex-row flex-wrap items-center justify-between bg-white/10 md:px-2 h-[14vh] backdrop-blur-xl dark:bg-[#0b14374d]">
+    <nav className="sticky border-b border-black/30 top-0 md:py-0 py-0 pb-0 md:py-4 mb-0 md:mb-4 z-40 flex flex-row flex-wrap items-center justify-between bg-white/10 md:px-2 h-[14vh] backdrop-blur-xl dark:bg-[#0b14374d]">
       
       {/* Hamburger Button — HANYA MUNCUL DI MOBILE */}
       {/* <div className="block md:hidden w-max ml-[6px]">
