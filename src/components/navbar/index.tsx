@@ -17,6 +17,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/admin/surat-pengantar": "Surat Pengantar",
   "/admin/laporan": "Laporan",
   "/admin/pengaturan": "Pengaturan",
+  "/admin/anggota": "Pembaruan data",
   // tambahkan sesuai kebutuhan
 };
 
@@ -90,8 +91,8 @@ const Navbar = (props: {
         <Dropdown
           button={
             <img
-              className="relative top-[-5px] h-10 w-10 rounded-full cursor-pointer active:scale-[0.98] hover:brightness-90"
-              src={avatar}
+              className="relative top-[0px] h-10 w-10 border-2 border-blue-500 bg-blue-500 rounded-full cursor-pointer active:scale-[0.98] hover:brightness-90"
+              src={'/default.jpg'}
               alt="Avatar"
             />
           }
