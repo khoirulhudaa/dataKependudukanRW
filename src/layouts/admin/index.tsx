@@ -1,5 +1,6 @@
 import Footer from "components/footer/Footer";
 import Navbar from "components/navbar";
+import BottomNav from "components/navigation";
 import Sidebar from "components/sidebar";
 import React from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
@@ -98,6 +99,8 @@ export default function Admin(props: { [x: string]: any }) {
                 <Route path="/" element={<Navigate to="/admin/default" replace />} />
               </Routes>
             </div>
+
+            <BottomNav />
 
             {/* Footer */}
             <div className="p-3">

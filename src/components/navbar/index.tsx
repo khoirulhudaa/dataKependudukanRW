@@ -59,14 +59,14 @@ const Navbar = (props: {
     <nav className="sticky border-b border-black/30 top-0 md:py-0 py-4 mb-2 md:mb-4 z-40 flex flex-row flex-wrap items-center justify-between bg-white/10 md:px-2 h-[14vh] backdrop-blur-xl dark:bg-[#0b14374d]">
       
       {/* Hamburger Button — HANYA MUNCUL DI MOBILE */}
-      <div className="block md:hidden w-max ml-[6px]">
+      {/* <div className="block md:hidden w-max ml-[6px]">
         <button
           onClick={onOpenSidenav}
           className="block md:hidden border border-purple-500 rounded-md bg-white/10 p-2 text-brand-500 hover:bg-white/20 dark:bg-navy-700 dark:text-white"
         >
           <MdMenu className="w-5 md:h-7 h-5 md:w-7" />
         </button>
-      </div>
+      </div> */}
       
       {/* Judul dinamis */}
       <div className="ml-[12px] md:ml-[6px]">

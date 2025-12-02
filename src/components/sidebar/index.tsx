@@ -12,14 +12,25 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
   return (
     <aside
         className={`
-          fixed inset-y-0 left-0 z-50 flex w-[85vw] md:w-[280px] flex-col overflow-y-auto bg-white pb-10 shadow-2xl transition-transform duration-300 ease-in-out
+          fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col overflow-y-auto bg-white pb-10 shadow-2xl transition-transform duration-300 ease-in-out
           dark:bg-navy-800 dark:text-white
-          /* Mobile: muncul hanya saat open, overlay gelap */
+          /* Mobile & tablet kecil: disembunyikan dulu, drawer hanya jika open */
           ${open ? "translate-x-0" : "-translate-x-full"}
-          /* Desktop: selalu terlihat (kiri) */
-          xl:translate-x-0 xl:shadow-none
+          /* Mulai lg (768px): selalu terbuka, tidak ada translate */
+          lg:translate-x-0 lg:shadow-none
+          /* Pastikan tidak muncul di bawah lg kalau tidak open */
+          hidden lg:block
         `}
       >
+
+      {/* Overlay gelap saat drawer terbuka di mobile */}
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+      
       {/* Close Button (Mobile) */}
       <button
         onClick={onClose}
