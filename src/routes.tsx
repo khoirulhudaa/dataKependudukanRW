@@ -1,39 +1,23 @@
-import MainDashboard from "views/admin/default";
-
 import {
-  MdAdminPanelSettings, // Manajemen Konten
-  MdArticle, // Profile RW (Visi Misi)
-  MdBadge, // Kartu Keluarga
-  MdCardGiftcard, // Bantuan
-  MdCategory, // Template Surat
-  MdContactPhone, // Pengaduan (chat)
-  MdDescription, // Beranda
-  MdFamilyRestroom, // Pegawai RT/RW
-  MdForum,
-  MdHome, // Jenis Bantuan
-  MdPeople, // Layanan / Berita
-  MdStadium, MdSystemUpdate, // Penerima Bantuan
-  MdWeb
+  MdBadge,
+  MdBarChart,
+  MdDiversity3,
+  MdFamilyRestroom,
+  MdHome,
+  MdMan2,
+  MdPeople,
+  MdPersonSearch,
+  MdSupervisorAccount,
+  MdWarning
 } from "react-icons/md";
 
-import { IoMdGlobe } from "react-icons/io";
-import BeritaPage from "views/admin/berita";
+import DataBermasalah from "views/admin/dataBermasalah";
 import DataKK from "views/admin/dataKK";
-import EditAnggota from "views/admin/editAnggota";
-import FasilitasPage from "views/admin/fasilitas";
-import JenisBantuanPage from "views/admin/jenisBantuan";
-import KontakPage from "views/admin/kontak";
-import LayananPage from "views/admin/layanan";
-import AdminPage from "views/admin/manajemenAdmin";
-import MutasiPenduduk from "views/admin/mutasi";
-import PegawaiRTPage from "views/admin/pegawaiRT";
-import PegawaiRWPage from "views/admin/pegawaiRW";
-import PenerimaBantuan from "views/admin/penerimaBantuan";
-import PengaduanPage from "views/admin/pengaduan";
-import ProfileOverview from "views/admin/profile";
-import PengajuanSuratPage from "views/admin/templateSurat";
-import VisiMisiPage from "views/admin/visiMisi";
-import SignIn from "views/auth/SignIn";
+import MainDashboard from "views/admin/default";
+import JenisKelaminAgama from "views/admin/jenisKelamin";
+import KelompokUsia from "views/admin/kelompokUsia";
+import PencarianIndividu from "views/admin/pencarianDataInvidual";
+import StatusKependudukan from "views/admin/statusKependudukan";
 
 const routes: any = [
   // ==================== DASHBOARD ====================
@@ -45,141 +29,74 @@ const routes: any = [
     component: <MainDashboard />,
   },
 
-  // ==================== DATA MASTER ====================
+  // ==================== DATA KEPENDUDUKAN (MENU UTAMA) ====================
   {
     name: "Data Kependudukan",
     layout: "/admin",
     path: "data-kependudukan",
-    icon: <MdFamilyRestroom className="h-6 w-6" />,
-    component: <DataKK />,
-  },
-  // ==================== MENU UTAMA LAINNYA ====================
-  {
-    name: "Mutasi Penduduk",
-    layout: "/admin",
-    path: "mutasi-penduduk",
-    icon: <MdSystemUpdate className="h-6 w-6" />,
-    component: <MutasiPenduduk />,
-  },
-  {
-    name: "Data Pengaduan",
-    layout: "/admin",
-    path: "pengaduan",
-    icon: <MdForum className="h-6 w-6" />,
-    component: <PengaduanPage />,
-  },
-  {
-    name: "Pengajuan Surat",
-    layout: "/admin",
-    path: "pengajuan-surat",
-    icon: <MdDescription className="h-6 w-6" />,
-    component: <PengajuanSuratPage />,
-  },
-  {
-    layout: "/admin",
-    path: "profile",
-    component: <ProfileOverview />,
-  },
-  // ==================== BANTUAN KELURAHAN ====================
-  {
-    name: "Bantuan Kelurahan",
-    layout: "/admin",
-    path: "bantuan-kelurahan",
-    icon: <MdCardGiftcard className="h-6 w-6" />,
+    icon: <MdPeople className="h-6 w-6" />,
     subRoutes: [
+      // ─── Submenu 1: Data Utama ───
       {
-        name: "Jenis Bantuan",
-        layout: "/admin",
-        path: "jenis-bantuan",
-        icon: <MdCategory className="h-6 w-6" />,
-        component: <JenisBantuanPage />,
+        name: "Data Utama",
+        icon: <MdBadge className="h-6 w-6" />,
+        subRoutes: [
+          {
+            name: "Daftar KK",
+            path: "data-kk",
+            layout: "/admin",
+            icon: <MdFamilyRestroom className="h-5 w-5" />,
+            component: <DataKK />,
+          },
+          {
+            name: "Pencarian Individu",
+            path: "pencarian-individu",
+            layout: "/admin",
+            icon: <MdPersonSearch className="h-5 w-5" />,
+            component: <PencarianIndividu />,
+          },
+          {
+            name: "Data Bermasalah",
+            path: "data-bermasalah",
+            layout: "/admin",
+            icon: <MdWarning className="h-5 w-5 text-red-500" />,
+            component: <DataBermasalah />,
+          },
+        ],
       },
+
+      // ─── Submenu 2: Analisis Demografi ───
       {
-        name: "Penerima",
-        layout: "/admin",
-        path: "penerima-bantuan",
-        icon: <MdPeople className="h-6 w-6" />,
-        component: <PenerimaBantuan />,
+        name: "Analisis Demografi",
+        icon: <MdBarChart className="h-6 w-6" />,
+        subRoutes: [
+          {
+            name: "Kelompok Usia",
+            path: "kelompok-usia",
+            layout: "/admin",
+            icon: <MdSupervisorAccount className="h-5 w-5" />,
+            component: <KelompokUsia />,
+          },
+          {
+            name: "Status Penduduk",
+            path: "status-kependudukan",
+            layout: "/admin",
+            icon: <MdBadge className="h-5 w-5" />,
+            component: <StatusKependudukan />,
+          },
+          {
+            name: "Kelamin & Agama",
+            path: "jenis-kelamin-agama",
+            layout: "/admin",
+            icon: <MdDiversity3 className="h-5 w-5" />,
+            component: <JenisKelaminAgama />,
+          },
+        ],
       },
     ],
   },
 
-  {
-    name: "Berita",
-    layout: "/admin",
-    path: "berita",
-    icon: <MdArticle className="h-6 w-6" />,
-    component: <BeritaPage />,
-  },
-
-  // ==================== MANAJEMEN KONTEN ====================
-  {
-    name: "Manajemen Konten",
-    layout: "/admin",
-    path: "manajemen-konten",
-    icon: <MdWeb className="h-6 w-6" />,
-    subRoutes: [
-      {
-        name: "Layanan",
-        layout: "/admin",
-        path: "layanan",
-        icon: <MdArticle className="h-6 w-6" />,
-        component: <LayananPage />,
-      },
-      {
-        name: "Fasilitas",
-        layout: "/admin",
-        path: "fasilitas",
-        icon: <MdStadium className="h-6 w-6" />,
-        component: <FasilitasPage />,
-      },
-      {
-        name: "Biodata RW",
-        layout: "/admin",
-        path: "biodata-rw",
-        icon: <IoMdGlobe className="h-6 w-6" />,
-        component: <VisiMisiPage />,
-      },
-      {
-        name: "Pengurus RT",
-        layout: "/admin",
-        path: "data-Pengurus-rt",
-        icon: <MdBadge className="h-6 w-6" />,
-        component: <PegawaiRTPage />,
-      },
-      {
-        name: "Pengurus RW",
-        layout: "/admin",
-        path: "data-Pengurus-rw",
-        icon: <MdBadge className="h-6 w-6" />,
-        component: <PegawaiRWPage />,
-      },
-    ],
-  },
-  {
-    name: "Manajemen Admin",
-    layout: "/admin",
-    path: "akun",
-    icon: <MdAdminPanelSettings className="h-6 w-6" />,
-    component: <AdminPage />,
-  },
-  {
-    layout: "/admin",
-    path: "anggota/edit/:id", // ← Dinamis
-    component: <EditAnggota />,
-  },
-  {
-    layout: "/auth",
-    path: "sign-in",           // ← penting: path tanpa slash awal
-    component: <SignIn />,      // ← import dulu di atas
-  },
-  {
-    name: "Data Kontak RW",
-    layout: "/admin",
-    path: "kontak",
-    icon: <MdContactPhone className="h-6 w-6" />,
-    component: <KontakPage />,
-  },
+  // Menu-menu lain tetap di sini...
 ];
 
 export default routes;

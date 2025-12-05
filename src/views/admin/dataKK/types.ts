@@ -1,0 +1,78 @@
+// src/components/data-kk/types.ts
+export type GolonganDarah = "A" | "B" | "AB" | "O" | "Tidak Tahu";
+export type KebutuhanKhusus = "" | "Kursi Roda" | "Alat Bantu Dengar" | "Tongkat" | "Prostesis" | "Bantuan Sensorik" | "Lainnya";
+export type StatusDesil = "Sangat Miskin" | "Miskin" | "Rentan Miskin" | "Menengah" | "Mampu";
+export type StatusKependudukan = "Warga Tetap" | "Warga Tidak Tetap" | "Pendatang Baru" | "Perantau" | "Perantau Tidak Diketahui" | "Pindah Keluar" | "Tidak Diketahui";
+export type StatusHunian = "Milik Sendiri" | "Kontrak/Sewa" | "Numpang" | "Kos/Asrama" | "Rumah Tidak Layak Huni" | "Lainnya";
+export type Mutasi = { tanggal: string; jenis: "Masuk" | "Keluar"; keterangan?: string };
+export type KondisiRumah = {
+  lantai: "Keramik" | "Ubin/Tegel" | "Semen/Plester" | "Tanah";
+  dinding: "Tembok/Bata" | "Kayu/Papan" | "Bambu/GRC" | "Lainnya";
+  atap: "Genteng/Beton" | "Asbes" | "Seng" | "Lainnya";
+  air: "PDAM" | "Sumur Bor/Pompa" | "Sumur Gali" | "Sungai/Mata Air" | "Lainnya";
+  sanitasi: "Jamban Sendiri + Septic Tank" | "Jamban Sendiri Tanpa Septic" | "Jamban Umum" | "Tidak Ada";
+  listrik: "PLN 450VA" | "PLN 900VA" | "PLN 1300VA+" | "Genset/Solar Cell" | "Tidak Ada";
+  kepemilikanAset: string[];
+};
+export type StatusAnggota = "Hidup" | "Meninggal" | "Pindah";
+
+export type Anggota = {
+  id: string;
+  nik: string;
+  nama: string;
+  jenisKelamin: "L" | "P";
+  tempatLahir?: string;
+  tanggalLahir?: string;
+  statusKeluarga?: string;
+  pendidikan?: string;
+  pekerjaan?: string;
+  bantuan?: string[];
+  status?: StatusAnggota;
+  golonganDarah?: GolonganDarah;
+  disabilitas: boolean;
+  jenisDisabilitas?: string;
+  kebutuhanKhusus?: KebutuhanKhusus;
+  statusDesil?: StatusDesil;
+  statusKependudukan: StatusKependudukan;
+  mutasi?: Mutasi[];
+  ktpUrl?: string;
+  ktpName?: string;
+  ktpType?: string;
+  statusKawin: "Belum Kawin" | "Kawin" | "Cerai Hidup" | "Cerai Mati";
+  agama: "Islam" | "Kristen" | "Katolik" | "Hindu" | "Buddha" | "Konghucu" | "Lainnya";
+  keterangan?: string;
+  kelengkapanArsipRT?: string[];
+  yatim?: boolean;
+  piatu?: boolean;
+  yatimPiatu?: boolean;
+  statusKesehatan?: "Sehat" | "Ibu Hamil" | "Ibu Menyusui" | "Stunting" | "Penyakit Kronis" | "ODGJ" | "TBC" | "Lainnya";
+  jandaDuda?: boolean;
+  kepesertaanBPJS?: "Aktif PBI" | "Aktif Mandiri" | "Tidak Aktif" | "Belum Punya";
+  partisipasiLingkungan?: string[];
+  kerentananSosial?: string[];
+};
+
+export type KKItem = {
+  id: string;
+  noKK: string;
+  kepalaKeluarga: string;
+  alamat: string;
+  noRumah?: string;
+  rt: string;
+  rw: string;
+  anggota: Anggota[];
+  isSementara?: boolean;
+  fileUrl?: string;
+  fileName?: string;
+  fileType?: string;
+  koordinat?: string;
+  alamatLengkap?: string;
+  statusHunian: StatusHunian;
+  pemilikRumah?: string;
+  kondisiRumah: KondisiRumah;
+  fotoRumahUrl?: string;
+  fotoRumahName?: string;
+  fotoRumahType?: string;
+  kategoriKesejahteraan?: "Pra Sejahtera" | "Sejahtera I" | "Sejahtera II" | "Sejahtera III" | "Sejahtera III+";
+  kepemilikanDokumenLengkap?: boolean;
+};

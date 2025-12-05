@@ -6,7 +6,14 @@ import {
   MdForum,
   MdDescription,
   MdCardGiftcard,
+  MdHdrPlus,
+  MdCardMembership,
 } from "react-icons/md";
+import { FaUserCheck } from "react-icons/fa";
+import { IoCardSharp, IoClose, IoIdCard, IoIdCardSharp, IoWarning } from "react-icons/io5";
+import { BsCardImage, BsCardText } from "react-icons/bs";
+import { FiLoader } from "react-icons/fi";
+import { IoMdCard } from "react-icons/io";
 
 interface BottomNavItem {
   name: string;
@@ -21,24 +28,24 @@ const bottomNavItems: BottomNavItem[] = [
     icon: <MdHome className="h-6 w-6" />,
   },
   {
-    name: "Penduduk",
-    path: "/admin/data-kependudukan",
+    name: "Data KK",
+    path: "/admin/data-kk",
     icon: <MdFamilyRestroom className="h-6 w-6" />,
   },
   {
-    name: "Pengaduan",
-    path: "/admin/pengaduan",
-    icon: <MdForum className="h-6 w-6" />,
+    name: "KTP",
+    path: "/admin/pencarian-individu",
+    icon: <IoCardSharp className="h-6 w-6" />,
   },
   {
-    name: "Surat",
-    path: "/admin/pengajuan-surat",
-    icon: <MdDescription className="h-6 w-6" />,
+    name: "Konflik",
+    path: "/admin/data-bermasalah",
+    icon: <IoWarning className="h-6 w-6" />,
   },
   {
-    name: "Bantuan",
-    path: "/admin/penerima-bantuan", // akan aktif juga di subroute jenis/penerima
-    icon: <MdCardGiftcard className="h-6 w-6" />,
+    name: "Status",
+    path: "/admin/status-kependudukan", // akan aktif juga di subroute jenis/penerima
+    icon: <FaUserCheck className="h-6 w-6" />,
   },
 ];
 

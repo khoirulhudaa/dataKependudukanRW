@@ -1,22 +1,42 @@
 import Card from "components/card";
+import Widget from "components/widget/Widget";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   MdAccessibilityNew,
-  MdAdd,
+  MdAddAPhoto,
+  MdArchive,
   MdArrowBackIosNew,
   MdArrowForwardIos,
-  MdChildCare, MdClearAll, MdClose,
+  MdCardGiftcard,
+  MdCheck, MdCheckCircle,
+  MdChildCare, MdClearAll, MdClose, MdDelete, MdDescription,
   MdDone,
-  MdElderly, MdFamilyRestroom,
+  MdEdit, MdElderly, MdFamilyRestroom,
+  MdFemale,
   MdFileDownload,
   MdHome,
+  MdHomeWork,
+  MdInfo,
+  MdInfoOutline,
+  MdLocalOffer,
   MdLocationOn,
+  MdLocationPin,
+  MdMale,
+  MdMap,
+  MdNotes,
+  MdOutlineLogout,
+  MdOutlinePersonOff,
+  MdPeople,
+  MdPerson,
+  MdPersonAdd,
   MdPhotoCamera,
   MdPictureAsPdf,
   MdSave,
   MdSchool, MdSearch,
+  MdShield,
   MdUpload,
-  MdWarning
+  MdVerifiedUser,
+  MdWarning, MdZoomIn
 } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { generateSingleKKPdf } from "utils/generatePDFKK";
@@ -156,153 +176,19 @@ const PILIHAN_PEKERJAAN = [
 const ARSIP_RT = ["KTP", "KK", "Akta Lahir", "Akta Nikah", "Akta Cerai", "Surat Keterangan Domisili", "Surat Kematian"];
 // DEMO DATA (dengan field baru)
 const DEMO_DATA: KKItem[] = [
-  // 1. KK Sejahtera – Keluarga Lengkap (RT 01)
+  // KK 1
   {
-    id: "kk001",
-    noKK: "3275010101200001",
-    kepalaKeluarga: "Dr. H. Ahmad Fauzi, M.Pd",
+    id: "1",
+    noKK: "3275010101900001",
+    kepalaKeluarga: "Ahmad Fauzi",
     alamat: "Jl. Merdeka No. 10",
-    noRumah: "10",
     rt: "01",
     rw: "001",
+    isSementara: false,
+    koordinat: "-6.2088,106.8456",
+    alamatLengkap: "Jl. Merdeka No. 10 RT 01 RW 001 Kel. Kebon Jeruk, Kec. Andir, Kota Bandung",
     statusHunian: "Milik Sendiri",
     pemilikRumah: "Ahmad Fauzi",
-    koordinat: "-6.2088,106.8456",
-    fotoRumahUrl: "/demo/rumah1.jpg",
-    kondisiRumah: {
-      lantai: "Keramik",
-      dinding: "Tembok/Bata",
-      atap: "Genteng/Beton",
-      air: "PDAM",
-      sanitasi: "Jamban Sendiri + Septic Tank",
-      listrik: "PLN 1300VA+",
-      kepemilikanAset: ["Mobil", "Motor", "TV LED", "AC", "Kulkas 2 Pintu"],
-    },
-    kategoriKesejahteraan: "Sejahtera III+",
-    anggota: [
-      {
-        id: "a1", nik: "3275011507750001", nama: "Ahmad Fauzi", jenisKelamin: "L",
-        tempatLahir: "Bandung", tanggalLahir: "1975-07-15", statusKeluarga: "Kepala Keluarga",
-        pendidikan: "S3", pekerjaan: "Dosen / PNS", bantuan: [], status: "Hidup",
-        golonganDarah: "O", disabilitas: false, statusKependudukan: "Warga Tetap",
-        statusKawin: "Kawin", agama: "Islam", partisipasiLingkungan: ["Aktif Kegiatan RW/RT", "Siskamling"],
-        kerentananSosial: [],
-      },
-      {
-        id: "a2", nik: "3275015509800002", nama: "Siti Aisyah", jenisKelamin: "P",
-        tempatLahir: "Jakarta", tanggalLahir: "1980-09-05", statusKeluarga: "Istri",
-        pendidikan: "S2", pekerjaan: "Guru Swasta", bantuan: [], status: "Hidup",
-        golonganDarah: "A", disabilitas: false, statusKependudukan: "Warga Tetap",
-        statusKawin: "Kawin", agama: "Islam", partisipasiLingkungan: ["PKK"],
-        kerentananSosial: [],
-      },
-      {
-        id: "a3", nik: "3275012312080015", nama: "Naufal Ahmad", jenisKelamin: "L",
-        tanggalLahir: "2008-12-23", statusKeluarga: "Anak", pendidikan: "SMP / MTs",
-        pekerjaan: "Pelajar", bantuan: ["kip"], status: "Hidup", disabilitas: false,
-        statusKependudukan: "Warga Tetap", statusKawin: "Belum Kawin", agama: "Islam",
-        partisipasiLingkungan: [], kerentananSosial: [],
-      },
-      {
-        id: "a4", nik: "3275016405130020", nama: "Aisyah Putri", jenisKelamin: "P",
-        tanggalLahir: "2013-05-04", statusKeluarga: "Anak", pendidikan: "SD / MI",
-        pekerjaan: "Pelajar", bantuan: [], status: "Hidup", disabilitas: false,
-        statusKependudukan: "Warga Tetap", statusKawin: "Belum Kawin", agama: "Islam",
-        partisipasiLingkungan: [], kerentananSosial: [],
-      },
-    ],
-  },
-
-  // 2. KK Miskin + Disabilitas (RT 02)
-  {
-    id: "kk002",
-    noKK: "3275010203200002",
-    kepalaKeluarga: "Slamet Riyadi",
-    alamat: "Gg. H. Yani No. 25",
-    rt: "02",
-    rw: "001",
-    statusHunian: "Kontrak/Sewa",
-    pemilikRumah: "H. Maman",
-    kondisiRumah: {
-      lantai: "Semen/Plester",
-      dinding: "Kayu/Papan",
-      atap: "Asbes",
-      air: "Sumur Gali",
-      sanitasi: "Jamban Sendiri Tanpa Septic",
-      listrik: "PLN 450VA",
-      kepemilikanAset: ["TV Tabung", "Motor Bekas"],
-    },
-    kategoriKesejahteraan: "Pra Sejahtera",
-    anggota: [
-      {
-        id: "b1", nik: "3275010505680003", nama: "Slamet Riyadi", jenisKelamin: "L",
-        tanggalLahir: "1968-05-05", statusKeluarga: "Kepala Keluarga",
-        pendidikan: "SD / MI", pekerjaan: "Tidak Bekerja", bantuan: ["pkh", "bpnt", "kis"],
-        status: "Hidup", golonganDarah: "B", disabilitas: true, jenisDisabilitas: "Tuna Daksa",
-        kebutuhanKhusus: "Kursi Roda", statusKependudukan: "Warga Tetap",
-        statusKawin: "Kawin", agama: "Islam", partisipasiLingkungan: [],
-        kerentananSosial: ["Difabel", "Tidak Bekerja"],
-      },
-      {
-        id: "b2", nik: "3275014412750004", nama: "Siti Aminah", jenisKelamin: "P",
-        tanggalLahir: "1975-12-04", statusKeluarga: "Istri",
-        pendidikan: "Tidak Sekolah", pekerjaan: "Ibu Rumah Tangga", bantuan: ["pkh", "bpnt"],
-        status: "Hidup", disabilitas: false, statusKependudukan: "Warga Tetap",
-        statusKawin: "Kawin", agama: "Islam", partisipasiLingkungan: ["PKK"],
-        kerentananSosial: [],
-      },
-      {
-        id: "b3", nik: "3275016003100012", nama: "Rudi Setiawan", jenisKelamin: "L",
-        tanggalLahir: "2010-03-20", statusKeluarga: "Anak", pendidikan: "SMP / MTs",
-        pekerjaan: "Pelajar", bantuan: ["kip"], status: "Hidup", disabilitas: false,
-        statusKependudukan: "Warga Tetap", statusKawin: "Belum Kawin", agama: "Islam",
-        partisipasiLingkungan: [], kerentananSosial: ["Yatim"],
-      },
-    ],
-  },
-
-  // 3. Lansia Sendirian + ODGJ (RT 03)
-  {
-    id: "kk003",
-    noKK: "3275010304200003",
-    kepalaKeluarga: "Nenek Suminah",
-    alamat: "Jl. Cempaka No. 7",
-    rt: "03",
-    rw: "001",
-    statusHunian: "Milik Sendiri",
-    kondisiRumah: {
-      lantai: "Tanah",
-      dinding: "Bambu/GRC",
-      atap: "Seng",
-      air: "Sumur Gali",
-      sanitasi: "Tidak Ada",
-      listrik: "PLN 450VA",
-      kepemilikanAset: ["TV Tabung"],
-    },
-    kategoriKesejahteraan: "Pra Sejahtera",
-    anggota: [
-      {
-        id: "c1", nik: "3275016901400005", nama: "Suminah", jenisKelamin: "P",
-        tanggalLahir: "1940-01-29", statusKeluarga: "Kepala Keluarga",
-        pendidikan: "Tidak Sekolah", pekerjaan: "Tidak Bekerja", bantuan: ["pkh", "blt-dd", "kis"],
-        status: "Hidup", golonganDarah: "B", disabilitas: true, jenisDisabilitas: "Gangguan Jiwa (ODGJ)",
-        kebutuhanKhusus: "Bantuan Sensorik", statusKependudukan: "Warga Tetap",
-        statusKawin: "Kawin", agama: "Islam", partisipasiLingkungan: [],
-        kerentananSosial: ["Lansia", "Janda", "ODGJ"],
-      },
-    ],
-  },
-
-  // 4. Kos Mahasiswa (RT 04)
-  {
-    id: "kk004",
-    noKK: "3275010405200004",
-    kepalaKeluarga: "Indra Gunawan (Penanggung Jawab Kos)",
-    alamat: "Jl. Gatot Subroto Kos Putra No. 88",
-    rt: "04",
-    rw: "002",
-    statusHunian: "Kos/Asrama",
-    isSementara: true,
     kondisiRumah: {
       lantai: "Keramik",
       dinding: "Tembok/Bata",
@@ -310,89 +196,105 @@ const DEMO_DATA: KKItem[] = [
       air: "PDAM",
       sanitasi: "Jamban Sendiri + Septic Tank",
       listrik: "PLN 900VA",
-      kepemilikanAset: ["TV", "Kulkas", "WiFi"],
+      kepemilikanAset: ["TV", "Kulkas", "Motor"]
     },
-    kategoriKesejahteraan: "Pra Sejahtera",
+    kategoriKesejahteraan: "Sejahtera II",
+    kepemilikanDokumenLengkap: true,
     anggota: [
       {
-        id: "d1", nik: "3174012310010006", nama: "Rizky Pratama", jenisKelamin: "L",
-        tanggalLahir: "2001-10-23", statusKeluarga: "Penghuni", pendidikan: "Mahasiswa / Akademi",
-        pekerjaan: "Mahasiswa", bantuan: ["kip"], status: "Hidup", disabilitas: false,
-        statusKependudukan: "Pendatang Baru", statusKawin: "Belum Kawin", agama: "Islam",
-        partisipasiLingkungan: [], kerentananSosial: [],
+        id: "a1",
+        nik: "3275010101900001",
+        nama: "Ahmad Fauzi",
+        jenisKelamin: "L",
+        tempatLahir: "Bandung",
+        tanggalLahir: "1990-01-01",
+        statusKeluarga: "Kepala Keluarga",
+        pendidikan: "SMA / SMK / MA",
+        pekerjaan: "Wirausaha / UMKM",
+        bantuan: ["pkh", "bpnt"],
+        status: "Hidup",
+        golonganDarah: "O",
+        disabilitas: true,
+        jenisDisabilitas: "Rungu",
+        kebutuhanKhusus: "Alat Bantu Dengar",   // wajib diisi karena disabilitas: true
+        statusDesil: "Rentan Miskin",
+        statusKependudukan: "Warga Tetap",
+        mutasi: [{ tanggal: "2020-01-15", jenis: "Masuk", keterangan: "Pindah dari Jakarta" }],
+        statusKawin: "Kawin",
+        agama: "Islam",
+        keterangan: "Ketua RT 01",
+        kelengkapanArsipRT: ["KTP", "KK", "Akta Nikah"],
+        yatim: false,
+        piatu: false,
+        statusKesehatan: "Sehat",
+        kepesertaanBPJS: "Aktif Mandiri",
+        partisipasiLingkungan: ["Aktif Kegiatan RW/RT", "Siskamling", "PKK"],
+        kerentananSosial: []
       },
       {
-        id: "d2", nik: "3376021503020007", nama: "Aditya Nugraha", jenisKelamin: "L",
-        tanggalLahir: "2002-03-15", statusKeluarga: "Penghuni", pendidikan: "Mahasiswa / Akademi",
-        pekerjaan: "Mahasiswa", bantuan: [], status: "Hidup", disabilitas: false,
-        statusKependudukan: "Pendatang Baru", statusKawin: "Belum Kawin", agama: "Kristen",
-        partisipasiLingkungan: [], kerentananSosial: [],
+        id: "a2",
+        nik: "3275016502950002",
+        nama: "Siti Nurhaliza",
+        jenisKelamin: "P",
+        tempatLahir: "Bandung",
+        tanggalLahir: "1995-02-15",
+        statusKeluarga: "Istri",
+        pendidikan: "SMA / SMK / MA",
+        pekerjaan: "Ibu Rumah Tangga",
+        bantuan: ["pkh", "kis"],
+        status: "Hidup",
+        golonganDarah: "A",
+        disabilitas: false,
+        jenisDisabilitas: undefined,
+        kebutuhanKhusus: "",   // kosong karena tidak disabilitas
+        statusDesil: "Miskin",
+        statusKependudukan: "Warga Tetap",
+        mutasi: [],
+        statusKawin: "Kawin",
+        agama: "Islam",
+        keterangan: "",
+        kelengkapanArsipRT: ["KTP", "KK", "Akta Nikah"],
+        yatim: false,
+        piatu: false,
+        statusKesehatan: "Ibu Hamil",
+        kepesertaanBPJS: "Aktif PBI",
+        partisipasiLingkungan: ["PKK", "Posyandu Balita"],
+        kerentananSosial: []
       },
       {
-        id: "d3", nik: "3275044404030008", nama: "Putri Ayu Lestari", jenisKelamin: "P",
-        tanggalLahir: "2003-04-04", statusKeluarga: "Penghuni", pendidikan: "Mahasiswa / Akademi",
-        pekerjaan: "Mahasiswa", bantuan: ["kip"], status: "Hidup", disabilitas: false,
-        statusKependudukan: "Pendatang Baru", statusKawin: "Belum Kawin", agama: "Islam",
-        partisipasiLingkungan: [], kerentananSosial: [],
-      },
-    ],
+        id: "a3",
+        nik: "3275015512100003",
+        nama: "Muhammad Rizky",
+        jenisKelamin: "L",
+        tempatLahir: "Bandung",
+        tanggalLahir: "2012-10-05",
+        statusKeluarga: "Anak",
+        pendidikan: "SD / MI",
+        pekerjaan: "Pelajar",
+        bantuan: ["kip"],
+        status: "Hidup",
+        golonganDarah: "O",
+        disabilitas: false,
+        jenisDisabilitas: undefined,
+        kebutuhanKhusus: "",
+        statusDesil: "Miskin",
+        statusKependudukan: "Warga Tetap",
+        mutasi: [],
+        statusKawin: "Belum Kawin",
+        agama: "Islam",
+        keterangan: "",
+        kelengkapanArsipRT: ["KTP", "KK", "Akta Lahir"],
+        yatim: false,
+        piatu: false,
+        statusKesehatan: "Sehat",
+        kepesertaanBPJS: "Aktif PBI",
+        partisipasiLingkungan: [],
+        kerentananSosial: []
+      }
+    ]
   },
 
-  // 5. Perantau + Rumah Tidak Layak Huni (RT 05)
-  {
-    id: "kk005",
-    noKK: "3275010506200005",
-    kepalaKeluarga: "Bambang Suryono (Perantau)",
-    alamat: "Gg. Surya Kencana Lorong 3",
-    rt: "05",
-    rw: "002",
-    statusHunian: "Rumah Tidak Layak Huni",
-    kondisiRumah: {
-      lantai: "Tanah",
-      dinding: "Bambu/GRC",
-      atap: "Seng",
-      air: "Sungai/Mata Air",
-      sanitasi: "Tidak Ada",
-      listrik: "Tidak Ada",
-      kepemilikanAset: [],
-    },
-    kategoriKesejahteraan: "Pra Sejahtera",
-    anggota: [
-      {
-        id: "e1", nik: "3275011208800009", nama: "Bambang Suryono", jenisKelamin: "L",
-        tanggalLahir: "1980-08-12", statusKeluarga: "Kepala Keluarga",
-        pekerjaan: "Pekerja Migran / TKI", bantuan: [], status: "Hidup",
-        disabilitas: false, statusKependudukan: "Perantau Tidak Diketahui",
-        statusKawin: "Kawin", agama: "Islam", partisipasiLingkungan: [],
-        kerentananSosial: ["Perantau Tak Terlacak"],
-      },
-      {
-        id: "e2", nik: "3275015309850010", nama: "Sri Mulyati", jenisKelamin: "P",
-        tanggalLahir: "1985-09-13", statusKeluarga: "Istri",
-        pekerjaan: "Buruh Harian Lepas", bantuan: ["pkh", "bpnt"], status: "Hidup",
-        disabilitas: false, statusKependudukan: "Warga Tetap",
-        statusKawin: "Kawin", agama: "Islam", partisipasiLingkungan: ["PKK"],
-        kerentananSosial: ["Istri Perantau"],
-      },
-      {
-        id: "e3", nik: "3275016110150021", nama: "Rina Andini", jenisKelamin: "P",
-        tanggalLahir: "2015-10-01", statusKeluarga: "Anak", pendidikan: "SD / MI",
-        pekerjaan: "Pelajar", bantuan: [], status: "Hidup", disabilitas: false,
-        statusKependudukan: "Warga Tetap", statusKawin: "Belum Kawin", agama: "Islam",
-        kerentananSosial: ["Anak Perantau"],
-      },
-      {
-        id: "e4", nik: "3275015507100033", nama: "Joko Santoso", jenisKelamin: "L",
-        tanggalLahir: "2010-07-05", statusKeluarga: "Anak", pendidikan: "SMP / MTs",
-        pekerjaan: "Pelajar", bantuan: ["kip"], status: "Hidup",
-        disabilitas: true, jenisDisabilitas: "Tuna Rungu", kebutuhanKhusus: "Alat Bantu Dengar",
-        statusKependudukan: "Warga Tetap", statusKawin: "Belum Kawin", agama: "Islam",
-        kerentananSosial: ["Difabel", "Anak Perantau"],
-      },
-    ],
-  },
 ];
-
 const DataKK: React.FC = () => {
   const [kkFile, setKKFile] = useState<File | null>(null);
   const [kkFileUrl, setKKFileUrl] = useState<string | null>(null);
@@ -413,7 +315,6 @@ const DataKK: React.FC = () => {
   const [selectedAnggota, setSelectedAnggota] = useState<Anggota | null>(null);
   const [filterNoKK, setFilterNoKK] = useState<string>("all");
   const [filterRT, setFilterRT] = useState<string>("all");
-  const [selectedAnggotaDetail, setSelectedAnggotaDetail] = useState<Anggota | null>(null);
   const [formKK, setFormKK] = useState<{
     noKK: string;
     kepalaKeluarga: string;
@@ -464,8 +365,7 @@ const DataKK: React.FC = () => {
     partisipasiLingkungan: [],
     kerentananSosial: [] // default
   });
-  const [filterGender, setFilterGender] = useState("all");
-  const [filterUsia, setFilterUsia] = useState("all");
+  const [selectedAnggotaDetail, setSelectedAnggotaDetail] = useState<Anggota | null>(null);
 
   // Tambahkan state ini di dalam komponen DataKK
   const [dropdownOpen, setDropdownOpen] = useState({
@@ -497,89 +397,49 @@ const DataKK: React.FC = () => {
 
   // Load & Save
   useEffect(() => {
-    setKKList(DEMO_DATA);
-    // const saved = localStorage.getItem("dataKK");
-    // if (saved?.length > 0) {
-    //   console.log('saved', saved)
-    //   setKKList(JSON.parse(saved));
-    // } else {
-    //   localStorage.setItem("dataKK", JSON.stringify(DEMO_DATA));
-    // }
+    const saved = localStorage.getItem("dataKK");
+    if (saved?.length > 0) {
+      setKKList(JSON.parse(saved));
+    } else {
+      setKKList(DEMO_DATA);
+      localStorage.setItem("dataKK", JSON.stringify(DEMO_DATA));
+    }
   }, []);
 
   useEffect(() => {
     localStorage.setItem("dataKK", JSON.stringify(kkList));
-  }, []);
+  }, [kkList]);
 
-  // === OTOMATIS ISI FORM SAAT EDIT KK ===
-  useEffect(() => {
-    if (editKK && showModalKK) {
-      setFormKK({
-        noKK: editKK.noKK || "",
-        kepalaKeluarga: editKK.kepalaKeluarga || "",
-        alamat: editKK.alamat || "",
-        noRumah: editKK.noRumah || "",
-        rt: editKK.rt || "",
-        rw: editKK.rw || "",
-        isSementara: editKK.isSementara || false,
-        koordinat: editKK.koordinat || "",
-        alamatLengkap: editKK.alamatLengkap || "",
-        statusHunian: editKK.statusHunian || "Milik Sendiri",
-        pemilikRumah: editKK.pemilikRumah || "",
-        kondisiRumah: {
-          lantai: editKK.kondisiRumah?.lantai || "Keramik",
-          dinding: editKK.kondisiRumah?.dinding || "Tembok/Bata",
-          atap: editKK.kondisiRumah?.atap || "Genteng/Beton",
-          air: editKK.kondisiRumah?.air || "PDAM",
-          sanitasi: editKK.kondisiRumah?.sanitasi || "Jamban Sendiri + Septic Tank",
-          listrik: editKK.kondisiRumah?.listrik || "PLN 900VA",
-          kepemilikanAset: editKK.kondisiRumah?.kepemilikanAset || [],
-        },
-        kategoriKesejahteraan: editKK.kategoriKesejahteraan || "Sejahtera II",
-        kepemilikanDokumenLengkap: editKK.kepemilikanDokumenLengkap ?? true,
-      });
-
-      // Juga isi preview file KK & Foto Rumah
-      setKKFileUrl(editKK.fileUrl || null);
-      setFotoRumahUrl(editKK.fotoRumahUrl || null);
-    } else if (!showModalKK) {
-      // Reset form saat modal ditutup
-      resetFormKK();
-    }
-  }, [editKK, showModalKK]);
-
-  // Filter utama
   const filteredData = useMemo(() => {
-    return kkList.filter(kk => {
-      // Search
-      const matchesSearch = search === "" ||
-        kk.noKK.includes(search) ||
-        kk.kepalaKeluarga.toLowerCase().includes(search.toLowerCase()) ||
-        kk.alamat.toLowerCase().includes(search.toLowerCase());
+    let data = kkList;
 
-      // Filter RT
-      const matchesRT = filterRT === "all" || kk.rt === filterRT;
+    // Filter RT
+    if (filterRT !== "all") {
+      data = data.filter((k) => k.rt === filterRT);
+    }
 
-      // Filter Gender & Usia (dihitung dari semua anggota)
-      let matchesGenderUsia = true;
-      if (filterGender !== "all" || filterUsia !== "all") {
-        const anggotaMatch = kk.anggota.some(a => {
-          const matchGender = filterGender === "all" || a.jenisKelamin === filterGender;
-          let matchUsia = true;
-          if (filterUsia !== "all") {
-            const usia = hitungUsia(a.tanggalLahir || "");
-            if (filterUsia === "0-17") matchUsia = usia <= 17;
-            if (filterUsia === "18-59") matchUsia = usia >= 18 && usia <= 59;
-            if (filterUsia === "60+") matchUsia = usia >= 60;
-          }
-          return matchGender && matchUsia;
-        });
-        matchesGenderUsia = anggotaMatch;
-      }
+    // Filter Status Hunian
+    if (filterStatusHunian !== "all") {
+      data = data.filter((k) => k.statusHunian === filterStatusHunian);
+    }
 
-      return matchesSearch && matchesRT && matchesGenderUsia;
-    });
-  }, [kkList, search, filterRT, filterGender, filterUsia]);
+    // Filter Desil / Kategori Kesejahteraan
+    if (filterDesil !== "all") {
+      data = data.filter((k) => k.kategoriKesejahteraan === filterDesil);
+    }
+
+    // Search
+    if (search) {
+      data = data.filter(
+        (item) =>
+          item.noKK.toLowerCase().includes(search.toLowerCase()) ||
+          item.kepalaKeluarga.toLowerCase().includes(search.toLowerCase()) ||
+          item.alamat.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    return data;
+  }, [kkList, search, filterRT, filterStatusHunian, filterDesil]);
 
   const isAnyFilterActive = useMemo(() => {
     return (
@@ -705,7 +565,6 @@ const DataKK: React.FC = () => {
       ...kk,
       anggota: Array.isArray(kk.anggota) ? kk.anggota : []
     };
-    console.log(safeKK)
     setSelectedKK(safeKK);
     setShowSidebar(true);
   };
@@ -731,30 +590,15 @@ const DataKK: React.FC = () => {
   };
   const navigate = useNavigate();
 
-  const openEditAnggota = (anggota: Anggota) => {
-    navigate(`/admin/anggota/edit/${anggota.id}`);
-  };
-
-  const openEditAnggotaFromSidebar = (anggota: Anggota) => {
-    setEditAnggota(anggota);
-    setFormAnggota({
-      ...anggota,
-      // pastikan array tidak null
-      bantuan: anggota.bantuan || [],
-      partisipasiLingkungan: anggota.partisipasiLingkungan || [],
-      kerentananSosial: anggota.kerentananSosial || [],
-      kelengkapanArsipRT: anggota.kelengkapanArsipRT || [],
-      mutasi: anggota.mutasi || [],
-    });
-    setKtpFileUrl(anggota.ktpUrl || null);
-    setShowModalAnggota(true);
-  };
+//   const openEditAnggota = (anggota: Anggota) => {
+//     navigate(`/admin/anggota/edit/${anggota.id}`);
+//   };
 
   const openProfilAnggota = (anggota: Anggota) => {
     setSelectedAnggotaDetail(anggota);
     setShowSidebar(true); // pakai sidebar yang sama, tapi isi beda
-  };
-  
+    };
+
   const handleSubmitAnggota = () => {
     if (!formAnggota.nik?.trim() || !formAnggota.nama?.trim()) {
       alert("NIK dan Nama wajib diisi!");
@@ -879,12 +723,14 @@ const DataKK: React.FC = () => {
       return () => window.removeEventListener("keydown", handleEsc);
     }
   }, [showKKZoom]);
-  
   // === DAFTAR RT YANG ADA ===
   const daftarRT = useMemo(() => {
-    const set = new Set(kkList.map(k => k.rt));
-    return Array.from(set).sort();
-  }, []);
+    const rtSet = new Set<string>();
+    kkList.forEach(kk => {
+      if (kk.rt) rtSet.add(kk.rt);
+    });
+    return Array.from(rtSet).sort();
+  }, [kkList]);
 
 
   // Utils: Format tanggal Indonesia (contoh: 15 Agustus 1945)
@@ -1066,9 +912,69 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
 
   return (
     <div className="relative min-h-screen">
+      {/* Widget */}
+      <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
+        <Widget icon={<MdFamilyRestroom className="h-7 w-7" />} title="Total KK" subtitle={kkList.length.toString()} />
+        <Widget icon={<MdFamilyRestroom className="h-7 w-7" />} title="Resmi" subtitle={kkList.filter(k => !k.isSementara).length.toString()} />
+        <Widget icon={<MdFamilyRestroom className="h-7 w-7" />} title="Sementara" subtitle={kkList.filter(k => k.isSementara).length.toString()} />
+        <Widget icon={<MdPerson className="h-7 w-7" />} title="Total Anggota" subtitle={kkList.reduce((a, b) => a + b.anggota.length, 0).toString()} />
+      </div>
+      {/* Header + Filter + Simpan */}
+      {/* <div className="mt-8 bg-white p-4 rounded-xl shadow flex flex-col md:flex-row md:items-end gap-4">
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+          <div>
+            <label className="block font-medium mb-2 text-gray-700">Filter berdasarkan RT</label>
+            <select
+              value={filterRT}
+              onChange={(e) => setFilterRT(e.target.value)}
+              className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value="all">Semua RT</option>
+              {daftarRT.map(rt => (
+                <option key={rt} value={rt}>RT {rt}</option>
+              ))}
+            </select>
+          </div>
+          
+          <div>
+            <label className="block font-medium mb-2 text-gray-700">Filter berdasarkan No. KK</label>
+            <select
+              value={filterNoKK}
+              onChange={(e) => setFilterNoKK(e.target.value)}
+              className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value="all">Semua KK</option>
+              {kkList.map((kk) => (
+                <option key={kk.noKK} value={kk.noKK}>
+                  {kk.noKK} ({kk.alamat.split(",")[0]})
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <button
+          onClick={() => generateAllKKPdf(kkList)}
+          className="px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-lg font-bold flex items-center gap-3 transition-all hover:brightness-90 active:scale-[0.98]"
+        >
+          <MdPictureAsPdf className="w-6 h-6" />
+          Export Semua KK ke PDF
+        </button>
+        <button
+          onClick={() => {
+            setEditKK(null);
+            setSelectedKK(null); 
+            resetFormKK();
+            setShowModalKK(true);
+          }}
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2 text-base font-medium shadow hover:bg-blue-700 transition whitespace-nowrap"
+        >
+          <MdAdd /> Tambah KK
+        </button>
+      </div> */}
 
       {/* === BARU: HEADER FILTER & SEARCH YANG LEBIH CANTIK & FUNGSIONAL === */}
-      <div className="mt-3 bg-white dark:bg-navy-800 p-6 rounded-2xl shadow-lg space-y-5">
+      <div className="mt-8 bg-white dark:bg-navy-800 p-6 rounded-2xl shadow-lg space-y-5">
         {/* BARIS 1: Search + Filter Utama (RT & Desil) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-end">
           {/* Search – lebar penuh di mobile, 1 kolom di desktop */}
@@ -1146,7 +1052,7 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
         </div>
 
         {/* BARIS 2: Tombol Aksi – selalu di bawah, rata kanan */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 border-t border-gray-200 dark:border-navy-700">
+        <div className="grid grid-cols-2 gap-3 pt-3 border-t border-gray-200 dark:border-navy-700">
           <button
             onClick={() => {
               setSearch("");
@@ -1176,27 +1082,24 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
 
           <button
             onClick={() => ExportToExcel()}
-            className="px-6 py-3 rounded-xl bg-green-500 hover:brightness-95 text-white font-semibold hover:from-green-700 hover:to-emerald-700 transition-all flex items-center justify-center gap-2 shadow-lg"
+            className="order-1 sm:order-2 px-6 py-3 rounded-xl bg-green-500 hover:brightness-95 text-white font-semibold hover:from-green-700 hover:to-emerald-700 transition-all flex items-center justify-center gap-2 shadow-lg"
           >
-            <MdFileDownload />
             Export Excel
-          </button>
-
-          <button
-            onClick={() => {
-              setEditKK(null);
-              setSelectedKK(null); 
-              resetFormKK();
-              setShowModalKK(true);
-            }}
-            className="px-6 py-2 justify-center bg-blue-600 text-white rounded-lg flex items-center gap-2 text-base font-medium shadow hover:bg-blue-700 transition whitespace-nowrap"
-          >
-            <MdAdd /> Tambah KK
           </button>
         </div>
       </div>
    
       <div className="mt-5">
+        <div className="relative">
+          <MdSearch className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Cari No KK, nama, atau alamat..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-xl border border-gray-200 bg-white pl-10 pr-4 py-3 text-sm shadow-sm focus:ring-2 focus:ring-brand-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white"
+          />
+        </div>
       </div>
       
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1206,6 +1109,87 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
             <p>Belum ada data KK.</p>
           </div>
         ) : (
+          // filteredData.map((item) => {
+          //   const bantuanSummary = getBantuanSummary(item);
+          //   const penerimaBantuan = item.anggota.filter(a => a.bantuan.length > 0).length;
+          //   const hidup = item.anggota.filter(a => a.status === "Hidup").length;
+          //   const meninggal = item.anggota.filter(a => a.status === "Meninggal").length;
+          //   const yatimPiatu = item.anggota.filter(a => a.yatim || a.piatu).length;
+          //   return (
+          //     <div key={item.id} onClick={() => openDetail(item)} className="group relative overflow-hidden rounded-2xl bg-white dark:bg-navy-800 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+              
+          //       <div className={`h-2 ${item.isSementara ? "bg-gradient-to-r from-orange-400 to-orange-600" : "bg-gradient-to-r from-brand-400 to-brand-600"}`} />
+          //       <div className="p-6">
+          //         <div className="flex justify-between items-start mb-4">
+          //           <div>
+          //             <h4 className="text-xl font-bold text-navy-700 dark:text-white flex items-center gap-2">
+          //               {item.noKK}
+          //               {item.isSementara && (
+          //                 <span className="inline-flex items-center gap-1 rounded-lg bg-orange-100 px-3 py-1 text-xs font-medium text-orange-700 dark:bg-orange-900 dark:text-orange-300">
+          //                   Sementara
+          //                 </span>
+          //               )}
+          //             </h4>
+          //             <p className="text-sm text-gray-600 dark:text-gray-300 mt-1"><strong>Kepala:</strong> {item.kepalaKeluarga}</p>
+          //           </div>
+          //           <MdArrowForwardIos className="h-5 w-5 text-gray-400 group-hover:text-brand-500 transition-colors" />
+          //         </div>
+          //         <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300 mb-4">
+          //           <p className="flex items-center gap-2"><MdPerson className="h-4 w-4" /> {item.alamat}</p>
+          //           <p className="flex items-center gap-2"><MdCheckCircle className="h-4 w-4" /> RT {item.rt} / RW {item.rw}</p>
+          //         </div>
+          //         <div className="flex flex-wrap gap-2 mb-3">
+          //           {["Bayi", "Balita", "Anak-anak", "Remaja", "Usia Produktif", "Lansia", "Lansia Risiko Tinggi"].map(k => {
+          //             const count = item.anggota.filter(a => {
+          //               if (a.status !== "Hidup") return false;
+          //               const usia = hitungUsia(a.tanggalLahir);
+          //               if (k === "Bayi") return usia < 1;
+          //               if (k === "Balita") return usia < 6;
+          //               if (k === "Anak-anak") return usia < 13;
+          //               if (k === "Remaja") return usia < 18;
+          //               if (k === "Usia Produktif") return usia < 56;
+          //               if (k === "Lansia") return usia < 70;
+          //               return usia >= 70;
+          //             }).length;
+          //             if (count === 0) return null;
+          //             const { icon, color } = kelompokUsia(k === "Bayi" ? 0 : k === "Balita" ? 3 : k === "Anak-anak" ? 10 : k === "Remaja" ? 15 : k === "Usia Produktif" ? 30 : k === "Lansia" ? 60 : 70);
+          //             return (
+          //               <span key={k} className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300`}>
+          //                 {icon} {count} {k}
+          //               </span>
+          //             );
+          //           })}
+          //           {yatimPiatu > 0 && (
+          //             <span className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
+          //               <MdInfo className="h-3 w-3" /> {yatimPiatu} Yatim/Piatu
+          //             </span>
+          //           )}
+          //         </div>
+          //         <div className="border-t border-gray-200 dark:border-navy-600 pt-3 mb-3">
+          //           <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-2">Bantuan: {penerimaBantuan} penerima</p>
+          //           {bantuanSummary.length === 0 ? (
+          //             <p className="text-xs text-gray-500 italic">Tidak ada bantuan</p>
+          //           ) : (
+          //             <div className="flex flex-wrap gap-1">
+          //               {bantuanSummary.map(b => (
+          //                 <span key={b.id} className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium ${b.color}`}>
+          //                   {b.nama} ×{b.count}
+          //                 </span>
+          //               ))}
+          //             </div>
+          //           )}
+          //         </div>
+          //         <div className="flex items-center justify-between text-xs">
+          //           <div className="flex gap-3">
+          //             <span className="flex items-center gap-1 text-green-600"><MdCheckCircle /> {hidup} Hidup</span>
+          //             {meninggal > 0 && <span className="flex items-center gap-1 text-red-600"><MdWarning /> {meninggal} Meninggal</span>}
+          //           </div>
+          //           <span className="font-bold text-brand-600 dark:text-brand-400">{item.anggota.length} anggota</span>
+          //         </div>
+          //       </div>
+          //     </div>
+          //   );
+          // })
             filteredData.map((item) => {
               const hidup = item.anggota.filter(a => a.status === "Hidup").length;
               const kepala = item.anggota.find(a => a.statusKeluarga === "Kepala Keluarga") || item.anggota[0];
@@ -1236,6 +1220,7 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
                           RT: {item.rt} <span className="mx-1">|</span> {item.alamat}
                         </p>
                       </div>
+                      <MdArrowForwardIos className="h-5 w-5 text-gray-400 group-hover:text-brand-500 transition-colors mt-1" />
                     </div>
 
                     {/* Baris 2: Kepala KK + Jumlah Anggota */}
@@ -1250,72 +1235,28 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
                     </div>
 
                     {/* Baris 3: Status Hunian + Desil */}
-                    <div className="flex items-center gap-2 text-sm font-medium">
-                      <span className="flex rounded-md p-2 bg-gray-100/50 border items-center gap-1">
-                        <span className="text-brand-600 dark:text-brand-400">{item.statusHunian || "—"}</span>
+                    <div className="flex items-center gap-4 text-sm font-medium">
+                      <span className="flex items-center gap-1">
+                        Status: <span className="text-brand-600 dark:text-brand-400">{item.statusHunian || "—"}</span>
                       </span>
                       <span className="text-gray-400">│</span>
-                      <span className="flex rounded-md p-2 bg-gray-100/50 border items-center gap-1">
-                        {' '}
+                      <span className="flex items-center gap-1">
+                        Desil:{' '}
                         <span className={`font-bold ${item.kategoriKesejahteraan?.includes('Pra') || item.kategoriKesejahteraan?.includes('I') ? 'text-red-600' : 'text-green-600'}`}>
                           {item.kategoriKesejahteraan || "—"}
                         </span>
                       </span>
                       {/* Rumah Tidak Layak Huni */}
-                      {/* {item.statusHunian === "Rumah Tidak Layak Huni" && (
+                      {item.statusHunian === "Rumah Tidak Layak Huni" && (
                         <span className="text-red-600 font-bold">Tidak Layak</span>
-                      )} */}
+                      )}
                     </div>
 
                     {/* Tombol Lihat Detail */}
-                    <div className="mt-6 pt-5 border-t border-gray-200 dark:border-navy-700">
-                      <button
-                        onClick={() => openDetail(item)}
-                        className="
-                          group relative w-full px-6 py-4 
-                          bg-gradient-to-r from-brand-500/5 via-brand-500/10 to-brand-500/5
-                          hover:from-brand-500/10 hover:via-brand-500/20 hover:to-brand-500/10
-                          dark:from-brand-500/10 dark:via-brand-500/20 dark:to-brand-500/10
-                          rounded-2xl 
-                          border border-brand-200/50 dark:border-brand-700/50
-                          backdrop-blur-sm
-                          transition-all duration-300 ease-out
-                          hover:shadow-lg hover:shadow-brand-500/20
-                          hover:border-brand-400/70
-                          active:scale-[0.98]
-                          overflow-hidden
-                        "
-                      >
-                        {/* Background glow effect */}
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                          <div className="absolute inset-0 bg-gradient-to-r from-brand-400/20 to-transparent blur-xl" />
-                        </div>
-
-                        <div className="relative flex items-center justify-between">
-                          <span className="
-                            text-sm font-semibold 
-                            text-brand-700 dark:text-brand-300 
-                            group-hover:text-brand-800 dark:group-hover:text-brand-200 
-                            transition-colors
-                          ">
-                            Lihat Detail KK
-                          </span>
-
-                          {/* Panah yang bergerak halus */}
-                          <div className="flex items-center gap-2">
-                            <MdArrowForwardIos className="
-                              w-4 h-4 text-brand-600 dark:text-brand-400 
-                              translate-x-0 group-hover:translate-x-2 
-                              transition-transform duration-300
-                            " />
-                          </div>
-                        </div>
-
-                        {/* Ripple effect saat klik (opsional, tambah aja kalau suka) */}
-                        <span className="absolute inset-0 -z-10">
-                          <span className="absolute inset-0 bg-brand-400/20 scale-0 rounded-full transition-transform duration-300 active:scale-150" />
-                        </span>
-                      </button>
+                    <div className="mt-5 pt-4 border-t border-gray-200 dark:border-navy-700">
+                      <p className="text-sm font-semibold text-brand-600 dark:text-brand-400 group-hover:underline">
+                        [Lihat Detail KK →]
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -1324,117 +1265,634 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
         )}
       </div>
 
-      {/* SIDEBAR SMART — BISA DETAIL KK ATAU DETAIL ANGGOTA (SATU SIDEBAR SAJA!) */}
+      {/* === SIDEBAR DETAIL – VERSI MODERN & SOFT === */}
+      {/* <div
+          className={`fixed inset-y-0 right-0 w-full md:w-[82vw] bg-white/95 dark:bg-navy-900/95 backdrop-blur-xl shadow-2xl transform transition-all duration-500 ease-out z-50 ${
+            showSidebar ? "translate-x-0" : "translate-x-full"
+          } flex flex-col`}
+        >
+          {selectedKK && (
+            <>
+              <div className="sticky top-0 z-10 bg-gradient-to-b from-white/80 to-white dark:from-navy-900/90 dark:to-navy-900 backdrop-blur-md border-b border-gray-200/60 dark:border-navy-700/60 px-6 py-5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                      KK {selectedKK.noKK}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      {selectedKK.kepalaKeluarga}
+                    </p>
+                  </div>
+                  <button
+                    onClick={closeSidebar}
+                    className="p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-navy-800 transition-all duration-200 group"
+                  >
+                    <MdClose className="w-6 h-6 text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto px-6 py-6 space-y-7">
+                <div className="group">
+                  <p className="text-xs font-semibold text-black dark:text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <MdDescription className="w-4 h-4" />
+                    Dokumen Kartu Keluarga
+                  </p>
+                  {selectedKK.fileUrl ? (
+                    <div
+                      onClick={() => setShowKKZoom(true)}
+                      className="bg-white dark:bg-navy-800 rounded-2xl border border-gray-200/80 dark:border-navy-700/60 overflow-hidden cursor-pointer transition-all duration-300"
+                    >
+                      <div className="p-5 flex items-center gap-4">
+                        <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 dark:bg-navy-700 border-2 border-dashed border-gray-300 dark:border-navy-600 flex-shrink-0">
+                          {selectedKK.fileType?.startsWith("image/") ? (
+                            <img src={selectedKK.fileUrl} alt="KK" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400">
+                              <MdPictureAsPdf className="w-10 h-10" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900 dark:text-white truncate">
+                            {selectedKK.fileName || "Dokumen KK"}
+                          </p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            {selectedKK.fileType?.includes("pdf") ? "PDF" : "Gambar"}
+                          </p>
+                        </div>
+                        <MdZoomIn className="w-9 h-9 text-gray-400 group-hover:text-brand-500 transition-colors" />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-amber-50/70 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-2xl p-5 text-center">
+                      <MdWarning className="w-10 h-10 mx-auto mb-3 text-amber-600 dark:text-amber-400" />
+                      <p className="text-sm text-amber-800 dark:text-amber-300">Belum ada dokumen KK</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/20 rounded-2xl p-6 border border-blue-200/50 dark:border-blue-800/40">
+                  <h4 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2 mb-4">
+                    <MdHome className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                    Informasi Rumah
+                  </h4>
+                  <div className="space-y-3 md:space-y-0 md:gap-4 md:flex items-center justify-start text-sm">
+                    {selectedKK.fotoRumahUrl && (
+                    <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 dark:bg-navy-700 border-2 border-dashed border-gray-300 dark:border-navy-600 flex-shrink-0">
+                      <img
+                        src={selectedKK.fotoRumahUrl}
+                        alt="Rumah"
+                        className="rounded-xl w-full object-cover max-h-64 shadow-md"
+                      />
+                    </div>
+                    )}
+
+                    {selectedKK.noRumah && (
+                      <p className="bg-white border rounded-lg p-3 border-blue-200 flex items-center gap-2 whitespace-nowrap">
+                        <MdHomeWork className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <span className="font-bold text-blue-700 dark:text-blue-300">
+                          No. {selectedKK.noRumah}
+                        </span>
+                      </p>
+                    )}
+                    {selectedKK.alamat && (
+                      <p className="bg-white border rounded-lg p-3 border-blue-200 flex items-start gap-2">
+                        <MdLocationPin className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                        <span className="text-gray-700 dark:text-gray-300">
+                          {selectedKK.alamat} RT {selectedKK.rt}/RW {selectedKK.rw}
+                        </span>
+                      </p>
+                    )}
+                    {selectedKK.koordinat && (
+                      <p className="bg-white border rounded-lg p-3 border-blue-200 flex items-center gap-2">
+                        <MdMap className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <a
+                          href={`https://maps.google.com/?q=${selectedKK.koordinat}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-blue-600 dark:text-blue-400 underline hover:no-underline"
+                        >
+                          {selectedKK.koordinat}
+                        </a>
+                      </p>
+                    )}
+                    <p className="bg-white border rounded-lg p-3 border-blue-200 flex items-center gap-2">
+                      <MdHomeWork className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      <span>
+                        <strong>{selectedKK.statusHunian}</strong>
+                        {selectedKK.pemilikRumah && ` • Pemilik: ${selectedKK.pemilikRumah}`}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <button
+                    onClick={() => {
+                      setEditKK(selectedKK);
+                      setFormKK({
+                        noKK: selectedKK.noKK,
+                        kepalaKeluarga: selectedKK.kepalaKeluarga,
+                        alamat: selectedKK.alamat,
+                        rt: selectedKK.rt,
+                        noRumah: selectedKK.noRumah || "",
+                        rw: selectedKK.rw,
+                        isSementara: selectedKK.isSementara || false,
+                        koordinat: selectedKK.koordinat || "",
+                        alamatLengkap: selectedKK.alamatLengkap || "",
+                        statusHunian: selectedKK.statusHunian || "Milik Sendiri",
+                        pemilikRumah: selectedKK.pemilikRumah || "",
+                        kondisiRumah: selectedKK.kondisiRumah || {
+                          lantai: "Keramik",
+                          dinding: "Tembok/Bata",
+                          atap: "Genteng/Beton",
+                          air: "PDAM",
+                          sanitasi: "Jamban Sendiri + Septic Tank",
+                          listrik: "PLN 900VA",
+                          kepemilikanAset: [],
+                        },
+                        kategoriKesejahteraan: selectedKK.kategoriKesejahteraan || "Sejahtera II",
+                        kepemilikanDokumenLengkap: selectedKK.kepemilikanDokumenLengkap || true,
+                      });
+                      setKKFileUrl(selectedKK.fileUrl || null);
+                      setFotoRumahUrl(selectedKK.fotoRumahUrl || null);
+                      setShowModalKK(true);
+                    }}
+              className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 text-white font-medium shadow-lg hover:shadow-xl hover:brightness-[90%] active:scale-[0.98] transition-all duration-300"
+            >
+              <MdEdit className="w-6 h-6" />
+              <span className="text-xs">Perbarui</span>
+            </button>
+
+            <button
+              onClick={() => generateSingleKKPdf(selectedKK, selectedKK.anggota)}
+              className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-red-500 to-pink-600 text-white font-medium shadow-lg hover:shadow-xl hover:brightness-[90%] active:scale-[0.98] transition-all duration-300"
+            >
+              <MdFileDownload className="w-6 h-6" />
+              <span className="text-xs">Unduh PDF</span>
+            </button>
+
+            <button
+              onClick={() => handleDeleteKK(selectedKK.id)}
+              className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 text-white font-medium shadow-lg hover:shadow-xl hover:brightness-[90%] active:scale-[0.98] transition-all duration-300"
+            >
+              <MdDelete className="w-6 h-6" />
+              <span className="text-xs">Hapus</span>
+            </button>
+
+            <button
+              onClick={openTambahAnggota}
+              className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 text-white font-medium shadow-lg hover:shadow-xl hover:brightness-[90%] active:scale-[0.98] transition-all duration-300"
+            >
+              <MdPersonAdd className="w-6 h-6" />
+              <span className="text-xs">Tambah Anggota</span>
+            </button>
+          </div>
+
+          <div>
+            {(!selectedKK.anggota || selectedKK.anggota.length === 0) ? (
+              <div className="text-center py-12 bg-gray-50 dark:bg-navy-800/50 rounded-2xl">
+                <MdPeople className="mx-auto w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">Belum ada anggota</p>
+                <button
+                  onClick={openTambahAnggota}
+                  className="mt-4 text-brand-600 dark:text-brand-400 font-medium hover:underline"
+                >
+                  + Tambah anggota pertama
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-5 md:space-y-0 md:gap-6 grid grid-cols-1 md:grid-cols-2">
+                {selectedKK.anggota.map((a) => {
+                  const usia = hitungUsia(a.tanggalLahir || "");
+                  const { icon: iconUsia, color: colorUsia } = kelompokUsia(usia);
+                  const isMeninggal = a.status === "Meninggal";
+
+                  return (
+                  <div
+                      key={a.id}
+                      className={`rounded-2xl overflow-hidden border transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${
+                        isMeninggal
+                          ? "border-red-200/80 bg-gradient-to-br from-red-50/70 to-red-100/50 dark:from-red-900/30 dark:to-red-800/20"
+                          : "border-gray-200/70 bg-white/95 dark:border-navy-700/60 dark:bg-navy-800/90"
+                      }`}
+                    >
+                      <div className="relative">
+                        {isMeninggal && (
+                          <div className="absolute inset-0 bg-gradient-to-t from-red-600/70 via-red-600/20 to-transparent backdrop-blur-sm flex items-center justify-center z-10">
+                            <span className="text-white font-bold text-2xl tracking-wider px-4 py-2 bg-red-700/90 rounded-lg shadow-lg">
+                              <MdOutlinePersonOff className="inline w-5 h-5 mr-1" /> MENINGGAL
+                            </span>
+                          </div>
+                        )}
+                        {a.status === "Pindah" && (
+                          <div className="absolute inset-0 bg-gradient-to-t from-yellow-600/70 via-yellow-600/20 to-transparent backdrop-blur-sm flex items-center justify-center z-10">
+                            <span className="text-white font-bold text-2xl tracking-wider px-4 py-2 bg-yellow-700/90 rounded-lg shadow-lg">
+                              <MdOutlineLogout className="inline w-5 h-5 mr-1" /> PINDAH
+                            </span>
+                          </div>
+                        )}
+
+                        <div className="relative h-52 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-navy-700 dark:to-navy-800">
+                          {a.ktpUrl ? (
+                            a.ktpType?.startsWith("image/") ? (
+                              <img 
+                                src={a.ktpUrl} 
+                                alt={`KTP ${a.nama}`} 
+                                className="w-full h-full rounded-t-2xl object-cover group hover:brightness-[90%] active:scale-[0.98] transition-transform duration-300" 
+                                loading="lazy"
+                              />
+                            ) : (
+                              <div className="flex h-full items-center justify-center bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/50 dark:to-red-800/30">
+                                <a 
+                                  href={a.ktpUrl} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="group text-center transform hover:scale-110 transition-all duration-200"
+                                >
+                                  <div className="p-4 bg-white/80 dark:bg-navy-900/80 rounded-2xl shadow-lg">
+                                    <MdPictureAsPdf className="w-12 h-12 text-red-500 mx-auto mb-2" />
+                                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{a.ktpName || "KTP.pdf"}</p>
+                                    <p className="text-xs text-gray-500 mt-1">Klik untuk lihat</p>
+                                  </div>
+                                </a>
+                              </div>
+                            )
+                          ) : (
+                            <div
+                              onClick={() => openEditAnggota(a)}
+                              className="flex h-full flex-col items-center justify-center text-gray-400 cursor-pointer hover:bg-white/50 dark:hover:bg-navy-700/50 transition-all duration-200 rounded-t-2xl"
+                            >
+                              <div className="w-16 h-16 bg-gray-200 dark:bg-navy-600 rounded-lg flex items-center justify-center mb-3 shadow-md">
+                                <MdAddAPhoto className="w-8 h-8 text-gray-500" />
+                              </div>
+                              <p className="text-sm font-medium">Upload KTP</p>
+                              <p className="text-xs text-gray-400 mt-1">Opsional tapi disarankan</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="p-6 space-y-6">
+                        <div className="border-b border-gray-200/50 dark:border-navy-700/50 pb-4">
+                          <div className="md:flex justify-between items-start gap-4">
+                      
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              <div className={`p-2.5 rounded-xl shadow-sm ${
+                                a.jenisKelamin === "L" 
+                                  ? "bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30" 
+                                  : "bg-gradient-to-br from-pink-100 to-pink-200 dark:from-pink-900/30"
+                              }`}>
+                                {a.jenisKelamin === "L" ? (
+                                  <MdMale className="w-6 h-6 text-blue-600" />
+                                ) : (
+                                  <MdFemale className="w-6 h-6 text-pink-600" />
+                                )}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <h3 className="font-bold text-lg text-gray-900 dark:text-white truncate">{a.nama}</h3>
+                                <p className="text-xs text-gray-500 bg-gray-100 dark:bg-navy-700 px-2 py-1 rounded-lg w-fit">
+                                  NIK: {a.nik}
+                                </p>
+                              </div>
+                            </div>
+
+                          
+                            <div className="md:flex gap-2 md:gap-1.5 md:mt-0 mt-4 grid grid-cols-3">
+                              <button 
+                                onClick={() => openTagging(a)}
+                                className="flex items-center justify-center p-2.5 rounded-xl bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-600 transition-all duration-200 shadow-sm"
+                                title="Tag Bantuan"
+                              >
+                                <MdLocalOffer className="w-5 h-5" />
+                              </button>
+                              <button 
+                                onClick={() => openEditAnggota(a)}
+                                className="flex items-center justify-center p-2.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 text-amber-600 transition-all duration-200 shadow-sm"
+                                title="Edit Data"
+                              >
+                                <MdEdit className="w-5 h-5" />
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteAnggota(a.id)}
+                                className="flex items-center justify-center p-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 transition-all duration-200 shadow-sm"
+                                title="Hapus Anggota"
+                              >
+                                <MdDelete className="w-5 h-5" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                      
+                        <div className="space-y-4">
+                          <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2 uppercase tracking-wide">
+                            <MdInfo className="w-4 h-4" />
+                            Data Demografi
+                          </h4>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div className="space-y-1 border p-3 rounded-md">
+                              <span className="text-xs text-gray-500 block">Tempat/Tanggal Lahir</span>
+                              <p className="font-medium text-gray-900 dark:text-white">
+                                {a.tempatLahir}, {formatTanggal(a.tanggalLahir)}
+                              </p>
+                            </div>
+                            
+                            <div className="space-y-1 border p-3 rounded-md">
+                              <span className="text-xs text-gray-500 block">Usia</span>
+                              <div className="flex items-center gap-2">
+                                <strong className="text-gray-900 dark:text-white">{usia} tahun</strong>
+                                <span className={`px-2 py-1 rounded-lg text-xs font-medium ${colorUsia}`}>
+                                  {iconUsia}
+                                </span>
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-1 border p-3 rounded-md">
+                              <span className="text-xs text-gray-500 block">Agama</span>
+                              <p className="font-medium capitalize text-gray-900 dark:text-white">
+                                {a.agama || "—"}
+                              </p>
+                            </div>
+                            
+                            <div className="space-y-1 border p-3 rounded-md">
+                              <span className="text-xs text-gray-500 block">Status Perkawinan</span>
+                              <p className="font-medium capitalize text-gray-900 dark:text-white">
+                                {a.statusKawin}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                      
+                        {(a.yatim || a.piatu || a.statusKependudukan) && (
+                          <div className="space-y-3 pt-4 border-t border-gray-200/30 dark:border-navy-700/40">
+                            <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2 uppercase tracking-wide">
+                              <MdShield className="w-4 h-4" />
+                              Status Khusus
+                            </h4>
+                            
+                            <div className="flex flex-wrap gap-2">
+                              {a.yatim && (
+                                <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-gradient-to-r from-purple-100 to-purple-200 dark:from-purple-900/40 text-purple-700 dark:text-purple-300 shadow-sm">
+                                  <MdChildCare className="w-3.5 h-3.5" />
+                                  Yatim
+                                </span>
+                              )}
+                              
+                              {a.piatu && (
+                                <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-gradient-to-r from-purple-100 to-purple-200 dark:from-purple-900/40 text-purple-700 dark:text-purple-300 shadow-sm">
+                                  <MdChildCare className="w-3.5 h-3.5" />
+                                  Piatu
+                                </span>
+                              )}
+                              
+                              {a.statusKependudukan && (
+                                <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 dark:from-navy-700/60 text-gray-700 dark:text-gray-300 shadow-sm">
+                                  <MdVerifiedUser className="w-3.5 h-3.5" />
+                                  {a.statusKependudukan}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                    
+                        <div className="space-y-3 pt-4 border-t border-gray-200/30 dark:border-navy-700/40">
+                          <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2 uppercase tracking-wide">
+                            <MdLocalOffer className="w-4 h-4" />
+                            Bantuan & Dokumentasi
+                          </h4>
+                          
+                          <div className="grid grid-cols-1 gap-3">
+                            {a.bantuan?.length > 0 ? (
+                              <div className="space-y-1">
+                                <p className="text-xs text-gray-500 flex items-center gap-1">
+                                  <MdCardGiftcard className="w-3.5 h-3.5" />
+                                  Program Bantuan ({a.bantuan.length})
+                                </p>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                  {a.bantuan.map((bId) => {
+                                    const b = DAFTAR_BANTUAN.find(x => x.id === bId);
+                                    return b ? (
+                                      <span 
+                                        key={bId} 
+                                        className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium shadow-sm ${
+                                          b.color.includes('blue') ? 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 dark:from-blue-900/40 dark:text-blue-300' :
+                                          b.color.includes('green') ? 'bg-gradient-to-r from-green-100 to-green-200 text-green-700 dark:from-green-900/40 dark:text-green-300' :
+                                          b.color.includes('red') ? 'bg-gradient-to-r from-red-100 to-red-200 text-red-700 dark:from-red-900/40 dark:text-red-300' :
+                                          'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 dark:from-navy-700/60 dark:text-gray-300'
+                                        }`}
+                                      >
+                                        <MdCheckCircle className="w-3.5 h-3.5" />
+                                        {b.nama}
+                                      </span>
+                                    ) : null;
+                                  })}
+                                </div>
+                              </div>
+                            ) : (
+                              <p className="text-xs text-gray-400 italic flex items-center gap-1">
+                                <MdInfoOutline className="w-3.5 h-3.5" />
+                                Belum ada program bantuan
+                              </p>
+                            )}
+
+                          
+                            {(a.kelengkapanArsipRT?.length || 0) > 0 && (
+                              <div className="space-y-1">
+                                <p className="text-xs text-gray-500 flex items-center gap-1">
+                                  <MdArchive className="w-3.5 h-3.5" />
+                                  Dokumen Arsip RT ({a.kelengkapanArsipRT?.length || 0})
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                  {a.kelengkapanArsipRT?.map((doc, idx) => (
+                                    <span 
+                                      key={idx}
+                                      className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-700 dark:from-emerald-900/40 dark:text-emerald-300 shadow-sm"
+                                    >
+                                      <MdCheck className="w-3.5 h-3.5" />
+                                      {doc}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {a.keterangan && (
+                          <div className="pt-4 border-t border-gray-200/30 dark:border-navy-700/40">
+                            <h5 className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2 flex items-center gap-1">
+                              <MdNotes className="w-3.5 h-3.5" />
+                              Catatan Tambahan
+                            </h5>
+                            <p className="text-xs text-gray-600 dark:text-gray-400 italic bg-gray-50 dark:bg-navy-700/50 p-3 rounded-xl">
+                              "{a.keterangan}"
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </>
+    )}
+      </div> */}
+
+      {/* === SIDEBAR DETAIL KK – VERSI SESUAI LAYOUT ASCII === */}
+      {/* SIDEBAR DETAIL KK – VERSI SUPER RAPIH, SOFT & MODERN */}
       <div
-        className={`fixed inset-y-0 right-0 w-full md:w-[60vw] max-w-[100vw] md:pb-0 pb-8 bg-white dark:bg-gray-900 shadow-2xl transform transition-transform duration-500 ease-out z-50 overflow-y-auto ${
+        className={`fixed inset-y-0 right-0 w-full md:w-[60vw] max-w-[60vw] bg-white dark:bg-gray-900 shadow-2xl transform transition-transform duration-500 ease-out z-50 overflow-y-auto ${
           showSidebar ? "translate-x-0" : "translate-x-full"
         } flex flex-col`}
       >
-        {/* === MODE: DETAIL ANGGOTA (kalau selectedAnggotaDetail ada) === */}
+        {/* SIDEBAR — BISA DETAIL KK ATAU DETAIL ANGGOTA (SMART!) */}
+        <div
+        className={`fixed inset-y-0 right-0 w-full md:w-[60vw] max-w-[60vw] bg-white dark:bg-gray-900 shadow-2xl transform transition-transform duration-500 ease-out z-50 overflow-y-auto ${
+            showSidebar ? "translate-x-0" : "translate-x-full"
+        } flex flex-col`}
+        >
+        {/* ==================== DETAIL ANGGOTA (kalau lagi buka profil anggota) ==================== */}
         {selectedAnggotaDetail ? (
-          <>
-            {/* Header Profil Anggota */}
+            <>
+            {/* Header */}
             <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-5 z-10">
-              <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between">
                 <button
-                  onClick={() => {
-                    setSelectedAnggotaDetail(null);
-                    // Kembali ke detail KK, bukan tutup sidebar
-                  }}
-                  className="flex items-center gap-3 text-lg font-semibold text-brand-600 hover:text-brand-700 transition"
+                    onClick={closeSidebar}
+                    className="flex items-center gap-3 text-lg font-semibold text-brand-600 hover:text-brand-700 transition"
                 >
-                  <MdArrowBackIosNew className="w-5 h-5" />
-                  Kembali ke KK
+                    <MdArrowBackIosNew className="w-5 h-5" />
+                    Kembali
                 </button>
                 <button onClick={closeSidebar} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800">
-                  <MdClose className="w-6 h-6 text-gray-500" />
+                    <MdClose className="w-6 h-6 text-gray-500" />
                 </button>
-              </div>
+                </div>
             </div>
 
-            <div className="flex-1 px-6 py-8 space-y-10 overflow-y-auto">
-              {/* Avatar + Nama Besar */}
-              <div className="text-center">
+            <div className="flex-1 px-6 py-8 overflow-y-auto pb-10">
+                {/* Avatar + Nama Besar */}
+                <div className="text-center mb-10">
                 <div className="w-36 h-36 mx-auto bg-gradient-to-br from-brand-500 to-brand-700 rounded-full flex items-center justify-center text-white text-6xl font-black shadow-2xl">
-                  {selectedAnggotaDetail.nama.charAt(0).toUpperCase()}
+                    {selectedAnggotaDetail.nama.charAt(0).toUpperCase()}
                 </div>
                 <h1 className="text-4xl font-black text-gray-800 dark:text-white mt-6">
-                  {selectedAnggotaDetail.nama}
+                    {selectedAnggotaDetail.nama}
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-400 mt-2">
-                  {hitungUsia(selectedAnggotaDetail.tanggalLahir || "")} tahun •{" "}
-                  {selectedAnggotaDetail.jenisKelamin === "L" ? "Laki-laki" : "Perempuan"}
+                    {hitungUsia(selectedAnggotaDetail.tanggalLahir || "")} tahun •{" "}
+                    {selectedAnggotaDetail.jenisKelamin === "L" ? "Laki-laki" : "Perempuan"}
                 </p>
-                <p className="text-sm font-medium text-gray-500 mt-3">
-                  {selectedAnggotaDetail.statusKeluarga} • NIK: {selectedAnggotaDetail.nik}
+                <p className="text-sm text-gray-500 mt-3 font-medium">
+                    {selectedAnggotaDetail.statusKeluarga} • KK: {selectedKK?.noKK}
                 </p>
-              </div>
+                </div>
 
-              {/* Info Lengkap */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="bg-blue-50 dark:bg-blue-900/30 rounded-2xl p-5 border border-blue-200 dark:border-blue-700">
-                  <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Tempat, Tanggal Lahir</p>
-                  <p className="text-lg font-bold text-gray-800 dark:text-white mt-1">
+                {/* Grid Info Utama */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-2xl p-6 border border-blue-200 dark:border-blue-700">
+                    <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Tempat, Tanggal Lahir</p>
+                    <p className="text-xl font-bold text-gray-800 dark:text-white mt-2">
                     {selectedAnggotaDetail.tempatLahir || "—"}, {formatTanggal(selectedAnggotaDetail.tanggalLahir || "")}
-                  </p>
+                    </p>
                 </div>
-
-                <div className="bg-purple-50 dark:bg-purple-900/30 rounded-2xl p-5 border border-purple-200 dark:border-purple-700">
-                  <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Golongan Darah</p>
-                  <p className="text-3xl font-black text-gray-800 dark:text-white mt-1">
-                    {selectedAnggotaDetail.golonganDarah || "—"}
-                  </p>
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/30 rounded-2xl p-6 border border-purple-200 dark:border-purple-700">
+                    <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Golongan Darah</p>
+                    <p className="text-3xl font-black text-gray-800 dark:text-white mt-2">
+                    {selectedAnggotaDetail.golonganDarah || "Tidak Tahu"}
+                    </p>
                 </div>
-
-                <div className="bg-emerald-50 dark:bg-emerald-900/30 rounded-2xl p-5 border border-emerald-200 dark:border-emerald-700">
-                  <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Pendidikan</p>
-                  <p className="text-lg font-bold text-gray-800 dark:text-white mt-1">
+                <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-emerald-900/30 rounded-2xl p-6 border border-emerald-200 dark:border-emerald-700">
+                    <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Pendidikan</p>
+                    <p className="text-lg font-bold text-gray-800 dark:text-white mt-2">
                     {selectedAnggotaDetail.pendidikan || "—"}
-                  </p>
+                    </p>
                 </div>
-
-                <div className="bg-amber-50 dark:bg-amber-900/30 rounded-2xl p-5 border border-amber-200 dark:border-amber-700">
-                  <p className="text-sm font-medium text-amber-700 dark:text-amber-300">Pekerjaan</p>
-                  <p className="text-lg font-bold text-gray-800 dark:text-white mt-1">
+                <div className="bg-gradient-to-br from-orange-50 to-amber-100 dark:from-amber-900/30 rounded-2xl p-6 border border-amber-200 dark:border-amber-700">
+                    <p className="text-sm font-medium text-amber-700 dark:text-amber-300">Pekerjaan</p>
+                    <p className="text-lg font-bold text-gray-800 dark:text-white mt-2">
                     {selectedAnggotaDetail.pekerjaan || "—"}
-                  </p>
+                    </p>
                 </div>
-              </div>
-
-              {/* Foto KTP */}
-              {selectedAnggotaDetail.ktpUrl && (
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Foto KTP</p>
-                  <img
-                    src={selectedAnggotaDetail.ktpUrl}
-                    alt="KTP"
-                    className="w-full rounded-2xl shadow-lg border-4 border-gray-200 dark:border-gray-700 cursor-pointer hover:opacity-90 transition"
-                    onClick={() => window.open(selectedAnggotaDetail.ktpUrl, "_blank")}
-                  />
                 </div>
-              )}
 
-              {/* Tags Kerentanan, Bantuan, Partisipasi */}
-              <div className="space-y-6">
-                {renderTagsAnggota(selectedAnggotaDetail, hitungUsia(selectedAnggotaDetail.tanggalLahir || "")).length > 0 && (
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Status Sosial</p>
-                    <div className="flex flex-wrap gap-2">
-                      {renderTagsAnggota(selectedAnggotaDetail, hitungUsia(selectedAnggotaDetail.tanggalLahir || "")).map((tag, idx) => (
-                        <span key={idx} className={`px-3 py-1.5 rounded-full text-xs font-bold ${tag.color}`}>
-                          {tag.label}
+                {/* Bantuan Sosial */}
+                {selectedAnggotaDetail.bantuan && selectedAnggotaDetail.bantuan.length > 0 && (
+                <div className="mb-10">
+                    <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-5">Penerima Bantuan Sosial</h3>
+                    <div className="flex flex-wrap gap-3">
+                    {selectedAnggotaDetail.bantuan.map(id => {
+                        const b = DAFTAR_BANTUAN.find(x => x.id === id);
+                        return b ? (
+                        <span key={id} className={`px-5 py-3 rounded-full text-sm font-bold ${b.color}`}>
+                            {b.nama}
                         </span>
-                      ))}
+                        ) : null;
+                    })}
                     </div>
-                  </div>
+                </div>
                 )}
-              </div>
+
+                {/* Kerentanan Sosial */}
+                {selectedAnggotaDetail.kerentananSosial && selectedAnggotaDetail.kerentananSosial.length > 0 && (
+                <div className="p-6 bg-red-50 dark:bg-red-900/30 rounded-3xl border-2 border-red-300 dark:border-red-700 mb-10">
+                    <h3 className="text-2xl font-bold text-red-700 dark:text-red-400 mb-4">
+                    Status Kerentanan Sosial
+                    </h3>
+                    <div className="flex flex-wrap gap-3">
+                    {selectedAnggotaDetail.kerentananSosial.map(item => (
+                        <span key={item} className="px-5 py-3 bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-300 rounded-full font-bold">
+                        {item}
+                        </span>
+                    ))}
+                    </div>
+                </div>
+                )}
+
+                {/* Partisipasi Lingkungan */}
+                {selectedAnggotaDetail.partisipasiLingkungan && selectedAnggotaDetail.partisipasiLingkungan.length > 0 && (
+                <div className="mb-10">
+                    <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-5">Partisipasi Lingkungan</h3>
+                    <div className="flex flex-wrap gap-3">
+                    {selectedAnggotaDetail.partisipasiLingkungan.map(item => (
+                        <span key={item} className="px-5 py-3 bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300 rounded-full font-bold">
+                        {item}
+                        </span>
+                    ))}
+                    </div>
+                </div>
+                )}
+
+                {/* Foto KTP */}
+                {selectedAnggotaDetail.ktpUrl && (
+                <div className="mb-10">
+                    <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-5">Foto KTP</h3>
+                    <div className="relative group">
+                    <img
+                        src={selectedAnggotaDetail.ktpUrl}
+                        alt="KTP"
+                        className="w-full rounded-3xl shadow-2xl border-8 border-gray-200 dark:border-gray-700 cursor-zoom-in transition-transform group-hover:scale-[1.02]"
+                        onClick={() => window.open(selectedAnggotaDetail.ktpUrl, "_blank")}
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 rounded-3xl transition flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <p className="text-white font-bold text-lg">Klik untuk perbesar</p>
+                    </div>
+                    </div>
+                </div>
+                )}
             </div>
-          </>
+            </>
         ) : 
-        /* === MODE: DETAIL KK (default, sama persis seperti kode lama kamu) === */
+        /* ==================== DETAIL KK (versi lama, tetap jalan) ==================== */
         selectedKK && (
-         <>
+          <>
             {/* Header dengan tombol kembali */}
             <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-5 z-10">
               <div className="flex items-center justify-between">
@@ -1454,7 +1912,7 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
             <div className="flex-1 px-6 py-8 space-y-10">
               {/* Nomor KK - Judul Utama */}
               <div className="text-center">
-                <p className="text-md text-black/80 dark:text-gray-400 tracking-widest uppercase">Kartu Keluarga</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 tracking-widest uppercase">Kartu Keluarga</p>
                 <h1 className="text-3xl md:text-4xl font-black text-gray-800 dark:text-white mt-2 tracking-tight">
                   {selectedKK.noKK}
                 </h1>
@@ -1472,7 +1930,7 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-200 dark:border-gray-700">
                     <p className="text-xs text-gray-500 dark:text-gray-400">Status Rumah</p>
                     <p className="font-bold text-green-600">{selectedKK.statusHunian}</p>
@@ -1545,159 +2003,47 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
                     .filter(a => a.status === "Hidup")
                     .map((anggota, i) => {
                       const usia = hitungUsia(anggota.tanggalLahir || "");
-                      const tags = renderTagsAnggota(anggota, usia); // pastikan fungsi ini sudah ada & mengembalikan array tag
-
                       return (
                         <div
                           key={anggota.id}
-                          className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition"
+                          className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition"
                         >
-                          {/* Header - Nama + Status Keluarga */}
-                          <div className={`px-5 py-4 ${anggota.statusKeluarga === "Kepala Keluarga"
-                              ? "bg-gradient-to-r from-brand-600 to-brand-700 text-white"
-                              : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white"}`}
-                          >
-                            <p className="text-lg font-bold">
-                              {i + 1}. {anggota.nama.toUpperCase()} ({usia} th, {anggota.jenisKelamin === "L" ? "L" : "P"})
-                              {anggota.statusKeluarga === "Kepala Keluarga" && " — Kepala Keluarga"}
-                            </p>
+                          <div className={`px-5 py-4 ${anggota.statusKeluarga === "Kepala Keluarga" ? "bg-gradient-to-r from-brand-600 to-brand-700 text-white" : "bg-gray-100 dark:bg-gray-700"}`}>
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-lg font-bold">
+                                  {i + 1}. {anggota.nama}
+                                </p>
+                                <p className="text-sm opacity-90">
+                                  {usia} tahun • {anggota.jenisKelamin === "L" ? "Laki-laki" : "Perempuan"} • {anggota.statusKeluarga}
+                                </p>
+                              </div>
+                              {anggota.statusKeluarga === "Kepala Keluarga" && (
+                                <span className="bg-white/20 px-4 py-1 rounded-full text-xs font-bold">
+                                  Kepala Keluarga
+                                </span>
+                              )}
+                            </div>
                           </div>
 
-                          {/* Body */}
-                          <div className="p-5 space-y-4">
-                            <p className="font-mono text-sm text-gray-600 dark:text-gray-400">
-                              NIK : {anggota.nik}
-                            </p>
+                          <div className="p-5">
+                            <p className="font-mono text-sm text-gray-600 dark:text-gray-400">NIK: {anggota.nik}</p>
 
                             {/* Tags */}
-                            {tags.length > 0 && (
-                              <div className="space-y-2">
-                                <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                                  Status & Tags :
-                                </p>
-                                <div className="flex flex-wrap gap-2">
-                                  {tags.map((tag, idx) => (
-                                    <span
-                                      key={idx}
-                                      className={`px-3 py-1.5 rounded-full text-xs font-medium ${tag.color}`}
-                                    >
-                                      {tag.label}
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* DUA TOMBOL: Profil & Edit */}
-                            <div className="grid md:grid-cols-2 grid-cols-1 gap-3 mt-5">
-
-                            <div className="mt-6 pt-5 border-t border-gray-200 dark:border-navy-700">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();            // supaya tidak buka sidebar KK lagi
-                                  setSelectedAnggotaDetail(anggota);
-                                }}
-                                className="
-                                  group relative w-full px-6 py-4 
-                                  bg-gradient-to-r from-brand-500/5 via-brand-500/10 to-brand-500/5
-                                  hover:from-brand-500/10 hover:via-brand-500/20 hover:to-brand-500/10
-                                  dark:from-brand-500/10 dark:via-brand-500/20 dark:to-brand-500/10
-                                  rounded-2xl 
-                                  border border-brand-200/50 dark:border-brand-700/50
-                                  backdrop-blur-sm
-                                  transition-all duration-300 ease-out
-                                  hover:shadow-lg hover:shadow-brand-500/20
-                                  hover:border-brand-400/70
-                                  active:scale-[0.98]
-                                  overflow-hidden
-                                "
-                              >
-                                {/* Background glow effect */}
-                                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                  <div className="absolute inset-0 bg-gradient-to-r from-brand-400/20 to-transparent blur-xl" />
-                                </div>
-
-                                <div className="relative flex items-center justify-between">
-                                  <span className="
-                                    text-sm font-semibold 
-                                    text-brand-700 dark:text-brand-300 
-                                    group-hover:text-brand-800 dark:group-hover:text-brand-200 
-                                    transition-colors
-                                  ">
-                                    Lihat Profil Lengkap
-                                  </span>
-
-                                  {/* Panah yang bergerak halus */}
-                                  <div className="flex items-center gap-2">
-                                    <MdArrowForwardIos className="
-                                      w-4 h-4 text-brand-600 dark:text-brand-400 
-                                      translate-x-0 group-hover:translate-x-2 
-                                      transition-transform duration-300
-                                    " />
-                                  </div>
-                                </div>
-
-                                {/* Ripple effect saat klik (opsional, tambah aja kalau suka) */}
-                                <span className="absolute inset-0 -z-10">
-                                  <span className="absolute inset-0 bg-brand-400/20 scale-0 rounded-full transition-transform duration-300 active:scale-150" />
+                            <div className="flex flex-wrap gap-2 mt-4">
+                              {renderTagsAnggota(anggota, usia).map((tag, idx) => (
+                                <span key={idx} className={`px-3 py-1.5 rounded-full text-xs font-medium ${tag.color}`}>
+                                  {tag.label}
                                 </span>
-                              </button>
+                              ))}
                             </div>
 
-                            <div className="md:mt-6 md:pt-5 md:border-t border-gray-200 dark:border-navy-700">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  openEditAnggotaFromSidebar(anggota);
-                                }}
-                                className="
-                                  group relative w-full px-6 py-4 
-                                  bg-gradient-to-r from-brand-500/5 via-brand-500/10 to-brand-500/5
-                                  hover:from-brand-500/10 hover:via-brand-500/20 hover:to-brand-500/10
-                                  dark:from-brand-500/10 dark:via-brand-500/20 dark:to-brand-500/10
-                                  rounded-2xl 
-                                  border border-brand-200/50 dark:border-brand-700/50
-                                  backdrop-blur-sm
-                                  transition-all duration-300 ease-out
-                                  hover:shadow-lg hover:shadow-brand-500/20
-                                  hover:border-brand-400/70
-                                  active:scale-[0.98]
-                                  overflow-hidden
-                                "
-                              >
-                                {/* Background glow effect */}
-                                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                  <div className="absolute inset-0 bg-gradient-to-r from-brand-400/20 to-transparent blur-xl" />
-                                </div>
-
-                                <div className="relative flex items-center justify-between">
-                                  <span className="
-                                    text-sm font-semibold 
-                                    text-brand-700 dark:text-brand-300 
-                                    group-hover:text-brand-800 dark:group-hover:text-brand-200 
-                                    transition-colors
-                                  ">
-                                    Perbarui data
-                                  </span>
-
-                                  {/* Panah yang bergerak halus */}
-                                  <div className="flex items-center gap-2">
-                                    <MdArrowForwardIos className="
-                                      w-4 h-4 text-brand-600 dark:text-brand-400 
-                                      translate-x-0 group-hover:translate-x-2 
-                                      transition-transform duration-300
-                                    " />
-                                  </div>
-                                </div>
-
-                                {/* Ripple effect saat klik (opsional, tambah aja kalau suka) */}
-                                <span className="absolute inset-0 -z-10">
-                                  <span className="absolute inset-0 bg-brand-400/20 scale-0 rounded-full transition-transform duration-300 active:scale-150" />
-                                </span>
-                              </button>
-                            </div>
-
-                            </div>
+                            <button
+                              onClick={() => openProfilAnggota(anggota)}
+                              className="mt-5 text-brand-600 hover:text-brand-700 font-semibold text-sm flex items-center gap-2"
+                            >
+                              Lihat Profil Lengkap →
+                            </button>
                           </div>
                         </div>
                       );
@@ -1711,8 +2057,6 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
                   onClick={() => {
                     setEditKK(selectedKK);
                     setShowModalKK(true);
-                    setKKFileUrl(selectedKK?.fileUrl || null);
-                    setFotoRumahUrl(selectedKK?.fotoRumahUrl || null);
                   }}
                   className="bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-2xl shadow-lg transition transform hover:scale-105"
                 >
@@ -1735,17 +2079,20 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
             </div>
           </>
         )}
+        </div>
+        {/* {selectedKK && (
+        )} */}
       </div>
       
-      {showSidebar && <div onClick={closeSidebar} className="fixed inset-0 backdrop-blur-md bg-[rgba(0,0,0,0.6)] z-40 transition-opacity" />}
+      {showSidebar && <div onClick={closeSidebar} className="fixed inset-0 bg-[rgba(0,0,0,0.6)] z-40 transition-opacity" />}
      
       {/* === MODAL TAMBAH/EDIT KK === */}
       {showModalKK && (
-        <div className="fixed right inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.6)]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.6)]">
           {/* DIV INI TIDAK DIUBAH */}
-          <div className="absolute w-[90vw] mx-auto right-0 h-screen overflow-auto md:w-[44vw] bg-white dark:bg-navy-800 rounded-2xl shadow-2xl pb-6">
+          <div className="w-[90vw] mx-auto md:w-full max-w-6xl max-h-[90vh] overflow-y-auto bg-white dark:bg-navy-800 rounded-2xl shadow-2xl pb-6">
             {/* HEADER TIDAK DIUBAH */}
-            <div className="sticky top-0 bg-white  dark:bg-navy-800 z-10 border-b border-gray-200 dark:border-navy-700 px-6 py-6 mb-5 flex justify-between items-center">
+            <div className="sticky top-0 bg-white dark:bg-navy-800 z-10 border-b border-gray-200 dark:border-navy-700 px-6 py-6 mb-5 flex justify-between items-center">
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
                 {editKK ? "Edit Kartu Keluarga" : "Tambah Kartu Keluarga Baru"}
                 {editKK && selectedKK && (
@@ -1770,7 +2117,7 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
 
             {/* ISI YANG DIPERCAntik — TANPA MENYENTUH 3 DIV UTAMA */}
             <div className="px-6">
-              <div className="grid lg:grid-cols-1 gap-10">
+              <div className="grid lg:grid-cols-2 gap-10">
                 {/* KOLOM KIRI – Form */}
                 <div className="space-y-8">
                   {/* Section: Data KK */}
@@ -1951,7 +2298,7 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
       {/* ==================== MODAL TAMBAH / EDIT ANGGOTA KELUARGA ==================== */}
       {showModalAnggota && selectedKK && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.6)] p-4 overflow-y-auto">
-            <div className="w-full md:w-[44vw] absolute right-0 h-screen overflow-auto bg-white dark:bg-navy-800 rounded-2xl shadow-2xl overflow-y-auto">
+            <div className="w-full max-w-6xl bg-white dark:bg-navy-800 rounded-2xl shadow-2xl max-h-[95vh] overflow-y-auto">
               <div className="sticky top-0 bg-white dark:bg-navy-800 z-10 border-b border-gray-200 dark:border-navy-700 px-8 py-5 flex justify-between items-center">
                 <h3 className="text-2xl font-bold text-navy-700 dark:text-white">
                   {editAnggota ? "Edit" : "Tambah"} Anggota Keluarga
@@ -1963,14 +2310,14 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
                     setKtpFile(null);
                     setKtpFileUrl("");
                   }}
-                  className="text-gray-500 hover:brightness-95 p-2 bg-white rounded-md hover:text-red-600"
+                  className="text-gray-500 hover:text-red-600"
                 >
-                  <MdClose className="w-7 h-7" />
+                  <MdClose className="w-8 h-8" />
                 </button>
               </div>
 
               <div className="p-8">
-                <div className="grid lg:grid-cols-1 gap-8">
+                <div className="grid lg:grid-cols-2 gap-8">
 
                   {/* ==================== KOLOM KIRI ==================== */}
                   <div className="space-y-6">

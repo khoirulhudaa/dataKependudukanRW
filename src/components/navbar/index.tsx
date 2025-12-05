@@ -76,13 +76,13 @@ const Navbar = (props: {
       </div>
 
       {/* Bagian kanan (tanggal + avatar) */}
-      <div className="relative mt-[3px] flex h-[61px] w-[40px] flex-grow items-center justify-end md:justify-around gap-2 rounded-full md:bg-white px-2 py-2 md:shadow-xl shadow-shadow-500 dark:!bg-navy-800 dark:shadow-none md:flex-grow-0 md:gap-1 md:w-[365px] xl:gap-2">
-        <div className="hidden md:flex h-full items-center rounded-full bg-lightPrimary text-navy-700 dark:bg-navy-900 dark:text-white px-4 py-2 w-max md:w-[280px] shadow-sm">
+      <div className="relative mt-[3px] flex h-[61px] w-[40px] flex-grow items-center justify-end md:justify-around gap-2 rounded-full px-2 py-2 shadow-shadow-500 dark:!bg-navy-800 dark:shadow-none md:flex-grow-0 md:gap-1 md:w-[365px] xl:gap-2">
+        <div className="hidden md:flex h-full items-center rounded-full text-navy-700 dark:bg-navy-900 dark:text-white px-4 py-2 w-max">
           <div className="mr-3 text-xl">
-            <FiCalendar className="h-5 w-5 text-brand-500" />
+            <FiCalendar className="h-7 w-7 text-brand-500" />
           </div>
-          <div className="flex flex-col leading-tight">
-            <span className="text-sm font-semibold text-navy-700 dark:text-white">
+          <div className="flex flex-col leading-tight uppercase">
+            <span className="text-lg font-semibold text-navy-700 dark:text-white">
               {format(new Date(), "EEEE, d MMMM yyyy", { locale: id })}
             </span>
           </div>
