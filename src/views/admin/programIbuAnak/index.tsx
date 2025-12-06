@@ -133,26 +133,26 @@ const KesehatanIbuAnak: React.FC = () => {
       {/* Detail Sections */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Trimester Breakdown */}
-        <div className="bg-pink-50 dark:bg-pink-900/20 rounded-3xl p-8 shadow-lg">
-          <h2 className="text-2xl font-bold text-pink-800 dark:text-pink-200 mb-6">Detail Ibu Hamil ({stats.ibuHamil})</h2>
+        <div className="bg-white rounded-3xl p-8 shadow-lg">
+          <h2 className="text-2xl font-bold text-black mb-6">Detail Ibu Hamil ({stats.ibuHamil})</h2>
           <div className="space-y-4">
             {stats.trimester.map((tri, i) => (
               <div key={i} className="flex justify-between items-center">
                 <span className="text-gray-700 dark:text-gray-300">{tri.tri}</span>
-                <span className="font-bold text-pink-600">{tri.count}</span>
+                <span className="font-bold text-black">{tri.count}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Gizi Balita */}
-        <div className="bg-pink-50 dark:bg-pink-900/20 rounded-3xl p-8 shadow-lg">
-          <h2 className="text-2xl font-bold text-pink-800 dark:text-pink-200 mb-6">Status Gizi Balita ({stats.balita})</h2>
+        <div className="bg-white rounded-3xl p-8 shadow-lg">
+          <h2 className="text-2xl font-bold text-black mb-6">Status Gizi Balita ({stats.balita})</h2>
           <div className="space-y-4">
             {stats.gizi.map((gizi, i) => (
               <div key={i} className="flex justify-between items-center">
                 <span className="text-gray-700 dark:text-gray-300">{gizi.gizi}</span>
-                <span className="font-bold text-pink-600">{gizi.count}</span>
+                <span className="font-bold text-black">{gizi.count}</span>
               </div>
             ))}
           </div>
