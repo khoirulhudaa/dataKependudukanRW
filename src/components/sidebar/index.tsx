@@ -12,7 +12,7 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
   return (
     <aside
         className={`
-          fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col overflow-y-auto bg-white pb-10 shadow-2xl transition-transform duration-300 ease-in-out
+          fixed inset-y-0 h-screen left-0 z-50 flex w-[300px] flex-col overflow-y-auto bg-white pb-10 shadow-2xl transition-transform duration-300 ease-in-out
           dark:bg-navy-800 dark:text-white
           /* Mobile & tablet kecil: disembunyikan dulu, drawer hanya jika open */
           ${open ? "translate-x-0" : "-translate-x-full"}

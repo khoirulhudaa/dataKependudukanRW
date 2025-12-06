@@ -125,7 +125,7 @@ const PencarianIndividu: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-navy-950 dark:to-navy-900 py-3 px-0">
         <div className="max-w-7xl mx-auto">
           {/* Filter */}
-          <div className="bg-white dark:bg-navy-800 rounded-xl shadow-2xl p-6 mb-6">
+          <div className="bg-white dark:bg-navy-800 rounded-xl shadow-lg p-6 mb-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="relative">
                 <MdSearch className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />

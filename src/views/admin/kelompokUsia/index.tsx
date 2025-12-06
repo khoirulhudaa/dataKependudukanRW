@@ -37,20 +37,13 @@ const KelompokUsia: React.FC = () => {
 
   return (
     <div className="space-y-12 mt-3">
-      {/* Hero Header – Soft & Elegant */}
-      <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-indigo-600/80 via-purple-500/60 to-pink-500/5 p-4 md:p-12 backdrop-blur-xl border border-white/20 dark:border-slate-700/30">
-        <div className="md:flex items-center gap-8">
-          <div className="w-max p-6 bg-white/30 dark:bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/40">
-            <MdMan2 className="w-14 h-14 text-white dark:text-white" />
-          </div>
-          <div className="w-full md:mt-0 mt-4">
-            <h1 className="w-max text-2xl md:text-3xl font-black bg-gradient-to-r from-slate-800 via-indigo-700 to-purple-700 dark:from-white dark:to-indigo-300 bg-clip-text text-white leading-tight">
-              Kelompok Usia Penduduk
-            </h1>
-            <p className="mt-3 text-xl font-medium text-white/60 dark:text-white/60">
-              Total Penduduk: <span className="font-black text-white dark:text-white">{totalPenduduk}</span> jiwa
-            </p>
-          </div>
+
+      <div className="col-span-1 md:col-span-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl p-8 text-white shadow-2xl">
+        <h2 className="text-3xl md:text-4xl font-black mb-2">Kelompok Usia Penduduk</h2>
+        <p className="text-blue-100 text-lg">Data seluruh anggota keluarga (KK)</p>
+        <div className="mt-6 flex items-baseline gap-3">
+          <span className="text-5xl font-black">{totalPenduduk}</span>
+          <span className="text-xl opacity-90">jiwa</span>
         </div>
       </div>
 

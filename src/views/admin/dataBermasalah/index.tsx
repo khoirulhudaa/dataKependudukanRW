@@ -122,7 +122,7 @@ const DataBermasalah: React.FC = () => {
         <div className="max-w-7xl py-10 lg:py-3">
           {/* Header Modern */}
           <div className="text-left mb-6">
-            <div className="inline-flex items-center gap-3 bg-red-400 dark:bg-red-500/20 px-6 py-3 rounded-full mb-6">
+            <div className="w-full shadow-lg inline-flex items-center gap-3 bg-red-500 dark:bg-red-500/20 px-6 py-3 rounded-xl mb-6">
               <MdWarning className="w-7 h-7 text-white dark:text-red-400" />
               <span className="text-lg font-medium text-white dark:text-red-400">Peringatan Data Kritis</span>
             </div>

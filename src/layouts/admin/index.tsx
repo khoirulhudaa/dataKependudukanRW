@@ -80,7 +80,7 @@ export default function Admin(props: { [x: string]: any }) {
         <main
           className={`
             mx-3 h-full px-2 flex-none transition-all duration-200
-            ${open ? "xl:ml-[21vw]" : "xl:ml-0"}
+            ${open ? "xl:ml-[22vw]" : "xl:ml-0"}
           `}
         >
           <div className="h-full flex flex-col">

@@ -833,6 +833,7 @@ const DataKK: React.FC = () => {
     setFormAnggota(prev => ({ ...prev, bantuan: anggota.bantuan }));
     setShowModalBantuan(true);
   };
+
   const saveBantuan = () => {
     if (!selectedKK || !selectedAnggota) return;
     const updatedAnggota = { ...selectedAnggota, bantuan: formAnggota.bantuan || [] };
@@ -844,6 +845,7 @@ const DataKK: React.FC = () => {
     setSelectedKK(updatedKK);
     setShowModalBantuan(false);
   };
+
   const handleFileChange = (file: File) => {
     if (file.size > 5 * 1024 * 1024) { alert("File KK maks 5MB"); return; }
     setKKFile(file);
@@ -851,6 +853,7 @@ const DataKK: React.FC = () => {
     reader.onloadend = () => setKKFileUrl(reader.result as string);
     reader.readAsDataURL(file);
   };
+  
   const handleFotoRumahChange = (file: File) => {
     if (file.size > 10 * 1024 * 1024) { alert("Foto rumah maks 10MB"); return; }
     setFotoRumahFile(file);
@@ -858,6 +861,7 @@ const DataKK: React.FC = () => {
     reader.onloadend = () => setFotoRumahUrl(reader.result as string);
     reader.readAsDataURL(file);
   };
+
   const handleKtpChange = (file: File) => {
     if (file.size > 5 * 1024 * 1024) { alert("File KTP maks 5MB"); return; }
     setKtpFile(file);

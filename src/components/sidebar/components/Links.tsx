@@ -239,7 +239,7 @@ const Links = ({ routes, onLinkClick }: LinksProps) => {
 
         if (hasSub) {
           return (
-            <div key={key} className="mb-2">
+            <div key={key} className="mb-2 overflow-auto">
               {/* Parent Menu */}
               <button
                 onClick={() => toggleMenu(route.name)}
@@ -259,7 +259,7 @@ const Links = ({ routes, onLinkClick }: LinksProps) => {
 
               {/* Submenu */}
               <div
-                className={`overflow-hidden transition-all duration-300 ${
+                className={`overflow-auto transition-all duration-300 ${
                   isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
                 }`}
               >
