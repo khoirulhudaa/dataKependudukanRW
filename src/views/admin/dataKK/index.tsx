@@ -1,4 +1,5 @@
 import Card from "components/card";
+import MapPicker from "components/mapPicker";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   MdAccessibilityNew,
@@ -11,6 +12,7 @@ import {
   MdFileDownload,
   MdHome,
   MdLocationOn,
+  MdMap,
   MdPhotoCamera,
   MdPictureAsPdf,
   MdSave,
@@ -167,8 +169,8 @@ const DEMO_DATA: KKItem[] = [
     rw: "001",
     statusHunian: "Milik Sendiri",
     pemilikRumah: "Ahmad Fauzi",
-    koordinat: "-6.2088,106.8456",
-    fotoRumahUrl: "/demo/rumah1.jpg",
+    koordinat: "-6.208763,106.845599",           // Lokasi nyata di Jakarta Pusat
+    fotoRumahUrl: "/rumah1.jpeg",
     kondisiRumah: {
       lantai: "Keramik",
       dinding: "Tembok/Bata",
@@ -222,6 +224,8 @@ const DEMO_DATA: KKItem[] = [
     rt: "02",
     rw: "001",
     statusHunian: "Kontrak/Sewa",
+    koordinat: "-6.210234,106.847891",
+    fotoRumahUrl: "/rumah2.jpeg",
     pemilikRumah: "H. Maman",
     kondisiRumah: {
       lantai: "Semen/Plester",
@@ -269,6 +273,8 @@ const DEMO_DATA: KKItem[] = [
     alamat: "Jl. Cempaka No. 7",
     rt: "03",
     rw: "001",
+    koordinat: "-6.207456,106.849123",
+    fotoRumahUrl: "/rumah3.jpeg",
     statusHunian: "Milik Sendiri",
     kondisiRumah: {
       lantai: "Tanah",
@@ -302,6 +308,8 @@ const DEMO_DATA: KKItem[] = [
     rt: "04",
     rw: "002",
     statusHunian: "Kos/Asrama",
+    koordinat: "-6.212345,106.842567",
+    fotoRumahUrl: "/rumah4.jpeg",
     isSementara: true,
     kondisiRumah: {
       lantai: "Keramik",
@@ -346,6 +354,8 @@ const DEMO_DATA: KKItem[] = [
     alamat: "Gg. Surya Kencana Lorong 3",
     rt: "05",
     rw: "002",
+    koordinat: "-6.205678,106.850987",
+    fotoRumahUrl: "/rumah5.jpeg",
     statusHunian: "Rumah Tidak Layak Huni",
     kondisiRumah: {
       lantai: "Tanah",
@@ -479,19 +489,24 @@ const DataKK: React.FC = () => {
   // Tambahkan ref untuk mendeteksi klik di luar
   const partisipasiRef = useRef<HTMLDivElement>(null);
   const kerentananRef = useRef<HTMLDivElement>(null);
+  const bantuanRef = useRef<HTMLDivElement>(null); // untuk dropdown bantuan
 
-  // Tempatkan di dalam komponen DataKK, setelah semua useState
+ // Effect klik di luar — versi yang BENAR
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent) => {
       if (
-        dropdownOpen.partisipasi ||
-        dropdownOpen.kerentanan ||
-        dropdownOpen.bantuan
+        (dropdownOpen.partisipasi && partisipasiRef.current && !partisipasiRef.current.contains(e.target as Node)) ||
+        (dropdownOpen.kerentanan && kerentananRef.current && !kerentananRef.current.contains(e.target as Node)) ||
+        (dropdownOpen.bantuan && bantuanRef.current && !bantuanRef.current.contains(e.target as Node))
       ) {
         setDropdownOpen({ partisipasi: false, kerentanan: false, bantuan: false });
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
+
+    if (dropdownOpen.partisipasi || dropdownOpen.kerentanan || dropdownOpen.bantuan) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [dropdownOpen]);
 
@@ -853,7 +868,7 @@ const DataKK: React.FC = () => {
     reader.onloadend = () => setKKFileUrl(reader.result as string);
     reader.readAsDataURL(file);
   };
-  
+
   const handleFotoRumahChange = (file: File) => {
     if (file.size > 10 * 1024 * 1024) { alert("Foto rumah maks 10MB"); return; }
     setFotoRumahFile(file);
@@ -1018,17 +1033,36 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
     tags.push({ label: "Remaja", color: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200" });
   }
 
-  // 3. Bantuan Sosial
+ // 3. BANTUAN SOSIAL → ORANGE
   anggota.bantuan?.forEach((id: any) => {
     const b = DAFTAR_BANTUAN.find((x) => x.id === id);
     if (b) {
       tags.push({
-        label: `Penerima ${b.nama}`,
-        color: b.color.replace("bg-", "bg-").includes("yellow")
-          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-          : "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200",
+        label: b.nama,
+        color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
       });
     }
+  });
+
+  // 4. KERENTANAN SOSIAL → ORANGE LEBIH TUA / KECOKELATAN
+  anggota.kerentananSosial?.forEach((item: any) => {
+    tags.push({
+      label: item,
+      color: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
+    });
+  });
+
+  // 5. PARTISIPASI LINGKUNGAN → TEAL
+  anggota.partisipasiLingkungan?.forEach((item: any) => {
+    let label = item;
+    if (item === "Aktif Kegiatan RW/RT") label = "Aktif RT/RW";
+    if (item === "Posyandu Balita") label = "Posyandu Balita";
+    if (item === "Posyandu Lansia") label = "Posyandu Lansia";
+
+    tags.push({
+      label,
+      color: "bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200",
+    });
   });
 
   // 4. Kondisi Kesehatan (kecuali Sehat)
@@ -1503,11 +1537,13 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
                 <div className="space-y-3">
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Foto Rumah</p>
                   {selectedKK.fotoRumahUrl ? (
-                    <img
-                      src={selectedKK.fotoRumahUrl}
-                      alt="Rumah"
-                      className="w-full h-56 object-cover rounded-2xl shadow-lg"
-                    />
+                    <div className="w-full h-[350px] overflow-hidden rounded-2xl shadow-lg">
+                      <img
+                        src={selectedKK.fotoRumahUrl}
+                        alt="Rumah"
+                        className="w-full h-auto min-h-full md:h-[420px] hover:scale-[1.1] transition duration-200 ease-in object-cover"
+                      />
+                    </div>
                   ) : (
                     <div className="bg-gray-200 dark:bg-gray-700 border-2 border-dashed border-gray-400 rounded-2xl h-56 flex items-center justify-center">
                       <MdHome className="w-16 h-16 text-gray-400" />
@@ -1517,13 +1553,56 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
 
                 <div className="flex">
                   {selectedKK.koordinat ? (
-                    <a
-                      href={`https://maps.google.com/?q=${selectedKK.koordinat}`}
+                    <a href={`https://maps.google.com/?q=${selectedKK.koordinat}`}
                       target="_blank"
-                      rel="noreferrer"
-                      className="w-full bg-tansparent text-black/80 border-2 border-[rgba(0,0,0,0.5)] font-normal py-3 rounded-lg text-center transform hover:brightness-[95%]"
-                    >
-                      Lihat di Peta
+                      className="w-full"
+                      rel="noreferrer">
+                      <div
+                        className="
+                          group relative w-full px-6 py-4 
+                          bg-gradient-to-r from-brand-500/5 via-brand-500/10 to-brand-500/5
+                          hover:from-brand-500/10 hover:via-brand-500/20 hover:to-brand-500/10
+                          dark:from-brand-500/10 dark:via-brand-500/20 dark:to-brand-500/10
+                          rounded-2xl 
+                          border border-brand-200/50 dark:border-brand-700/50
+                          backdrop-blur-sm
+                          transition-all duration-300 ease-out
+                          hover:shadow-sm hover:shadow-brand-500/20
+                          hover:border-brand-400/70
+                          active:scale-[0.99]
+                          overflow-hidden
+                        "
+                      >
+                        {/* Background glow effect */}
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                          <div className="absolute inset-0 bg-gradient-to-r from-brand-400/20 to-transparent blur-xl" />
+                        </div>
+
+                        <div className="relative flex items-center justify-between">
+                          <span className="
+                            text-sm font-semibold 
+                            text-brand-700 dark:text-brand-300 
+                            group-hover:text-brand-800 dark:group-hover:text-brand-200 
+                            transition-colors
+                          ">
+                            Lihat di Peta
+                          </span>
+
+                          {/* Panah yang bergerak halus */}
+                          <div className="flex items-center gap-2">
+                            <MdArrowForwardIos className="
+                              w-4 h-4 text-brand-600 dark:text-brand-400 
+                              translate-x-0 group-hover:translate-x-2 
+                              transition-transform duration-300
+                            " />
+                          </div>
+                        </div>
+
+                        {/* Ripple effect saat klik (opsional, tambah aja kalau suka) */}
+                        <span className="absolute inset-0 -z-10">
+                          <span className="absolute inset-0 bg-brand-400/20 scale-0 rounded-full transition-transform duration-300 active:scale-150" />
+                        </span>
+                      </div>
                     </a>
                   ) : (
                     <div className="w-full bg-gray-200 dark:bg-gray-700 text-gray-500 py-5 rounded-2xl text-center">
@@ -1557,7 +1636,7 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
                           className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition"
                         >
                           {/* Header - Nama + Status Keluarga */}
-                          <div className={`px-5 py-4 ${anggota.statusKeluarga === "Kepala Keluarga"
+                          <div className={`flex gap-4 px-5 py-4 ${anggota.statusKeluarga === "Kepala Keluarga"
                               ? "bg-gradient-to-r from-brand-600 to-brand-700 text-white"
                               : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white"}`}
                           >
@@ -1565,7 +1644,19 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
                               {i + 1}. {anggota.nama.toUpperCase()} ({usia} th, {anggota.jenisKelamin === "L" ? "L" : "P"})
                               {anggota.statusKeluarga === "Kepala Keluarga" && " — Kepala Keluarga"}
                             </p>
+                            <p className="font-bold">-</p>
+                            {/* Kanan: Status Keluarga (badge) */}
+                            <span
+                              className={`px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase ${
+                                anggota.statusKeluarga === "Kepala Keluarga"
+                                  ? "bg-white/20 text-white"
+                                  : "bg-white dark:bg-gray-800 text-brand-600 dark:text-brand-300 shadow-sm"
+                              }`}
+                            >
+                              {anggota.statusKeluarga === "Kepala Keluarga" ? "Kepala KK" : anggota.statusKeluarga}
+                            </span>
                           </div>
+
 
                           {/* Body */}
                           <div className="p-5 space-y-4">
@@ -1574,24 +1665,134 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
                             </p>
 
                             {/* Tags */}
-                            {tags.length > 0 && (
-                              <div className="space-y-2">
-                                <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                                  Status & Tags :
-                                </p>
-                                <div className="flex flex-wrap gap-2">
-                                  {tags.map((tag, idx) => (
-                                    <span
-                                      key={idx}
-                                      className={`px-3 py-1.5 rounded-full text-xs font-medium ${tag.color}`}
-                                    >
-                                      {tag.label}
-                                    </span>
-                                  ))}
+                            <div className="space-y-3 pt-4 border-t">
+                              {/* === BANTUAN SOSIAL (ORANGE) === */}
+                              {anggota.bantuan && anggota.bantuan.length > 0 && (
+                                <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+                                  <p className="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider mb-3">
+                                    Bantuan yang Diterima
+                                  </p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {anggota.bantuan.map((id) => {
+                                      const b = DAFTAR_BANTUAN.find((x) => x.id === id);
+                                      if (!b) return null;
+                                      return (
+                                        <span
+                                          key={id}
+                                          className="px-3 py-1.5 rounded-full text-xs font-bold bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
+                                        >
+                                          {b.nama}
+                                        </span>
+                                      );
+                                    })}
+                                  </div>
                                 </div>
-                              </div>
-                            )}
+                              )}
 
+                              {/* === KERENTANAN SOSIAL (AMBER/ORANGE TUA) === */}
+                              {anggota.kerentananSosial && anggota.kerentananSosial.length > 0 && (
+                                <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+                                  <p className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-3">
+                                    Status Rentan
+                                  </p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {anggota.kerentananSosial.map((item) => (
+                                      <span
+                                        key={item}
+                                        className="px-3 py-1.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200"
+                                      >
+                                        {item}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* === PARTISIPASI LINGKUNGAN (TEAL) === */}
+                              {anggota.partisipasiLingkungan && anggota.partisipasiLingkungan.length > 0 && (
+                                <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+                                  <p className="text-xs font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wider mb-3">
+                                    Aktif di Lingkungan
+                                  </p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {anggota.partisipasiLingkungan.map((item) => {
+                                      let label = item;
+                                      if (item === "Aktif Kegiatan RW/RT") label = "Aktif RT/RW";
+                                      if (item === "Posyandu Balita") label = "Posyandu Balita";
+                                      if (item === "Posyandu Lansia") label = "Posyandu Lansia";
+
+                                      return (
+                                        <span
+                                          key={item}
+                                          className="px-3 py-1.5 rounded-full text-xs font-bold bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200"
+                                        >
+                                          {label}
+                                        </span>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* === TAG LAINNYA (Usia, Pekerjaan, Kesehatan, Dokumen, dll) === */}
+                              {(() => {
+                                const otherTags: { label: string; color: string }[] = [];
+
+                                // Usia
+                                const kelompok = kelompokUsia(usia);
+                                otherTags.push({
+                                  label: kelompok.nama,
+                                  color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+                                });
+
+                                // Pekerjaan
+                                if (anggota.pekerjaan) {
+                                  otherTags.push({
+                                    label: anggota.pekerjaan,
+                                    color: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+                                  });
+                                }
+
+                                // Kesehatan
+                                if (anggota.statusKesehatan && anggota.statusKesehatan !== "Sehat") {
+                                  otherTags.push({
+                                    label: anggota.statusKesehatan,
+                                    color: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+                                  });
+                                }
+
+                                // Dokumen
+                                if (anggota.kelengkapanArsipRT?.includes("KTP")) {
+                                  otherTags.push({ label: "KTP", color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" });
+                                }
+                                if (anggota.kelengkapanArsipRT?.includes("Akta Lahir")) {
+                                  otherTags.push({ label: "Akta Lahir", color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" });
+                                }
+
+                                // Balita
+                                if (usia <= 5) {
+                                  otherTags.push({ label: "Balita", color: "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200" });
+                                }
+
+                                return otherTags.length > 0 ? (
+                                  <div className="pb-4 border-b border-gray-200 dark:border-gray-700 last:border-0">
+                                    <p className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-3">
+                                      Informasi Lain
+                                    </p>
+                                    <div className="flex flex-wrap gap-2">
+                                      {otherTags.map((tag) => (
+                                        <span
+                                          key={tag.label}
+                                          className={`px-3 py-1.5 rounded-full text-xs font-bold ${tag.color}`}
+                                        >
+                                          {tag.label}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ) : null;
+                              })()}
+                            </div>
                             {/* DUA TOMBOL: Profil & Edit */}
                             <div className="grid md:grid-cols-2 grid-cols-1 gap-3 mt-5">
 
@@ -1718,19 +1919,19 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
                     setKKFileUrl(selectedKK?.fileUrl || null);
                     setFotoRumahUrl(selectedKK?.fotoRumahUrl || null);
                   }}
-                  className="bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-2xl shadow-lg transition transform hover:scale-105"
+                  className="bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-2xl shadow-lg transition transform active:scale-[0.99]"
                 >
                   Edit Data KK
                 </button>
                 <button
                   onClick={openTambahAnggota}
-                  className="bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-2xl shadow-lg transition transform hover:scale-105"
+                  className="bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-2xl shadow-lg transition transform active:scale-[0.99]"
                 >
                   Tambah Anggota
                 </button>
                 <button
                   onClick={() => generateSingleKKPdf(selectedKK, selectedKK.anggota)}
-                  className="bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl shadow-lg transition transform hover:scale-105 flex items-center justify-center gap-2"
+                  className="bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl shadow-lg transition transform active:scale-[0.99] flex items-center justify-center gap-2"
                 >
                   <MdPictureAsPdf className="w-5 h-5" />
                   Cetak Rekap
@@ -1812,10 +2013,67 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
                       />
                       <input placeholder="No. Rumah" value={formKK.noRumah} onChange={e => setFormKK({ ...formKK, noRumah: e.target.value })} className="px-5 py-3 rounded-xl border" />
                     </div>
-                    <div className="grid grid-cols-3 gap-4">
-                      <input placeholder="RT" value={formKK.rt} onChange={(e) => setFormKK({ ...formKK, rt: e.target.value })} className="text-center px-5 py-3 rounded-xl border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 focus:ring-4 focus:ring-brand-500/30 focus:border-brand-500 transition-all" />
-                      <input placeholder="RW" value={formKK.rw} onChange={(e) => setFormKK({ ...formKK, rw: e.target.value })} className="text-center px-5 py-3 rounded-xl border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 focus:ring-4 focus:ring-brand-500/30 focus:border-brand-500 transition-all" />
-                      <input placeholder="Koordinat (lat,lng)" value={formKK.koordinat} onChange={(e) => setFormKK({ ...formKK, koordinat: e.target.value })} className="col-span-1 text-xs px-5 py-3 rounded-xl border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 focus:ring-4 focus:ring-brand-500/30 focus:border-brand-500 transition-all" />
+                    <div className="grid grid-cols-1 gap-4">
+                      <div className="w-full grid gap-4 grid-cols-2">
+                        <input placeholder="RT" value={formKK.rt} onChange={(e) => setFormKK({ ...formKK, rt: e.target.value })} className="text-center px-5 py-3 rounded-xl border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 focus:ring-4 focus:ring-brand-500/30 focus:border-brand-500 transition-all" />
+                        <input placeholder="RW" value={formKK.rw} onChange={(e) => setFormKK({ ...formKK, rw: e.target.value })} className="text-center px-5 py-3 rounded-xl border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 focus:ring-4 focus:ring-brand-500/30 focus:border-brand-500 transition-all" />
+                      </div>
+                      {/* <input placeholder="Koordinat (lat,lng)" value={formKK.koordinat} onChange={(e) => setFormKK({ ...formKK, koordinat: e.target.value })} className="col-span-1 text-xs px-5 py-3 rounded-xl border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 focus:ring-4 focus:ring-brand-500/30 focus:border-brand-500 transition-all" /> */}
+                      {/* === GANTI SELURUH BAGIAN KOORDINAT MANUAL DENGAN INI === */}
+                      <section className="space-y-6">
+                        <h4 className="flex items-center gap-3 text-xl font-bold text-gray-800 dark:text-gray-100">
+                          Lokasi Rumah di Peta
+                        </h4>
+
+                        <div className="space-y-4 w-full">
+                          <div className="flex items-center justify-between">
+                            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                              Klik sekali di peta untuk menandai lokasi rumah
+                            </label>
+                            {formKK.koordinat && (
+                              <button
+                                type="button"
+                                onClick={() => setFormKK(prev => ({ ...prev, koordinat: "" }))}
+                                className="text-xs font-medium text-red-600 hover:text-red-700 transition"
+                              >
+                                Hapus Lokasi
+                              </button>
+                            )}
+                          </div>
+
+                          {/* PETA INTERAKTIF */}
+                          <MapPicker
+                            lat={formKK.koordinat ? parseFloat(formKK.koordinat.split(',')[0].trim()) : undefined}
+                            lng={formKK.koordinat ? parseFloat(formKK.koordinat.split(',')[1].trim()) : undefined}
+                            onLocationSelect={(lat, lng) => {
+                              setFormKK(prev => ({
+                                ...prev,
+                                koordinat: `${lat.toFixed(6)},${lng.toFixed(6)}`,
+                              }));
+                            }}
+                          />
+
+                          {/* Tampilan koordinat yang sudah dipilih */}
+                          {formKK.koordinat && (
+                            <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 rounded-xl border border-green-200 dark:border-green-800">
+                              <p className="text-sm font-semibold text-green-800 dark:text-green-300">
+                                Lokasi Tersimpan
+                              </p>
+                              <p className="font-mono text-sm text-green-700 dark:text-green-400 mt-1">
+                                {formKK.koordinat}
+                              </p>
+                              <a
+                                href={`https://maps.google.com/?q=${formKK.koordinat}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-blue-600 dark:text-blue-400 hover:underline mt-2 inline-block"
+                              >
+                                Buka di Google Maps
+                              </a>
+                            </div>
+                          )}
+                        </div>
+                      </section>
                     </div>
                     <textarea
                       placeholder="Alamat Lengkap"
@@ -2090,112 +2348,76 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
                     </div>
 
                   {/* PARTISIPASI LINGKUNGAN - DROPDOWN YANG BENAR-BENAR JALAN */}
-                    <div ref={partisipasiRef} className="relative">
-                      <label className="block text-sm font-bold text-brand-600 mb-2">
+                    <div className="space-y-3">
+                      <label className="block text-sm font-bold text-brand-600 dark:text-brand-400">
                         Partisipasi Lingkungan
+                      (bisa pilih lebih dari satu)
                       </label>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setDropdownOpen({ ...dropdownOpen, partisipasi: !dropdownOpen.partisipasi });
-                        }}
-                        className="w-full px-4 py-3 border rounded-xl text-left flex justify-between items-center bg-white dark:bg-navy-700 hover:bg-gray-50 dark:hover:bg-navy-600 transition"
-                      >
-                        <span className="truncate">
-                          {formAnggota.partisipasiLingkungan?.length === 0
-                            ? "Pilih partisipasi..."
-                            : formAnggota.partisipasiLingkungan?.join(", ")}
-                        </span>
-                        <MdArrowForwardIos className={`w-5 h-5 transition-transform ${dropdownOpen.partisipasi ? "rotate-90" : ""}`} />
-                      </button>
-
-                      {dropdownOpen.partisipasi && (
-                        <div className="absolute z-20 w-full mt-2 bg-white dark:bg-navy-700 border border-gray-300 dark:border-navy-600 rounded-xl shadow-xl max-h-64 overflow-y-auto">
-                          {[
-                            "Aktif Kegiatan RW/RT",
-                            "Tidak Aktif",
-                            "Siskamling",
-                            "Bank Sampah",
-                            "Posyandu Balita",
-                            "Posyandu Lansia",
-                            "PKK"
-                          ].map((item) => (
-                            <label
-                              key={item}
-                              className="flex items-center gap-3 px-4 py-3 hover:bg-brand-50 dark:hover:bg-navy-600 cursor-pointer transition"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={formAnggota.partisipasiLingkungan?.includes(item) || false}
-                                onChange={(e) => {
-                                  setFormAnggota((prev) => ({
-                                    ...prev,
-                                    partisipasiLingkungan: e.target.checked
-                                      ? [...(prev.partisipasiLingkungan || []), item]
-                                      : (prev.partisipasiLingkungan || []).filter((x) => x !== item),
-                                  }));
-                                }}
-                                className="w-4 h-4 text-brand-600 rounded focus:ring-2 focus:ring-brand-500"
-                              />
-                              <span className="text-sm">{item}</span>
-                            </label>
-                          ))}
-                        </div>
-                      )}
+                      <div className="grid grid-cols-2 gap-3 bg-gray-50 dark:bg-navy-700/50 p-4 rounded-xl">
+                        {[
+                          "Aktif Kegiatan RW/RT",
+                          "Siskamling",
+                          "PKK",
+                          "Posyandu Balita",
+                          "Posyandu Lansia",
+                          "Bank Sampah",
+                          "Tidak Aktif",
+                        ].map((item) => (
+                          <label key={item} className="flex items-center gap-3 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={formAnggota.partisipasiLingkungan?.includes(item) || false}
+                              onChange={(e) => {
+                                setFormAnggota((prev) => ({
+                                  ...prev,
+                                  partisipasiLingkungan: e.target.checked
+                                    ? [...(prev.partisipasiLingkungan || []), item]
+                                    : (prev.partisipasiLingkungan || []).filter((x) => x !== item),
+                                }));
+                              }}
+                              className="w-5 h-5 text-brand-600 rounded focus:ring-brand-500"
+                            />
+                            <span className="text-sm font-medium">{item}</span>
+                          </label>
+                        ))}
+                      </div>
                     </div>
 
-                    {/* KERENTANAN SOSIAL - DROPDOWN YANG BENAR-BENAR JALAN */}
-                    <div ref={kerentananRef} className="relative">
-                      <label className="block text-sm font-bold text-red-600 mb-2">
-                        Status Kerentanan Sosial
+                    {/* 2. KERENTANAN SOSIAL */}
+                    <div className="space-y-3">
+                      <label className="block text-sm font-bold text-red-600 dark:text-red-400">
+                        Status Kerentanan Sosial  (bisa pilih lebih dari satu)
                       </label>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setDropdownOpen({ ...dropdownOpen, kerentanan: !dropdownOpen.kerentanan });
-                        }}
-                        className="w-full px-4 py-3 border rounded-xl text-left flex justify-between items-center bg-white dark:bg-navy-700 hover:bg-gray-50 dark:hover:bg-navy-600 transition"
-                      >
-                        <span className="truncate">
-                          {formAnggota.kerentananSosial?.length === 0
-                            ? "Tidak ada kerentanan"
-                            : formAnggota.kerentananSosial?.join(", ")}
-                        </span>
-                        <MdArrowForwardIos className={`w-5 h-5 transition-transform ${dropdownOpen.kerentanan ? "rotate-90" : ""}`} />
-                      </button>
-
-                      {dropdownOpen.kerentanan && (
-                        <div className="absolute z-20 w-full mt-2 bg-white dark:bg-navy-700 border border-gray-300 dark:border-navy-600 rounded-xl shadow-xl max-h-64 overflow-y-auto">
-                          {[
-                            "Yatim", "Piatu", "Yatim Piatu", "Janda", "Duda",
-                            "Korban PHK", "Korban Bencana", "Komorbid Serius", "Terlantar"
-                          ].map((item) => (
-                            <label
-                              key={item}
-                              className="flex items-center gap-3 px-4 py-3 hover:bg-red-50 dark:hover:bg-navy-600 cursor-pointer transition"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={formAnggota.kerentananSosial?.includes(item) || false}
-                                onChange={(e) => {
-                                  setFormAnggota((prev) => ({
-                                    ...prev,
-                                    kerentananSosial: e.target.checked
-                                      ? [...(prev.kerentananSosial || []), item]
-                                      : (prev.kerentananSosial || []).filter((x) => x !== item),
-                                  }));
-                                }}
-                                className="w-4 h-4 text-red-600 rounded focus:ring-2 focus:ring-red-500"
-                              />
-                              <span className="text-sm font-medium">{item}</span>
-                            </label>
-                          ))}
-                        </div>
-                      )}
+                      <div className="grid grid-cols-2 gap-3 bg-red-50 dark:bg-red-900/20 p-4 rounded-xl border border-red-200 dark:border-red-800">
+                        {[
+                          "Yatim",
+                          "Piatu",
+                          "Yatim Piatu",
+                          "Janda",
+                          "Duda",
+                          "Korban PHK",
+                          "Korban Bencana",
+                          "Komorbid Serius",
+                          "Terlantar",
+                        ].map((item) => (
+                          <label key={item} className="flex items-center gap-3 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={formAnggota.kerentananSosial?.includes(item) || false}
+                              onChange={(e) => {
+                                setFormAnggota((prev) => ({
+                                  ...prev,
+                                  kerentananSosial: e.target.checked
+                                    ? [...(prev.kerentananSosial || []), item]
+                                    : (prev.kerentananSosial || []).filter((x) => x !== item),
+                                }));
+                              }}
+                              className="w-5 h-5 text-red-600 rounded focus:ring-red-500"
+                            />
+                            <span className="text-sm font-medium">{item}</span>
+                          </label>
+                        ))}
+                      </div>
                     </div>
                     
                   </div>
@@ -2203,49 +2425,31 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
                   {/* ==================== KOLOM KANAN ==================== */}
                   <div className="space-y-6">
 
-                    {/* BANTUAN YANG DITERIMA */}
-                    <div className="relative">
-                      <label className="block text-sm font-bold mb-2 text-green-600">Bantuan yang Diterima</label>
-                      <button
-                        type="button"
-                        onClick={() => setDropdownOpen(prev => ({ ...prev, bantuan: !prev.bantuan }))}
-                        className="w-full px-4 py-3.5 border border-gray-300 dark:border-navy-600 rounded-xl text-left flex justify-between items-center bg-white dark:bg-navy-700 hover:bg-gray-50 dark:hover:bg-navy-600 transition"
-                      >
-                        <span className={`truncate ${formAnggota.bantuan?.length === 0 ? "text-gray-500" : ""}`}>
-                          {formAnggota.bantuan?.length === 0
-                            ? "Pilih bantuan..."
-                            : formAnggota.bantuan
-                                ?.map(id => DAFTAR_BANTUAN.find(b => b.id === id)?.nama || id)
-                                .join(", ")}
-                        </span>
-                        <MdArrowForwardIos className={`w-5 h-5 transition-transform ${dropdownOpen.bantuan ? "rotate-90" : ""}`} />
-                      </button>
-
-                      {dropdownOpen.bantuan && (
-                        <div className="absolute z-30 w-full mt-2 bg-white dark:bg-navy-700 border border-gray-300 dark:border-navy-600 rounded-xl shadow-2xl max-h-64 overflow-y-auto">
-                          {DAFTAR_BANTUAN.map((b) => {
-                            const checked = formAnggota.bantuan?.includes(b.id) || false;
-                            return (
-                              <label key={b.id} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-navy-600 cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  checked={checked}
-                                  onChange={() => {
-                                    setFormAnggota(prev => ({
-                                      ...prev,
-                                      bantuan: checked
-                                        ? prev.bantuan?.filter(x => x !== b.id) || []
-                                        : [...(prev.bantuan || []), b.id]
-                                    }));
-                                  }}
-                                  className="w-4 h-4 rounded text-green-600 focus:ring-2 focus:ring-green-500"
-                                />
-                                <span className="text-sm font-medium">{b.nama}</span>
-                              </label>
-                            );
-                          })}
-                        </div>
-                      )}
+                    {/* 3. BANTUAN SOSIAL YANG DITERIMA */}
+                    <div className="space-y-3">
+                      <label className="block text-sm font-bold text-green-600 dark:text-green-400">
+                        Bantuan yang Diterima  (bisa pilih lebih dari satu)
+                      </label>
+                      <div className="grid grid-cols-2 gap-3 bg-green-50 dark:bg-green-900/20 p-4 rounded-xl border border-green-200 dark:border-green-800">
+                        {DAFTAR_BANTUAN.map((b) => (
+                          <label key={b.id} className="flex items-center gap-3 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={formAnggota.bantuan?.includes(b.id) || false}
+                              onChange={(e) => {
+                                setFormAnggota((prev) => ({
+                                  ...prev,
+                                  bantuan: e.target.checked
+                                    ? [...(prev.bantuan || []), b.id]
+                                    : (prev.bantuan || []).filter((x) => x !== b.id),
+                                }));
+                              }}
+                              className="w-5 h-5 text-green-600 rounded focus:ring-green-500"
+                            />
+                            <span className="text-sm font-medium">{b.nama}</span>
+                          </label>
+                        ))}
+                      </div>
                     </div>
 
                     {/* Upload Foto KTP */}
