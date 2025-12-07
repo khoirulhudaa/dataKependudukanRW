@@ -351,11 +351,14 @@ const PencarianIndividu: React.FC = () => {
                                     })}
                                   </div>
                                 )}
-                                <button
-                                  onClick={() => bukaProfil(a)}
-                                  className="mt-4 w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-xl transition"
-                                >
-                                  Lihat Profil Lengkap
+                                 <button onClick={() => bukaProfil(a)} className="group relative w-full px-6 py-4 bg-gradient-to-r from-brand-500/5 via-brand-500/10 to-brand-500/5 hover:from-brand-500/10 hover:via-brand-500/20 hover:to-brand-500/10 rounded-2xl border border-brand-200/50 dark:border-brand-700/50 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-brand-500/20 active:scale-[0.98] overflow-hidden">
+                                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-brand-400/20 to-transparent blur-xl" />
+                                  </div>
+                                  <div className="relative flex items-center justify-between">
+                                    <span className="text-sm font-medium text-brand-700 dark:text-brand-300 group-hover:text-brand-800">Lihat Profil Lengkap</span>
+                                    <MdArrowForwardIos className="w-4 h-4 text-brand-600 translate-x-0 group-hover:translate-x-2 transition-transform duration-300" />
+                                  </div>
                                 </button>
                               </div>
                             </div>

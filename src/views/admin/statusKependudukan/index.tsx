@@ -132,7 +132,7 @@ const StatusKependudukan: React.FC = () => {
       </div>
 
       {/* Footer Insight */}
-      <div className="p-6 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
+      <div className="py-6 px-[1px] bg-slate-100 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
         <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
           Mayoritas penduduk adalah <span className="font-medium text-emerald-600">warga tetap</span> dengan tingkat mobilitas sedang. 
           Fokus perhatian: <span className="font-medium text-red-600">8 warga tanpa dokumen</span> dan{" "}

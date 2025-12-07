@@ -41,9 +41,9 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
       </button>
 
       {/* Logo */}
-      <div className="md:mx-auto border-b h-[15%] flex md:justify-center items-center border-black/50 md:w-[90%]">
-        <div className="flex items-center gap-3 rounded-lg bg-white/70 px-3 backdrop-blur-sm dark:bg-navy-800/70">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-brand-500/20 text-brand-500 dark:bg-brand-500/30">
+      <div className="md:mx-auto border-b h-[15%] flex justify-normal px-4 md:px-6 items-center border-black/50 md:w-full">
+        <div className="flex items-center gap-3 rounded-lg bg-white/70 backdrop-blur-sm dark:bg-navy-800/70">
+          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-blue-500/20 text-blue-500 dark:bg-blue-500/30">
             <MdPeople className="h-6 w-6" />
           </div>
           <h1 className="font-poppins text-xl font-bold uppercase text-navy-700 dark:text-white">
@@ -53,7 +53,7 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
       </div>
 
       {/* Menu Links */}
-      <nav className="flex-1 overflow-y-auto px-3 md:px-6 py-4">
+      <nav className="flex-1 overflow-y-auto px-3 md:px-2 py-4">
        <Links routes={routes} onLinkClick={onClose} />
       </nav>
 

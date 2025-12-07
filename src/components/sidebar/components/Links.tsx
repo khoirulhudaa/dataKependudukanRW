@@ -84,7 +84,7 @@
 //               <span
 //                 className={`${
 //                   isActive
-//                     ? "text-brand-500 dark:text-white"
+//                     ? "text-blue-500 dark:text-white"
 //                     : "text-gray-600 dark:text-gray-400"
 //                 }`}
 //               >
@@ -137,7 +137,7 @@
 //             <span
 //               className={`${
 //                 isActive
-//                   ? "text-brand-500 dark:text-white font-bold"
+//                   ? "text-blue-500 dark:text-white font-bold"
 //                   : "text-gray-600 dark:text-gray-400 font-medium"
 //               }`}
 //             >
@@ -154,7 +154,7 @@
 
 //             {/* Indikator aktif */}
 //             {isActive && (
-//               <div className="absolute right-0 top-0 h-full w-1 rounded-l-lg bg-brand-500" />
+//               <div className="absolute right-0 top-0 h-full w-1 rounded-l-lg bg-blue-500" />
 //             )}
 //           </div>
 //         </Link>
@@ -239,17 +239,17 @@ const Links = ({ routes, onLinkClick }: LinksProps) => {
 
         if (hasSub) {
           return (
-            <div key={key} className="mb-2 overflow-auto">
+            <div key={key} className="mb-2 pr-2 overflow-auto">
               {/* Parent Menu */}
               <button
                 onClick={() => toggleMenu(route.name)}
                 className={`
                   flex w-full items-center justify-between rounded-lg px-4 py-2.5 text-left text-sm font-medium transition-all
-                  ${isActive ? "bg-brand-50 text-brand-700 dark:bg-brand-900/30" : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-navy-700"}
+                  ${isActive ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30" : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-navy-700"}
                 `}
               >
                 <div className="flex items-center gap-3">
-                  <span className={isActive ? "text-brand-600" : ""}>
+                  <span className={isActive ? "text-blue-600" : ""}>
                     {route.icon}
                   </span>
                   <span>{route.name}</span>
@@ -281,14 +281,14 @@ const Links = ({ routes, onLinkClick }: LinksProps) => {
           >
             <div
               className={`
-                group relative flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all
+                group relative flex items-center gap-3 mr-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all
                 ${isActive
-                  ? "bg-brand-50 text-brand-700 shadow-sm dark:bg-brand-900/30"
+                  ? "bg-blue-50 text-blue-700 shadow-sm dark:bg-blue-900/30"
                   : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-navy-700"
                 }
               `}
             >
-              <span className={isActive ? "text-brand-600" : ""}>
+              <span className={isActive ? "text-blue-600" : ""}>
                 {route.icon}
               </span>
               <span className="flex-1">{route.name}</span>
@@ -302,7 +302,7 @@ const Links = ({ routes, onLinkClick }: LinksProps) => {
 
               {/* Active Indicator */}
               {isActive && (
-                <div className="absolute -left-1 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full bg-brand-600" />
+                <div className="absolute -left-1 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full bg-blue-600" />
               )}
             </div>
           </Link>

@@ -56,7 +56,7 @@ const Navbar = (props: {
   const pageTitle = getPageTitle();
 
   return (
-    <nav className="sticky border-b border-black/30 top-0 md:py-0 py-0 pb-0 md:py-4 mb-0 md:mb-4 z-40 flex flex-row flex-wrap items-center justify-between bg-white/10 md:px-2 h-[14vh] backdrop-blur-xl dark:bg-[#0b14374d]">
+    <nav className="sticky border-b border-black/30 top-0 md:py-0 py-0 pb-0 md:py-4 mb-0 md:mb-4 z-40 flex flex-row flex-wrap items-center justify-between bg-white/10 px-0 md:px-2 h-[14vh] backdrop-blur-xl dark:bg-[#0b14374d]">
       
       {/* Hamburger Button — HANYA MUNCUL DI MOBILE */}
       {/* <div className="block md:hidden w-max ml-[6px]">
@@ -69,14 +69,14 @@ const Navbar = (props: {
       </div> */}
       
       {/* Judul dinamis */}
-      <div className="ml-[12px] md:ml-[6px]">
+      <div className="ml-[0px] md:ml-[6px]">
         <p className="shrink text-[20px] uppercase text-navy-700 dark:text-white font-bold">
           {pageTitle}
         </p>
       </div>
 
       {/* Bagian kanan (tanggal + avatar) */}
-      <div className="relative mt-[3px] flex h-[61px] w-[40px] flex-grow items-center justify-end md:justify-around gap-2 rounded-full px-2 py-2 shadow-shadow-500 dark:!bg-navy-800 dark:shadow-none md:flex-grow-0 md:gap-1 md:w-[365px] xl:gap-2">
+      <div className="relative ml-auto mt-[3px] flex h-[61px] w-[40px] flex-grow items-center justify-end md:justify-around gap-2 rounded-full md:px-2 py-2 shadow-shadow-500 dark:!bg-navy-800 dark:shadow-none md:flex-grow-0 md:gap-1 md:w-[365px] xl:gap-2">
         <div className="hidden md:flex h-full items-center rounded-full text-navy-700 dark:bg-navy-900 dark:text-white px-4 py-2 w-max">
           <div className="mr-3 text-xl">
             <FiCalendar className="h-7 w-7 text-brand-500" />

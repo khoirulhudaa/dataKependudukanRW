@@ -20,6 +20,7 @@ import {
   MdPerson,
   MdSwapHoriz
 } from "react-icons/md";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import ComplexTable from "views/admin/default/components/ComplexTable";
 
 // === TIPE DATA ===
@@ -283,7 +284,7 @@ const Dashboard: React.FC = () => {
 
   const CHART_COLORS = {
     primary: "#6366F1",    // Indigo
-    secondary: "#8B5CF6",  // Purple
+    secondary: "#8B5CF6",  // blue
     success: "#10B981",    // Emerald
     danger: "#EF4444",     // Red
     gray: "#94A3B8",
@@ -294,12 +295,12 @@ const Dashboard: React.FC = () => {
   return (
     <div>
       {/* ==================== WIDGET GRID ==================== */}
-      <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6">
+      <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-3 3xl:grid-cols-6">
         <Widget icon={<MdHome className="h-7 w-7" />} title="Total RT/RW" subtitle={Object.keys(groupedData).length.toString()} />
         <Widget icon={<MdPerson className="h-7 w-7" />} title="Total KTP" subtitle={ktpKkData.filter(d => d.jenis === "KTP").length.toString()} />
         <Widget icon={<IoDocuments className="h-6 w-6" />} title="Total KK" subtitle={ktpKkData.filter(d => d.jenis === "KK").length.toString()} />
-        <Widget icon={<MdPeople className="h-7 w-7" />} title="Penduduk Hidup" subtitle={wargaHidup.toString()} />
-        <Widget icon={<MdSwapHoriz className="h-7 w-7" />} title="Pindah" subtitle={stats.num_pindah.toString()} />
+        {/* <Widget icon={<MdPeople className="h-7 w-7" />} title="Penduduk Hidup" subtitle={wargaHidup.toString()} /> */}
+        {/* <Widget icon={<MdSwapHoriz className="h-7 w-7" />} title="Pindah" subtitle={stats.num_pindah.toString()} /> */}
         <Widget icon={<MdAssignment className="h-7 w-7" />} title="Penerima Bantuan" subtitle={stats.num_penerima_bantuan.toString()} />
         <Widget icon={<MdMale className="h-7 w-7" />} title="Laki-Laki" subtitle={stats.Laki_laki.toString()} />
         <Widget icon={<MdFemale className="h-7 w-7" />} title="Perempuan" subtitle={stats.Perempuan.toString()} />
@@ -308,20 +309,20 @@ const Dashboard: React.FC = () => {
       {/* ==================== CHARTS GRID – MODERN & VARIATIF ==================== */}
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-12 gap-6">
 
-     {/* 1. KK PER RT – ORB ELEGAN */}
-      <Card extra="p-6 xl:col-span-12 bg-white dark:bg-navy-900 rounded-3xl shadow-lg">
+      {/* 1. KK PER RT – ORB ELEGAN */}
+      <Card extra="md:hidden flex p-4 xl:col-span-12 bg-white dark:bg-navy-900 rounded-3xl shadow-lg">
         <div className="w-full border-b border-gray-200 dark:border-navy-700 mb-6 pb-4">
           <h4 className="text-xl font-bold text-navy-700 dark:text-white">Jumlah KK per RT</h4>
         </div>
 
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-5">
+        <div className="-mx-3 grid grid-cols-4 p-0 justify-start sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-6 gap-5">
           {Object.entries(stats.kk_per_rt).map(([rt, jumlah], index) => {
             const size = 70;
 
             return (
               <div key={rt} className="flex flex-col items-center">
                 <div
-                  className="relative rounded-full shadow-lg flex items-center justify-center overflow-hidden border border-gray-200 dark:border-navy-700"
+                  className="relative flex-1 w-full rounded-lg shadow-lg flex items-center justify-center overflow-hidden border border-gray-200 dark:border-navy-700"
                   style={{
                     width: `${size}px`,
                     height: `${size}px`,
@@ -343,250 +344,74 @@ const Dashboard: React.FC = () => {
         </div>
       </Card>
 
-     {/* 2. STATUS PENDUDUK – GROUPED BAR CHART + FILTER */}
-      <Card
-        extra="p-6 xl:col-span-12 bg-white dark:from-navy-900 dark:via-navy-800 dark:to-navy-700 rounded-3xl shadow-2xl overflow-hidden"
-      >
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
-          <h4 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">
-            Status Penduduk per Bulan
-          </h4>
-
-          {/* FILTER BULAN & TAHUN */}
-          <div className="flex gap-2">
-            <select
-              className="px-3 py-1.5 bg-white/80 dark:bg-navy-800/80 backdrop-blur-sm border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
-            >
-              <option value="">Semua Bulan</option>
-              {["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"].map((m,i)=>
-                <option key={i} value={i+1}>{m}</option>
-              )}
-            </select>
-
-            <select
-              className="px-3 py-1.5 bg-white/80 dark:bg-navy-800/80 backdrop-blur-sm border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(e.target.value)}
-            >
-              <option value="">Semua Tahun</option>
-              {[2023,2024,2025].map(y=><option key={y} value={y}>{y}</option>)}
-            </select>
-          </div>
+     {/* 1. KK PER RT – ORB ELEGAN */}
+      <Card extra="md:flex hidden p-6 xl:col-span-12 bg-white dark:bg-navy-900 rounded-3xl shadow-lg">
+        <div className="w-full border-b border-gray-200 dark:border-navy-700 mb-6 pb-4">
+          <h4 className="text-xl font-bold text-black dark:text-white">Jumlah KK per RT</h4>
         </div>
 
-        {/* GROUPED BAR CHART */}
-          <div className="h-64">
-           <ApexCharts
-              type="bar"
-              height={256}
-              series={[
-                { name: "Hidup", data: safeFilteredData.map(d => d.hidup) },
-                { name: "Pindah", data: safeFilteredData.map(d => d.pindah) },
-                { name: "Meninggal", data: safeFilteredData.map(d => d.meninggal) }
-              ]}
-              options={{
-                chart: { toolbar: { show: false }, animations: { enabled: true } },
-                plotOptions: {
-                  bar: {
-                    horizontal: false,
-                    columnWidth: "70%",
-                    borderRadius: 8,
-                    dataLabels: { position: "top" }
-                  }
-                },
-                colors: [CHART_COLORS.primary, CHART_COLORS.success, CHART_COLORS.danger],
-                dataLabels: {
-                  enabled: true,
-                  offsetY: -20,
-                  style: { fontSize: "11px", colors: ["#1E293B"] }
-                },
-                stroke: { width: 2, colors: ["transparent"] },
-                xaxis: {
-                  categories: safeFilteredData.map(d => d.label),
-                  labels: { style: { fontSize: "11px", colors: CHART_COLORS.gray } }
-                },
-                yaxis: { labels: { style: { colors: CHART_COLORS.gray } } },
-                grid: { strokeDashArray: 6, borderColor: "#E2E8F0" },
-                tooltip: { theme: "light", y: { formatter: val => `${val} orang` } },
-                legend: { show: false },
-              }}
-            />
+        <div className="w-full h-96 mt-6">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={Object.entries(stats.kk_per_rt).map(([rt, jumlah]) => ({
+                rt: `RT ${rt}`,
+                jumlah: Number(jumlah),
+              }))}
+              margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.2} />
+              <XAxis 
+                dataKey="rt" 
+                angle={-45} 
+                textAnchor="end" 
+                height={80}
+                tick={{ fill: '#9CA3AF', fontSize: 12 }}
+              />
+              <YAxis 
+                tick={{ fill: '#9CA3AF', fontSize: 12 }}
+                label={{ value: 'Jumlah KK', angle: -90, position: 'insideLeft', style: { fill: '#9CA3AF' } }}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#1F2937', 
+                  border: 'none', 
+                  borderRadius: '8px',
+                  color: 'white'
+                }}
+              />
+              <Bar 
+                dataKey="jumlah" 
+                radius={[8, 8, 8, 8]}
+                fill="#4F46E5" 
+              >
+                {/* Gradient biar lebih keren */}
+                <defs>
+                  <linearGradient id="colorKK" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#818CF8" stopOpacity={0.9}/>
+                    <stop offset="95%" stopColor="#4F46E5" stopOpacity={1}/>
+                  </linearGradient>
+                </defs>
+                <Bar fill="url(#colorKK)" />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
         </div>
-        </Card>
 
-       
-        {/* 4. PENGAJUAN SURAT – LIQUID RADIAL GAUGES (UNIK & MODERN) */}
+        {/* Optional: Total KK di bawah chart */}
+        <div className="md:mt-6 text-center">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Total KK: <span className="font-bold text-indigo-600 dark:text-indigo-400">
+              {Object.values(stats.kk_per_rt).reduce((a, b) => a + Number(b), 0)}
+            </span>
+          </p>
+        </div>
+      </Card>
+
+       {/* 8. KATEGORI KHUSUS PENDUDUK – MODERN RADIAL BARS (100% Type-Safe) */}
         <Card
-          extra="p-6 xl:col-span-12 bg-white dark:from-navy-900 dark:via-navy-800 dark:to-navy-700 rounded-3xl shadow-2xl overflow-hidden"
+          extra="p-5 md:p-6 xl:col-span-12 bg-white dark:to-navy-800 rounded-2xl shadow-xl"
         >
-          <div className="flex items-center justify-between mb-8">
-            <h4 className="text-2xl font-bold text-navy-700 dark:text-white tracking-tight">
-              Pengajuan Surat
-            </h4>
-          </div>
-
-          {Object.keys(pengajuanByJenis).length === 0 ? (
-            <div className="flex h-[300px] flex-col items-center justify-center text-center">
-              <div className="relative">
-                <MdOutlineMail className="h-20 w-20 text-gray-300 dark:text-gray-600 mb-4 opacity-30" />
-                <div className="absolute inset-0 blur-xl bg-brand-500 opacity-20 animate-pulse"></div>
-              </div>
-              <p className="text-lg font-medium text-gray-500 dark:text-gray-400">Belum ada pengajuan</p>
-              <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Sistem siap menerima pengajuan warga</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {Object.entries(pengajuanByJenis).map(([jenis, jumlah], index) => {
-                const total = Object.values(pengajuanByJenis).reduce((a, b) => a + b, 0);
-                const percentage = Math.round((jumlah / total) * 100);
-
-                // Ikon unik per jenis surat
-                const iconMap: Record<string, () => JSX.Element> = {
-                  SKTM: () => <MdAssignment className="h-6 w-6" />,
-                  Domisili: () => <MdHome className="h-6 w-6" />,
-                  "Kelahiran": () => <MdChildCare className="h-6 w-6" />,
-                  "Kematian": () => <MdClose className="h-6 w-6" />,
-                  default: () => <MdDescription className="h-6 w-6" />,
-                };
-
-                const Icon = iconMap[jenis] || iconMap.default;
-
-                // Warna unik per jenis
-                const colors = [
-                  ["#8B5CF6", "#A78BFA"], // Ungu
-                  ["#EC4899", "#F472B6"], // Pink
-                  ["#10B981", "#34D399"], // Hijau
-                  ["#F59E0B", "#FBBF24"], // Kuning
-                  ["#3B82F6", "#60A5FA"], // Biru
-                  ["#EF4444", "#F87171"], // Merah
-                ];
-
-                const [primary, light] = colors[index % colors.length];
-
-                return (
-                  <div
-                    key={jenis}
-                    className="group relative transform transition-all duration-300 hover:-translate-y-1.5"
-                    style={{ perspective: "1000px" }}
-                  >
-                    {/* Glow Effect */}
-                    <div className="absolute -inset-4 bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-0 group-hover:opacity-30 blur-xl transition-opacity duration-500"></div>
-
-                    {/* Card Gauge */}
-                    <div className="relative bg-white dark:bg-navy-800 rounded-3xl p-5 shadow-xl border border-black/70 dark:border-navy-600">
-                      {/* Liquid Fill Radial */}
-                      <div className="relative w-full h-32 mx-auto">
-                        <ApexCharts
-                          type="radialBar"
-                          height={128}
-                          series={[percentage]}
-                          options={{
-                            chart: {
-                              animations: { enabled: true, speed: 1200, easing: "easeinout" },
-                              toolbar: { show: false },
-                            },
-                            plotOptions: {
-                              radialBar: {
-                                startAngle: -90,
-                                endAngle: 270,
-                                hollow: { size: "75%", background: "transparent" },
-                                track: { background: "#E5E7EB", strokeWidth: "100%" },
-                                dataLabels: {
-                                  show: true,
-                                  name: { show: false },
-                                  value: {
-                                    offsetY: 8,
-                                    fontSize: "20px",
-                                    fontWeight: 800,
-                                    color: primary,
-                                    formatter: () => jumlah.toString(),
-                                  },
-                                },
-                              },
-                            },
-                            colors: [primary],
-                            fill: {
-                              type: "gradient",
-                              gradient: {
-                                shade: "dark",
-                                type: "vertical",
-                                shadeIntensity: 0.8,
-                                gradientToColors: [light],
-                                inverseColors: false,
-                                opacityFrom: 1,
-                                opacityTo: 0.8,
-                                stops: [0, 100],
-                              },
-                            },
-                            stroke: { lineCap: "round" },
-                          }}
-                        />
-
-                        {/* Ikon di Tengah */}
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white dark:bg-navy-700 shadow-2xl border-4 border-white dark:border-navy-700 transform transition-transform group-hover:scale-110">
-                            <Icon />
-                          </div>
-                        </div>
-
-                        {/* Liquid Wave Effect (CSS) */}
-                        <div className="absolute bottom-0 left-0 right-0 h-8 overflow-hidden opacity-40">
-                          <div
-                            className="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-white to-transparent dark:from-navy-800"
-                            style={{
-                              clipPath: "ellipse(60% 50% at 50% 100%)",
-                              animation: `wave 3s ease-in-out infinite ${index * 0.3}s`,
-                            }}
-                          ></div>
-                        </div>
-                      </div>
-
-                      {/* Label */}
-                      <div className="mt-4 text-center">
-                        <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider truncate">
-                          {jenis.length > 12 ? jenis.substring(0, 12) + "..." : jenis}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{percentage}% dari total</p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </Card>
-
-        {/* 3. Distribusi Usia – Area Chart */}
-        <Card extra="p-6 xl:col-span-12">
-          <h4 className="text-lg font-bold text-navy-700 dark:text-white mb-4">Distribusi Usia Penduduk</h4>
-          <ApexCharts
-            type="area"
-            height={300}
-            series={[{ name: "Penduduk", data: Object.values(ageDistribution) }]}
-            options={{
-              chart: { toolbar: { show: false }, zoom: { enabled: false }, background: "rgba(99, 102, 241, 0.05)" },
-              dataLabels: { enabled: false },
-              stroke: { curve: "smooth", width: 3 },
-              xaxis: {
-                categories: Object.keys(ageDistribution),
-                labels: { rotate: -45, style: { colors: "#9CA3AF", fontSize: "10px" } },
-              },
-              yaxis: { labels: { style: { colors: "#9CA3AF" } } },
-              fill: { opacity: 0.8, type: "gradient", gradient: { shadeIntensity: 1, opacityFrom: 0.7, opacityTo: 0.3 } },
-              colors: ["#8B5CF6"],
-              tooltip: { theme: "dark", y: { formatter: val => `${val} orang` } },
-              grid: { show: true, strokeDashArray: 4, borderColor: "#E5E7EB" },
-            }}
-          />
-        </Card>
-        
-        {/* 8. KATEGORI KHUSUS PENDUDUK – MODERN RADIAL BARS (100% Type-Safe) */}
-        <Card
-          extra="p-6 xl:col-span-12 bg-white dark:to-navy-800 rounded-2xl shadow-xl"
-        >
-          <h4 className="text-xl font-bold text-navy-700 dark:text-white mb-6 text-left">
+          <h4 className="text-xl font-bold text-black dark:text-white mb-6 text-left">
             Kategori Khusus Penduduk
           </h4>
 
@@ -679,10 +504,10 @@ const Dashboard: React.FC = () => {
                   </div>
 
                   {/* Label */}
-                  <p className="mt-3 text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                  <p className="mt-3 text-xs font-medium text-black dark:text-black uppercase tracking-wider">
                     {kategori}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{percentage}% dari total</p>
+                  <p className="text-xs text-black dark:text-black">{percentage}% dari total</p>
                 </div>
               );
             })}
@@ -703,17 +528,256 @@ const Dashboard: React.FC = () => {
                     }[kategori as keyof typeof kategoriPenduduk],
                   }}
                 />
-                <span className="text-md text-gray-600 dark:text-gray-400">
-                  {kategori}: <strong className="text-navy-700 dark:text-white">{jumlah}</strong>
+                <span className="text-md text-black dark:text-black">
+                  {kategori}: <strong className="text-black dark:text-white">{jumlah}</strong>
                 </span>
               </div>
             ))}
           </div>
         </Card>
 
+     {/* 2. STATUS PENDUDUK – GROUPED BAR CHART + FILTER */}
+      <Card
+        extra="p-5 md:p-6 xl:col-span-12 bg-white dark:from-navy-900 dark:via-navy-800 dark:to-navy-700 rounded-3xl shadow-2xl overflow-hidden"
+      >
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+          <h4 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">
+            Status Penduduk per Bulan
+          </h4>
+
+          {/* FILTER BULAN & TAHUN */}
+          <div className="flex gap-2">
+            <select
+              className="px-3 py-1.5 bg-white/80 dark:bg-navy-800/80 backdrop-blur-sm border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+            >
+              <option value="">Semua Bulan</option>
+              {["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"].map((m,i)=>
+                <option key={i} value={i+1}>{m}</option>
+              )}
+            </select>
+
+            <select
+              className="px-3 py-1.5 bg-white/80 dark:bg-navy-800/80 backdrop-blur-sm border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
+            >
+              <option value="">Semua Tahun</option>
+              {[2023,2024,2025].map(y=><option key={y} value={y}>{y}</option>)}
+            </select>
+          </div>
+        </div>
+
+        {/* GROUPED BAR CHART */}
+          <div className="h-64">
+           <ApexCharts
+              type="bar"
+              height={256}
+              series={[
+                { name: "Hidup", data: safeFilteredData.map(d => d.hidup) },
+                { name: "Pindah", data: safeFilteredData.map(d => d.pindah) },
+                { name: "Meninggal", data: safeFilteredData.map(d => d.meninggal) }
+              ]}
+              options={{
+                chart: { toolbar: { show: false }, animations: { enabled: true } },
+                plotOptions: {
+                  bar: {
+                    horizontal: false,
+                    columnWidth: "70%",
+                    borderRadius: 8,
+                    dataLabels: { position: "top" }
+                  }
+                },
+                colors: [CHART_COLORS.primary, CHART_COLORS.success, CHART_COLORS.danger],
+                dataLabels: {
+                  enabled: true,
+                  offsetY: -20,
+                  style: { fontSize: "11px", colors: ["#1E293B"] }
+                },
+                stroke: { width: 2, colors: ["transparent"] },
+                xaxis: {
+                  categories: safeFilteredData.map(d => d.label),
+                  labels: { style: { fontSize: "11px", colors: CHART_COLORS.gray } }
+                },
+                yaxis: { labels: { style: { colors: CHART_COLORS.gray } } },
+                grid: { strokeDashArray: 6, borderColor: "#E2E8F0" },
+                tooltip: { theme: "light", y: { formatter: val => `${val} orang` } },
+                legend: { show: false },
+              }}
+            />
+        </div>
+        </Card>
+
+       
+        {/* 4. PENGAJUAN SURAT – LIQUID RADIAL GAUGES (UNIK & MODERN) */}
+        <Card
+          extra="p-5 md:p-6 xl:col-span-12 bg-white dark:from-navy-900 dark:via-navy-800 dark:to-navy-700 rounded-3xl shadow-2xl overflow-hidden"
+        >
+          <div className="flex items-center justify-between mb-8">
+            <h4 className="text-xl md:text-2xl font-bold text-black dark:text-white tracking-tight">
+              Pengajuan Surat
+            </h4>
+          </div>
+
+          {Object.keys(pengajuanByJenis).length === 0 ? (
+            <div className="flex h-[300px] flex-col items-center justify-center text-center">
+              <div className="relative">
+                <MdOutlineMail className="h-20 w-20 text-black dark:text-black mb-4" />
+                <div className="absolute inset-0 blur-xl bg-blue-500 animate-pulse"></div>
+              </div>
+              <p className="text-lg font-medium text-black dark:text-black">Belum ada pengajuan</p>
+              <p className="text-sm text-black dark:text-black mt-1">Sistem siap menerima pengajuan warga</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {Object.entries(pengajuanByJenis).map(([jenis, jumlah], index) => {
+                const total = Object.values(pengajuanByJenis).reduce((a, b) => a + b, 0);
+                const percentage = Math.round((jumlah / total) * 100);
+
+                // Ikon unik per jenis surat
+                const iconMap: Record<string, () => JSX.Element> = {
+                  SKTM: () => <MdAssignment className="h-6 w-6" />,
+                  Domisili: () => <MdHome className="h-6 w-6" />,
+                  "Kelahiran": () => <MdChildCare className="h-6 w-6" />,
+                  "Kematian": () => <MdClose className="h-6 w-6" />,
+                  default: () => <MdDescription className="h-6 w-6" />,
+                };
+
+                const Icon = iconMap[jenis] || iconMap.default;
+
+                // Warna unik per jenis
+                const colors = [
+                  ["#8B5CF6", "#A78BFA"], // Ungu
+                  ["#EC4899", "#F472B6"], // Pink
+                  ["#10B981", "#34D399"], // Hijau
+                  ["#F59E0B", "#FBBF24"], // Kuning
+                  ["#3B82F6", "#60A5FA"], // Biru
+                  ["#EF4444", "#F87171"], // Merah
+                ];
+
+                const [primary, light] = colors[index % colors.length];
+
+                return (
+                  <div
+                    key={jenis}
+                    className="group relative transform transition-all duration-300 hover:-translate-y-1.5"
+                    style={{ perspective: "1000px" }}
+                  >
+                    {/* Glow Effect */}
+                    <div className="absolute -inset-4 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-0 group-hover:opacity-30 blur-xl transition-opacity duration-500"></div>
+
+                    {/* Card Gauge */}
+                    <div className="relative bg-white dark:bg-navy-800 rounded-3xl p-5 shadow-xl border border-black/70 dark:border-navy-600">
+                      {/* Liquid Fill Radial */}
+                      <div className="relative w-full h-32 mx-auto">
+                        <ApexCharts
+                          type="radialBar"
+                          height={128}
+                          series={[percentage]}
+                          options={{
+                            chart: {
+                              animations: { enabled: true, speed: 1200, easing: "easeinout" },
+                              toolbar: { show: false },
+                            },
+                            plotOptions: {
+                              radialBar: {
+                                startAngle: -90,
+                                endAngle: 270,
+                                hollow: { size: "75%", background: "transparent" },
+                                track: { background: "#E5E7EB", strokeWidth: "100%" },
+                                dataLabels: {
+                                  show: true,
+                                  name: { show: false },
+                                  value: {
+                                    offsetY: 8,
+                                    fontSize: "20px",
+                                    fontWeight: 800,
+                                    color: primary,
+                                    formatter: () => jumlah.toString(),
+                                  },
+                                },
+                              },
+                            },
+                            colors: [primary],
+                            fill: {
+                              type: "gradient",
+                              gradient: {
+                                shade: "dark",
+                                type: "vertical",
+                                shadeIntensity: 0.8,
+                                gradientToColors: [light],
+                                inverseColors: false,
+                                opacityFrom: 1,
+                                opacityTo: 0.8,
+                                stops: [0, 100],
+                              },
+                            },
+                            stroke: { lineCap: "round" },
+                          }}
+                        />
+
+                        {/* Ikon di Tengah */}
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white dark:bg-navy-700 shadow-2xl border-4 border-white dark:border-navy-700 transform transition-transform group-hover:scale-110">
+                            <Icon />
+                          </div>
+                        </div>
+
+                        {/* Liquid Wave Effect (CSS) */}
+                        <div className="absolute bottom-0 left-0 right-0 h-8 overflow-hidden opacity-40">
+                          <div
+                            className="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-white to-transparent dark:from-navy-800"
+                            style={{
+                              clipPath: "ellipse(60% 50% at 50% 100%)",
+                              animation: `wave 3s ease-in-out infinite ${index * 0.3}s`,
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+
+                      {/* Label */}
+                      <div className="mt-4 text-center">
+                        <p className="text-xs font-semibold text-black dark:text-black uppercase tracking-wider truncate">
+                          {jenis.length > 12 ? jenis.substring(0, 12) + "..." : jenis}
+                        </p>
+                        <p className="text-xs text-black dark:text-black mt-1">{percentage}% dari total</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </Card>
+
+        {/* 3. Distribusi Usia – Area Chart */}
+        <Card extra="p-5 md:p-6 xl:col-span-12">
+          <h4 className="text-lg font-bold text-black dark:text-white mb-4">Distribusi Usia Penduduk</h4>
+          <ApexCharts
+            type="area"
+            height={300}
+            series={[{ name: "Penduduk", data: Object.values(ageDistribution) }]}
+            options={{
+              chart: { toolbar: { show: false }, zoom: { enabled: false }, background: "rgba(99, 102, 241, 0.05)" },
+              dataLabels: { enabled: false },
+              stroke: { curve: "smooth", width: 3 },
+              xaxis: {
+                categories: Object.keys(ageDistribution),
+                labels: { rotate: -45, style: { colors: "#9CA3AF", fontSize: "10px" } },
+              },
+              yaxis: { labels: { style: { colors: "#9CA3AF" } } },
+              fill: { opacity: 0.8, type: "gradient", gradient: { shadeIntensity: 1, opacityFrom: 0.7, opacityTo: 0.3 } },
+              colors: ["#8B5CF6"],
+              tooltip: { theme: "dark", y: { formatter: val => `${val} orang` } },
+              grid: { show: true, strokeDashArray: 4, borderColor: "#E5E7EB" },
+            }}
+          />
+        </Card>
+
         {/* 5. Jenis Kelamin – Minimal Card */}
-        <Card extra="p-6 xl:col-span-12">
-          <h4 className="text-lg font-bold text-navy-700 dark:text-white mb-6">Jenis Kelamin</h4>
+        <Card extra="p-5 md:p-6 xl:col-span-12">
+          <h4 className="text-lg font-bold text-black dark:text-white mb-6">Jenis Kelamin</h4>
           <div className="gap-4 flex justify-between">
             <div className="border border-blue-300 rounded-lg p-2 w-1/2 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -721,7 +785,7 @@ const Dashboard: React.FC = () => {
                   <MdMale className="h-7 w-7 text-blue-600 dark:text-blue-300" />
                 </div>
                 <div className="flex items-center gap-3">
-                  <p className="text-2xl font-bold text-navy-700 dark:text-white">{genderDistribution["Laki-laki"]}</p>
+                  <p className="text-2xl font-bold text-black dark:text-white">{genderDistribution["Laki-laki"]}</p>
                   <p className="text-sm text-blue-500">Laki-laki</p>
                 </div>
               </div>
@@ -737,7 +801,7 @@ const Dashboard: React.FC = () => {
                   <MdFemale className="h-7 w-7 text-pink-600 dark:text-pink-300" />
                 </div>
                 <div className="flex items-center gap-3">
-                  <p className="text-2xl font-bold text-navy-700 dark:text-white">{genderDistribution["Perempuan"]}</p>
+                  <p className="text-2xl font-bold text-black dark:text-white">{genderDistribution["Perempuan"]}</p>
                   <p className="text-sm text-pink-500">Perempuan</p>
                 </div>
               </div>
@@ -751,8 +815,8 @@ const Dashboard: React.FC = () => {
         </Card>
 
         {/* 6. KK Sementara – Radial Progress */}
-        <Card extra="p-6 xl:col-span-4">
-          <h4 className="text-lg font-bold text-navy-700 dark:text-white mb-4">KK Sementara</h4>
+        <Card extra="p-5 md:p-6 xl:col-span-4">
+          <h4 className="text-lg font-bold text-black dark:text-white mb-4">KK Sementara</h4>
           <div className="flex flex-col items-center">
             <ApexCharts
               type="radialBar"
@@ -774,17 +838,17 @@ const Dashboard: React.FC = () => {
                 labels: [""],
               }}
             />
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+            <p className="mt-2 text-sm text-black dark:text-black">
               {stats.num_kk_sementara} dari {totalKK} KK
             </p>
           </div>
         </Card>
 
         {/* 7. Trend Pengajuan */}
-        <Card extra="p-6 xl:col-span-8">
+        <Card extra="p-5 md:p-6 xl:col-span-8">
           <div className="flex items-center justify-between mb-4">
-            <h4 className="text-lg font-bold text-navy-700 dark:text-white">Trend Pengajuan Surat (7 Hari)</h4>
-            <MdOutlineTrendingUp className="h-5 w-5 text-purple-500" />
+            <h4 className="text-lg font-bold text-black dark:text-white">Trend Pengajuan Surat (7 Hari)</h4>
+            <MdOutlineTrendingUp className="h-5 w-5 text-blue-500" />
           </div>
           <ApexCharts
             type="line"
@@ -865,7 +929,7 @@ const Dashboard: React.FC = () => {
           <select
             value={selectedRtRw}
             onChange={(e) => setSelectedRtRw(e.target.value)}
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-navy-700 dark:border-navy-600 dark:bg-navy-700 dark:text-white"
+            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-black dark:border-navy-600 dark:bg-navy-700 dark:text-white"
           >
             <option value="all">Semua RT/RW</option>
             {Object.keys(groupedData).map((key) => (
@@ -879,11 +943,11 @@ const Dashboard: React.FC = () => {
         <div className="space-y-6">
           <div className="bg-white dark:bg-navy-800 p-5 rounded-xl shadow-sm">
             <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-green-500/20 text-green-500">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-green-500 text-white">
                 <MdBadge className="h-5 w-5" />
               </div>
-              <h3 className="text-lg font-semibold text-navy-700 dark:text-white">
-                Data KTP {selectedRtRw !== "all" && <span className="text-sm font-normal text-gray-600">— {selectedRtRw}</span>}
+              <h3 className="text-lg font-semibold text-black dark:text-white">
+                Data KTP {selectedRtRw !== "all" && <span className="text-sm font-normal text-black">— {selectedRtRw}</span>}
               </h3>
             </div>
             <ComplexTable tableData={filteredKtpData} />
@@ -891,11 +955,11 @@ const Dashboard: React.FC = () => {
 
           <div className="bg-white dark:bg-navy-800 p-5 rounded-xl shadow-sm">
             <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-500/20 text-blue-500">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-500 text-white">
                 <IoDocuments className="h-5 w-5" />
               </div>
-              <h3 className="text-lg font-semibold text-navy-700 dark:text-white">
-                Data KK {selectedRtRw !== "all" && <span className="text-sm font-normal text-gray-600">— {selectedRtRw}</span>}
+              <h3 className="text-lg font-semibold text-black dark:text-white">
+                Data KK {selectedRtRw !== "all" && <span className="text-sm font-normal text-black">— {selectedRtRw}</span>}
               </h3>
             </div>
             <ComplexTable tableData={filteredKkData} />

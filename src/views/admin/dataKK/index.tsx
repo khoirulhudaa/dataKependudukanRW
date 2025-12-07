@@ -1,6 +1,8 @@
 import Card from "components/card";
 import MapPicker from "components/mapPicker";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { BsPencil } from "react-icons/bs";
+import { FaPen, FaUserPlus } from "react-icons/fa";
 import {
   MdAccessibilityNew,
   MdAdd,
@@ -12,7 +14,6 @@ import {
   MdFileDownload,
   MdHome,
   MdLocationOn,
-  MdMap,
   MdPhotoCamera,
   MdPictureAsPdf,
   MdSave,
@@ -1919,14 +1920,16 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
                     setKKFileUrl(selectedKK?.fileUrl || null);
                     setFotoRumahUrl(selectedKK?.fotoRumahUrl || null);
                   }}
-                  className="bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-2xl shadow-lg transition transform active:scale-[0.99]"
+                  className="flex items-center gap-2 justify-center text-center bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-2xl shadow-lg transition transform active:scale-[0.99]"
                 >
+                  <FaPen className="w-4 h-4" />
                   Edit Data KK
                 </button>
                 <button
                   onClick={openTambahAnggota}
-                  className="bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-2xl shadow-lg transition transform active:scale-[0.99]"
+                  className="flex items-center gap-2 justify-center text-center bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-2xl shadow-lg transition transform active:scale-[0.99]"
                 >
+                  <FaUserPlus className="w-5 h-5" />
                   Tambah Anggota
                 </button>
                 <button
