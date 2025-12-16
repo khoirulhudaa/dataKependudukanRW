@@ -3,14 +3,33 @@ import Navbar from "components/navbar";
 import BottomNav from "components/navigation";
 import Sidebar from "components/sidebar";
 import React from "react";
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import routes from "routes";
 
 export default function Admin(props: { [x: string]: any }) {
   const { ...rest } = props;
   const location = useLocation();
+  const navigate = useNavigate(); // <-- Tambahkan ini
   const [open, setOpen] = React.useState(true);
   const [currentRoute] = React.useState("Main Dashboard");
+
+  // === PROTEKSI AUTENTIKASI ===
+  React.useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+    // Opsional: cek juga user jika aplikasi menyimpannya
+    const user = localStorage.getItem("user");
+    const tokenType = localStorage.getItem("tokenType");
+
+    if (!accessToken || !user || !tokenType) {
+      // Bersihkan localStorage dari data yang mungkin rusak
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
+      localStorage.removeItem("tokenType");
+
+      // Redirect ke halaman login (ganti path jika berbeda)
+      navigate("/auth/sign", { replace: true });
+    }
+  }, [navigate]);
 
   React.useEffect(() => {
     const handleResize = () => {

@@ -35,7 +35,7 @@ interface Profile {
   rw?: RW;
 }
 
-const BASE_URL = "{{BASE_URL}}";
+const BASE_URL = "https://nitip-api.diwanmotor.com/api/v1";
 
 export default function KarangTarunaPage() {
   const [profile, setProfile] = useState<Profile>({
@@ -53,6 +53,7 @@ export default function KarangTarunaPage() {
 
   const isSuperAdmin = profile.role === "SUPERADMIN";
   const rwId = isSuperAdmin ? selectedRw : profile.rw?.id;
+  console.log('rwId:', rwId)
 
   /** Fetch RW list (SUPERADMIN only) */
   const fetchRws = async () => {
@@ -68,6 +69,7 @@ export default function KarangTarunaPage() {
       headers: { Authorization: `Bearer ${token}` },
     });
     const json = await res.json();
+    console.log('detail rw', json)
     if (json.success) {
       // data.rwDetail
       setRwDetail(json.data);
@@ -92,11 +94,14 @@ export default function KarangTarunaPage() {
 
   /** Fetch youth org by RW */
   const fetchYouthOrgs = async (rwIdParam: string) => {
+    console.log('rwIdParam', rwIdParam)
     if (!token || !rwIdParam) return;
     const res = await fetch(`${BASE_URL}/setup/youth-org/rw/${rwIdParam}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     const json = await res.json();
+    console.log('json', json)
+
     if (json.success) setYouthOrgs(Array.isArray(json.data) ? json.data : [json.data]);
   };
 

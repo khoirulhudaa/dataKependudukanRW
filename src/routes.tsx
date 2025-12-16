@@ -247,13 +247,13 @@ const routes: any = [
             icon: <MdAccountBox className="h-5 w-5" />,
             component: <PegawaiRWPage />,
           },
-          {
-            name: "Karang Taruna",
-            path: "karang-taruna",
-            layout: "/admin",
-            icon: <MdAccountBox className="h-5 w-5" />,
-            component: <KarangTarunaPage />,
-          },
+          // {
+          //   name: "Karang Taruna",
+          //   path: "karang-taruna",
+          //   layout: "/admin",
+          //   icon: <MdAccountBox className="h-5 w-5" />,
+          //   component: <KarangTarunaPage />,
+          // },
           {
             name: "Manajemen Admin",
             path: "manajemen-admin",
