@@ -260,7 +260,7 @@ const Links = ({ routes, onLinkClick }: LinksProps) => {
               {/* Submenu */}
               <div
                 className={`overflow-auto transition-all duration-300 ${
-                  isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                  isOpen ? "max-h-full opacity-100" : "max-h-0 opacity-0"
                 }`}
               >
                 <div className="mt-1 space-y-1 border-l-2 border-gray-200 pl-6 dark:border-gray-700">

@@ -1,7 +1,6 @@
 import Card from "components/card";
 import MapPicker from "components/mapPicker";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { BsPencil } from "react-icons/bs";
 import { FaPen, FaUserPlus } from "react-icons/fa";
 import {
   MdAccessibilityNew,
@@ -491,6 +490,22 @@ const DataKK: React.FC = () => {
   const partisipasiRef = useRef<HTMLDivElement>(null);
   const kerentananRef = useRef<HTMLDivElement>(null);
   const bantuanRef = useRef<HTMLDivElement>(null); // untuk dropdown bantuan
+
+  // Masking maksimal untuk NIK: 4 awal + 8 bintang + 4 akhir
+  const maskNIK = (nik?: string): string => {
+    if (!nik) return "—";
+    const cleaned = nik.replace(/\D/g, ""); // hapus non-digit
+    if (cleaned.length !== 16) return nik; // kalau bukan 16 digit, tampilkan full (jarang terjadi)
+    return `${cleaned.slice(0, 4)}${"*".repeat(8)}${cleaned.slice(-4)}`;
+  };
+
+  // Masking maksimal untuk No KK: 4 awal + 8 bintang + 4 akhir (lebih ketat)
+  const maskNoKK = (noKK?: string): string => {
+    if (!noKK) return "—";
+    const cleaned = noKK.replace(/\D/g, "");
+    if (cleaned.length !== 16) return noKK;
+    return `${cleaned.slice(0, 4)}${"*".repeat(8)}${cleaned.slice(-4)}`;
+  };
 
  // Effect klik di luar — versi yang BENAR
   useEffect(() => {
@@ -1264,7 +1279,7 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <h4 className="text-lg font-extrabold text-navy-700 dark:text-white">
-                          No KK: {item.noKK}
+                          No KK: {maskNoKK(item.noKK)}
                           {item.isSementara && (
                             <span className="ml-2 inline-block px-2 py-0.5 text-xs font-bold text-orange-700 bg-orange-100 rounded-full">
                               Sementara
@@ -1405,7 +1420,7 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
                   {selectedAnggotaDetail.jenisKelamin === "L" ? "Laki-laki" : "Perempuan"}
                 </p>
                 <p className="text-sm font-medium text-gray-500 mt-3">
-                  {selectedAnggotaDetail.statusKeluarga} • NIK: {selectedAnggotaDetail.nik}
+                  {selectedAnggotaDetail.statusKeluarga} • NIK: {maskNIK(selectedAnggotaDetail.nik)}
                 </p>
               </div>
 
@@ -1495,7 +1510,7 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
               <div className="text-center">
                 <p className="text-md text-black/80 dark:text-gray-400 tracking-widest uppercase">Kartu Keluarga</p>
                 <h1 className="text-3xl md:text-4xl font-black text-gray-800 dark:text-white mt-2 tracking-tight">
-                  {selectedKK.noKK}
+                  {maskNoKK(selectedKK.noKK)}
                 </h1>
               </div>
 
@@ -1662,7 +1677,7 @@ const renderTagsAnggota = (anggota: any, usia: number) => {
                           {/* Body */}
                           <div className="p-5 space-y-4">
                             <p className="font-mono text-sm text-gray-600 dark:text-gray-400">
-                              NIK : {anggota.nik}
+                              NIK : {maskNIK(anggota.nik)}
                             </p>
 
                             {/* Tags */}

@@ -82,7 +82,7 @@ const Navbar = (props: {
             <FiCalendar className="h-7 w-7 text-brand-500" />
           </div>
           <div className="flex flex-col leading-tight uppercase">
-            <span className="text-lg font-semibold text-navy-700 dark:text-white">
+            <span className="text-lg font-semibold text-navy-700 w-max dark:text-white">
               {format(new Date(), "EEEE, d MMMM yyyy", { locale: id })}
             </span>
           </div>

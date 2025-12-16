@@ -28,20 +28,34 @@
 
 // export default Widget;
 
+// components/widget/Widget.tsx (atau path sesuai project kamu)
 
 import Card from "components/card";
+import React from "react";
 
-const Widget = (props: {
+interface WidgetProps {
   icon: JSX.Element;
   title: string;
   subtitle: string | number;
-  extraClass?: string; // Tambahkan ini
-}) => {
-  const { icon, title, subtitle, extraClass = "" } = props;
+  extraClass?: string;
+  onClick?: () => void; // ← PROPS BARU: fungsi yang dipanggil saat diklik
+}
 
+const Widget: React.FC<WidgetProps> = ({
+  icon,
+  title,
+  subtitle,
+  extraClass = "",
+  onClick,
+}) => {
   return (
     <Card
-      extra={`!flex-row flex-grow items-center rounded-[20px] ${extraClass}`}
+      extra={`!flex-row flex-grow items-center rounded-[20px] transition-all duration-200 ${
+        onClick
+          ? "cursor-pointer hover:shadow-2xl hover:-translate-y-1 hover:bg-brand-50/50 dark:hover:bg-navy-700/80"
+          : ""
+      } ${extraClass}`}
+      onClick={onClick} // ← terapkan onClick ke Card
     >
       <div className="ml-[18px] flex h-[90px] w-auto flex-row items-center">
         <div className="rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 p-3 dark:bg-navy-700">

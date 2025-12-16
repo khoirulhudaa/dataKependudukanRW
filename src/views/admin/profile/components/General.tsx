@@ -1,38 +1,23 @@
 // src/views/admin/profile/components/General.tsx
-import React from "react";
 import Card from "components/card";
-
-type User = {
-  role: "admin" | "superadmin";
-  nama: string;
-  nik?: string;
-  rt?: string;
-  rw?: string;
-  kelurahan?: string;
-  provinsi?: string;
-  alamat?: string;
-  noTelp?: string;
-  foto?: string;
-};
+import React from "react";
+import { useProfile } from "utils/useProfile";
 
 const General: React.FC = () => {
-  const rawUser = localStorage.getItem("currentUser");
-  const user: User = rawUser ? JSON.parse(rawUser) : {};
+  const { profile, loading, error } = useProfile();
 
-  const defaultUser: User = user.role
-    ? user
-    : {
-        role: "admin",
-        nama: "Ahmad Fauzi",
-        nik: "3275010101900001",
-        rt: "01",
-        rw: "001",
-        kelurahan: "Cihapit",
-        alamat: "Jl. Merdeka No. 1",
-        noTelp: "081234567890",
-      };
+  if (loading) return <Card extra="p-8 text-center">
+    <p>
+      Memuat...
+    </p>
+    </Card>;
+  if (error || !profile) return <Card extra="p-8 text-center text-red-500">
+    <p>
+      {error || "Data tidak tersedia"}
+    </p>
+    </Card>;
 
-  const isAdmin = defaultUser.role === "admin";
+  const isAdmin = profile.role === "admin";
 
   return (
     <Card extra="w-full h-full p-3">
@@ -50,68 +35,44 @@ const General: React.FC = () => {
       <div className="grid grid-cols-1 gap-4 px-2 md:grid-cols-2">
         <div className="flex flex-col items-start justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 border border-black/30 dark:!bg-navy-700 dark:border-navy-600">
           <p className="text-sm text-gray-600">Nama Lengkap</p>
-          <p className="text-base font-medium text-navy-700 dark:text-white">{defaultUser.nama}</p>
+          <p className="text-base font-medium text-navy-700 dark:text-white">{profile.nama}</p>
         </div>
 
-        {defaultUser.nik && (
-          <div className="flex flex-col justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 border border-black/30 dark:!bg-navy-700 dark:border-navy-600">
-            <p className="text-sm text-gray-600">NIK</p>
-            <p className="text-base font-mono text-navy-700 dark:text-white">{defaultUser.nik}</p>
-          </div>
-        )}
+        <div className="flex flex-col justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 border border-black/30 dark:!bg-navy-700 dark:border-navy-600">
+          <p className="text-sm text-gray-600">No. Telepon</p>
+          <p className="text-base font-medium text-navy-700 dark:text-white">{profile.noTelp || "-"}</p>
+        </div>
 
         {isAdmin ? (
           <>
-            <div className="flex flex-col items-start justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 border border-black/30 dark:!bg-navy-700 dark:border-navy-600">
-              <p className="text-sm text-gray-600">RT</p>
-              <p className="text-base font-medium text-navy-700 dark:text-white">{defaultUser.rt || "-"}</p>
-            </div>
-            <div className="flex flex-col justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 border border-black/30 dark:!bg-navy-700 dark:border-navy-600">
-              <p className="text-sm text-gray-600">RW</p>
-              <p className="text-base font-medium text-navy-700 dark:text-white">{defaultUser.rw || "-"}</p>
-            </div>
-
-            {/* NIK & No. Telp → Sejajar */}
-            {defaultUser.nik && (
-              <div className="flex flex-col justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 border border-black/30 dark:!bg-navy-700 dark:border-navy-600">
-                <p className="text-sm text-gray-600">NIK</p>
-                <p className="text-base font-mono text-navy-700 dark:text-white">{defaultUser.nik}</p>
+            {profile.rt && (
+              <div className="flex flex-col items-start justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 border border-black/30 dark:!bg-navy-700 dark:border-navy-600">
+                <p className="text-sm text-gray-600">RT</p>
+                <p className="text-base font-medium text-navy-700 dark:text-white">{profile.rt}</p>
               </div>
             )}
-            {defaultUser.noTelp && (
+            {profile.rw && (
               <div className="flex flex-col justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 border border-black/30 dark:!bg-navy-700 dark:border-navy-600">
-                <p className="text-sm text-gray-600">No. Telepon</p>
-                <p className="text-base font-medium text-navy-700 dark:text-white">{defaultUser.noTelp}</p>
+                <p className="text-sm text-gray-600">RW</p>
+                <p className="text-base font-medium text-navy-700 dark:text-white">{profile.rw}</p>
               </div>
             )}
           </>
         ) : (
           <>
-            <div className="flex flex-col items-start justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 border border-black/30 dark:!bg-navy-700 dark:border-navy-600">
-              <p className="text-sm text-gray-600">Kelurahan</p>
-              <p className="text-base font-medium text-navy-700 dark:text-white">{defaultUser.kelurahan || "-"}</p>
-            </div>
-            {defaultUser.noTelp && (
+            {profile.kelurahan && (
+              <div className="flex flex-col items-start justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 border border-black/30 dark:!bg-navy-700 dark:border-navy-600">
+                <p className="text-sm text-gray-600">Kelurahan</p>
+                <p className="text-base font-medium text-navy-700 dark:text-white">{profile.kelurahan}</p>
+              </div>
+            )}
+            {profile.provinsi && (
               <div className="flex flex-col justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 border border-black/30 dark:!bg-navy-700 dark:border-navy-600">
-                <p className="text-sm text-gray-600">No. Telepon</p>
-                <p className="text-base font-medium text-navy-700 dark:text-white">{defaultUser.noTelp}</p>
+                <p className="text-sm text-gray-600">Provinsi</p>
+                <p className="text-base font-medium text-navy-700 dark:text-white">{profile.provinsi}</p>
               </div>
             )}
           </>
-        )}
-
-        {defaultUser.alamat && (
-          <div className="flex flex-col justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 border border-black/30 dark:!bg-navy-700 dark:border-navy-600 md:col-span-2">
-            <p className="text-sm text-gray-600">Alamat</p>
-            <p className="text-base font-medium text-navy-700 dark:text-white">{defaultUser.alamat}</p>
-          </div>
-        )}
-
-        {!isAdmin && defaultUser.provinsi && (
-          <div className="flex flex-col justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 border border-black/30 dark:!bg-navy-700 dark:border-navy-600">
-            <p className="text-sm text-gray-600">Provinsi</p>
-            <p className="text-base font-medium text-navy-700 dark:text-white">{defaultUser.provinsi}</p>
-          </div>
         )}
       </div>
     </Card>

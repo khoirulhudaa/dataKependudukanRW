@@ -23,6 +23,7 @@
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
     "apexcharts": "^3.35.5",
+    "axios": "^1.13.2",
     "date-fns": "^4.1.0",
     "file-saver": "^2.0.5",
     "html-docx-js": "^0.3.1",

@@ -292,6 +292,8 @@ const Dashboard: React.FC = () => {
     bg: "#F8FAFC",         // Light background
   };
 
+  console.log(JSON.parse(localStorage.getItem('user')))
+
   return (
     <div>
       {/* ==================== WIDGET GRID ==================== */}

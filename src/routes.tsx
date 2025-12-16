@@ -1,25 +1,27 @@
-import { BsPlus, BsVirus } from "react-icons/bs";
+import { BsVirus } from "react-icons/bs";
 import { IoWarning } from "react-icons/io5";
 import {
   MdAccessibilityNew,
+  MdAccountBox,
+  MdAdminPanelSettings,
   MdBadge,
   MdBarChart,
   MdDiversity3,
   MdElderly,
   MdFamilyRestroom,
   MdFlashOn,
+  MdGroup,
   MdHome,
   MdHomeWork,
   MdLocalHospital,
   MdPaid,
   MdPeople,
   MdPersonSearch,
-  MdPlusOne,
   MdPregnantWoman,
   MdSchool,
   MdSupervisorAccount,
   MdWarning,
-  MdWork
+  MdWork,
 } from "react-icons/md";
 
 import DataBermasalah from "views/admin/dataBermasalah";
@@ -40,17 +42,32 @@ import QuickAccess from "views/admin/quickAccess";
 import StatusEkonomi from "views/admin/statusEkonomi";
 import StatusKependudukan from "views/admin/statusKependudukan";
 
-// (Nanti kamu bisa import komponen untuk Sosial Ekonomi & Kesehatan di sini)
+import KarangTarunaPage from "views/admin/karangtaruna";
+import ManajemenAdmin from "views/admin/manajemenAdmin";
+import PegawaiRTPage from "views/admin/pegawaiRT";
+import PegawaiRWPage from "views/admin/pegawaiRW";
+import ProfileOverview from "views/admin/profile";
 
 const routes: any = [
+  // ==============================
+  // Dashboard di root URL "/"
+  // ==============================
   {
     name: "Halaman Utama",
     layout: "/admin",
-    path: "default",
+    path: "/",                              // ← Sekarang langsung ke root
     icon: <MdHome className="h-6 w-6" />,
     component: <MainDashboard />,
   },
+  {
+    layout: "/admin",
+    path: "/profile",                              // ← Sekarang langsung ke root
+    component: <ProfileOverview />,
+  },
 
+  // ==============================
+  // Menu Utama: Data Kependudukan
+  // ==============================
   {
     name: "Data Kependudukan",
     layout: "/admin",
@@ -120,7 +137,7 @@ const routes: any = [
       },
 
       // ───────────────────────────────────────────────
-      // Submenu 3: SOSIAL EKONOMI
+      // Submenu 3: Sosial Ekonomi
       // ───────────────────────────────────────────────
       {
         name: "Sosial Ekonomi",
@@ -165,9 +182,8 @@ const routes: any = [
       },
 
       // ───────────────────────────────────────────────
-      // Submenu 4: KESEHATAN (Masih dikomentar)
+      // Submenu 4: Kesehatan
       // ───────────────────────────────────────────────
-
       {
         name: "Kesehatan",
         icon: <MdLocalHospital className="h-6 w-6" />,
@@ -210,6 +226,43 @@ const routes: any = [
         ],
       },
 
+      // ───────────────────────────────────────────────
+      // Submenu 5: Organisasi & Manajemen (BARU)
+      // ───────────────────────────────────────────────
+      {
+        name: "Data Pengguna",
+        icon: <MdGroup className="h-6 w-6" />,
+        subRoutes: [
+          {
+            name: "Organisasi RT",
+            path: "organisasi-rt",
+            layout: "/admin",
+            icon: <MdAccountBox className="h-5 w-5" />,
+            component: <PegawaiRTPage />,
+          },
+          {
+            name: "Organisasi RW",
+            path: "organisasi-rw",
+            layout: "/admin",
+            icon: <MdAccountBox className="h-5 w-5" />,
+            component: <PegawaiRWPage />,
+          },
+          {
+            name: "Karang Taruna",
+            path: "karang-taruna",
+            layout: "/admin",
+            icon: <MdAccountBox className="h-5 w-5" />,
+            component: <KarangTarunaPage />,
+          },
+          {
+            name: "Manajemen Admin",
+            path: "manajemen-admin",
+            layout: "/admin",
+            icon: <MdAdminPanelSettings className="h-5 w-5" />,
+            component: <ManajemenAdmin />,
+          },
+        ],
+      },
     ],
   },
 ];
